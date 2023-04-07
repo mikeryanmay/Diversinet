@@ -162,7 +162,8 @@ std::string Node::recursivelyConstructNewickString(EdgeSharedPtr incomingEdge) {
 
 		// treat this like a hybrid edge (don't traverse down)
 //		newick += label + "#H" + std::to_string(id) + ":" + bls;
-		newick += std::to_string(id) + "#" + label + ":" + bls;
+//		newick += std::to_string(id) + "#" + label + ":" + bls;
+		newick += "#" + label + ":" + bls;
 		return newick;
 
 	}
@@ -211,7 +212,8 @@ std::string Node::recursivelyConstructNewickString(EdgeSharedPtr incomingEdge) {
 			std::string new_bls = std::to_string(new_bl);
 //			std::string new_bls = new_bl < 1e-16 ? "1e-16" : std::to_string(new_bl);
 //			newick += leftEdge->child->label + "#LGT" + std::to_string(leftEdge->child->id) + ":" + new_bls;
-			newick += std::to_string(leftEdge->child->id) + "#" + leftEdge->child->label + ":" + new_bls;
+//			newick += std::to_string(leftEdge->child->id) + "#" + leftEdge->child->label + ":" + new_bls;
+			newick += "#" + leftEdge->child->label + ":" + new_bls;
 
 		}
 
@@ -228,7 +230,8 @@ std::string Node::recursivelyConstructNewickString(EdgeSharedPtr incomingEdge) {
 			std::string new_bls = std::to_string(new_bl);
 //			std::string new_bls = new_bl < 1e-16 ? "1e-16" : std::to_string(new_bl);
 //			newick += rightEdge->child->label + "#LGT" + std::to_string(rightEdge->child->id) + ":" + new_bls;
-			newick += std::to_string(rightEdge->child->id) + "#" + rightEdge->child->label + ":" + new_bls;
+//			newick += std::to_string(rightEdge->child->id) + "#" + rightEdge->child->label + ":" + new_bls;
+			newick += "#" + rightEdge->child->label + ":" + new_bls;
 		}
 
 	}
@@ -241,13 +244,15 @@ std::string Node::recursivelyConstructNewickString(EdgeSharedPtr incomingEdge) {
 
 		// add the event indicator + id
 //		newick += label + "#LGT" + std::to_string(id) + ":" + bls;
-		newick += std::to_string(id) + "#" + label + ":" + bls;
+//		newick += std::to_string(id) + "#" + label + ":" + bls;
+		newick += "#" + label + ":" + bls;
 
 	} else if ( type == HybridSpeciation ) {
 
 		// add the event indicator + id
 //		newick += label + "#H" + std::to_string(id) + ":" + bls;
-		newick += std::to_string(id) + "#" + label + ":" + bls;
+//		newick += std::to_string(id) + "#" + label + ":" + bls;
+		newick += "#" + label + ":" + bls;
 
 	} else {
 

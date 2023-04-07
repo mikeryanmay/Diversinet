@@ -4,7 +4,7 @@
 #include <string>
 #include <boost/program_options.hpp>
 
-#include "PhyloploidInterface.h"
+#include <NetDivInterface.h>
 
 using namespace boost::program_options;
 
@@ -104,7 +104,7 @@ int main(int argc, const char* argv[]) {
 	}
 
 	// make the interface
-	Phyloploid::Interface::PhyloploidInterface interface;
+	NetDiv::Interface::NetDivInterface interface;
 
 	// set the parameters
 	interface.setLambda(lambda);

@@ -67,7 +67,7 @@ std::vector<Data::Structure::NetworkSharedPtr> BaseSimulator::simulate(double ti
 			} else if ( condition == "tree" ) {
 				success = network->getNumSampledTips() > 1;
 			} else if ( condition == "tree+hybrid" ) {
-				success = network->getNumSampledTips() > 1 && network->getNumHybridNodes() > 1;
+				success = network->getNumSampledTips() > 1 && network->getNumHybridNodes() > 0;
 			}
 
 		}
@@ -131,7 +131,10 @@ Data::Structure::NetworkSharedPtr BaseSimulator::simulateNetwork(double time) {
 	double current_time = time, waiting_time;
 	double u;
 	size_t num_spec = 0, num_ext = 0, num_asym = 0, num_sym = 0, num_hyb = 0;
+	int event_type;
 
+
+	// simulate until time is done
 	while (true) {
 
 		// if no active lineages, terminate
@@ -141,7 +144,7 @@ Data::Structure::NetworkSharedPtr BaseSimulator::simulateNetwork(double time) {
 
 		// compute the number of active lineages
 		num_active     = activeNodes.size();
-		num_choose_two = num_active * (num_active - 1) * 2;
+		num_choose_two = num_active * (num_active - 1.0) * 2.0;
 
 		// compute the rates of events
 		speciation_rate         = num_active * lambda;
@@ -276,11 +279,11 @@ Data::Structure::NetworkSharedPtr BaseSimulator::simulateNetwork(double time) {
 			leftParent->addEdge(hybridEdge);
 			rightParent->addEdge(hybridEdge);
 
-			EdgeSharedPtr leftEdge   = boost::make_shared<Edge>( Edge(leftParent, left) );
+			EdgeSharedPtr leftEdge = boost::make_shared<Edge>( Edge(leftParent, left) );
 			leftParent->addEdge(leftEdge);
 			left->addEdge(leftEdge);
 
-			EdgeSharedPtr rightEdge  = boost::make_shared<Edge>( Edge(rightParent, right) );
+			EdgeSharedPtr rightEdge = boost::make_shared<Edge>( Edge(rightParent, right) );
 			rightParent->addEdge(rightEdge);
 			right->addEdge(rightEdge);
 
@@ -297,7 +300,6 @@ Data::Structure::NetworkSharedPtr BaseSimulator::simulateNetwork(double time) {
 					// otherwise, move to the next value
 					it++;
 				}
-
 			}
 
 			// add the parents to the inactive nodes
@@ -347,7 +349,7 @@ Data::Structure::NetworkSharedPtr BaseSimulator::simulateNetwork(double time) {
 			NodeSharedPtr right = boost::make_shared<Node>( Node(id++, current_time, Speciation) );
 
 			// create the new edges
-			EdgeSharedPtr leftHybridEdge  = boost::make_shared<Edge>( Edge(leftParent, rightParent) );
+			EdgeSharedPtr leftHybridEdge = boost::make_shared<Edge>( Edge(leftParent, rightParent) );
 			leftHybridEdge->setType(Hybridization);
 			leftParent->addEdge(leftHybridEdge);
 			rightParent->addEdge(leftHybridEdge);
@@ -357,11 +359,11 @@ Data::Structure::NetworkSharedPtr BaseSimulator::simulateNetwork(double time) {
 			rightParent->addEdge(rightHybridEdge);
 			leftParent->addEdge(rightHybridEdge);
 
-			EdgeSharedPtr leftEdge        = boost::make_shared<Edge>( Edge(leftParent, left) );
+			EdgeSharedPtr leftEdge = boost::make_shared<Edge>( Edge(leftParent, left) );
 			leftParent->addEdge(leftEdge);
 			left->addEdge(leftEdge);
 
-			EdgeSharedPtr rightEdge       = boost::make_shared<Edge>( Edge(rightParent, right) );
+			EdgeSharedPtr rightEdge = boost::make_shared<Edge>( Edge(rightParent, right) );
 			rightParent->addEdge(rightEdge);
 			right->addEdge(rightEdge);
 
@@ -378,7 +380,6 @@ Data::Structure::NetworkSharedPtr BaseSimulator::simulateNetwork(double time) {
 					// otherwise, move to the next value
 					it++;
 				}
-
 			}
 
 			// add the parents to the inactive nodes
@@ -434,21 +435,21 @@ Data::Structure::NetworkSharedPtr BaseSimulator::simulateNetwork(double time) {
 			middle->setLabel("H" + std::to_string(num_hyb));
 
 			// create the new edges
-			EdgeSharedPtr leftToMiddle     = boost::make_shared<Edge>( Edge(leftParent, middle) );
+			EdgeSharedPtr leftToMiddle = boost::make_shared<Edge>( Edge(leftParent, middle) );
 			leftToMiddle->setType(Hybridization);
 			leftParent->addEdge(leftToMiddle);
 			middle->addEdge(leftToMiddle);
 
-			EdgeSharedPtr leftToLeft       = boost::make_shared<Edge>( Edge(leftParent, left) );
+			EdgeSharedPtr leftToLeft = boost::make_shared<Edge>( Edge(leftParent, left) );
 			leftParent->addEdge(leftToLeft);
 			left->addEdge(leftToLeft);
 
-			EdgeSharedPtr rightToMiddle    = boost::make_shared<Edge>( Edge(rightParent, middle) );
+			EdgeSharedPtr rightToMiddle = boost::make_shared<Edge>( Edge(rightParent, middle) );
 			rightToMiddle->setType(Hybridization);
 			rightParent->addEdge(rightToMiddle);
 			middle->addEdge(rightToMiddle);
 
-			EdgeSharedPtr rightToRight     = boost::make_shared<Edge>( Edge(rightParent, right) );
+			EdgeSharedPtr rightToRight = boost::make_shared<Edge>( Edge(rightParent, right) );
 			rightParent->addEdge(rightToRight);
 			right->addEdge(rightToRight);
 
@@ -469,7 +470,6 @@ Data::Structure::NetworkSharedPtr BaseSimulator::simulateNetwork(double time) {
 					// otherwise, move to the next value
 					it++;
 				}
-
 			}
 
 			// add the parents to the inactive nodes

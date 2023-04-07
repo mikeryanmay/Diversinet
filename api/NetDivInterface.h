@@ -1,5 +1,5 @@
-#ifndef _PHYLOPLOID_INTERFACE_
-#define _PHYLOPLOID_INTERFACE_
+#ifndef _NETDIV_INTERFACE_
+#define _NETDIV_INTERFACE_
 
 #include <vector>
 #include <boost/smart_ptr/shared_ptr.hpp>
@@ -16,15 +16,15 @@ namespace Parameters {
 	typedef boost::shared_ptr<Container> ContainerSharedPtr;
 }
 
-namespace Phyloploid {
+namespace NetDiv {
 namespace Interface {
 
-class PhyloploidInterface {
+class NetDivInterface {
 
 	public:
 
-		PhyloploidInterface();
-		~PhyloploidInterface();
+		NetDivInterface();
+		~NetDivInterface();
 
 		// parameter setters
 		void setLambda(double lambda_);
@@ -47,4 +47,4 @@ class PhyloploidInterface {
 } // end namespace interface
 } // end namespace phyloploid
 
-#endif // _PHYLOPLOID_INTERFACE_
+#endif // _NETDIV_INTERFACE_

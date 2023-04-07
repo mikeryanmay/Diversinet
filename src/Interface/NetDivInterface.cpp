@@ -1,48 +1,47 @@
+#include <NetDivInterface.h>
 #include <iostream>
 #include <vector>
-
-#include "PhyloploidInterface.h"
 
 #include "../Data/Structure/IncFwdNetworkStructure.h"
 #include "../Data/Structure/IncNetworkStructure.h"
 #include "../Simulate/BaseSimulator.h"
 #include "../Parameters/IncParameterContainer.h"
 
-namespace Phyloploid {
+namespace NetDiv {
 namespace Interface {
 
-PhyloploidInterface::PhyloploidInterface() : ptrParams(new Parameters::Container()) {
+NetDivInterface::NetDivInterface() : ptrParams(new Parameters::Container()) {
 }
 
-PhyloploidInterface::~PhyloploidInterface() {
+NetDivInterface::~NetDivInterface() {
 }
 
 // parameter setters
-void PhyloploidInterface::setLambda(double lambda_) {
+void NetDivInterface::setLambda(double lambda_) {
 	ptrParams->lambda = lambda_;
 }
 
-void PhyloploidInterface::setMu(double mu_) {
+void NetDivInterface::setMu(double mu_) {
 	ptrParams->mu = mu_;
 }
 
-void PhyloploidInterface::setEta(double eta_) {
+void NetDivInterface::setEta(double eta_) {
 	ptrParams->eta = eta_;
 }
 
-void PhyloploidInterface::setZeta(double zeta_) {
+void NetDivInterface::setZeta(double zeta_) {
 	ptrParams->zeta = zeta_;
 }
 
-void PhyloploidInterface::setNu(double nu_) {
+void NetDivInterface::setNu(double nu_) {
 	ptrParams->nu = nu_;
 }
 
-void PhyloploidInterface::setRho(double rho_) {
+void NetDivInterface::setRho(double rho_) {
 	ptrParams->rho = rho_;
 }
 
-std::vector<std::string> PhyloploidInterface::simulate(double time, std::string condition, size_t nreps, int seed, bool extantOnly) {
+std::vector<std::string> NetDivInterface::simulate(double time, std::string condition, size_t nreps, int seed, bool extantOnly) {
 
 	// check time argument
 	bool check_time = time > 0.0;
@@ -69,4 +68,4 @@ std::vector<std::string> PhyloploidInterface::simulate(double time, std::string 
 }
 
 } // end namespace interface
-} // end namespace phyloploid
+} // end namespace NETDIV
