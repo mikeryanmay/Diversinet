@@ -10,6 +10,7 @@
 
 #include <vector>
 #include "IncFwdNetworkStructure.h"
+#include "../Reader/IncFwdPhyloReader.h"
 
 namespace Data {
 namespace Structure {
@@ -18,8 +19,9 @@ class Network {
 
 	public:
 
-		Network();
 		Network(std::vector<NodeSharedPtr> someNodes, std::vector<EdgeSharedPtr> someEdges);
+		Network(Data::NewickReader::NewickParserSharedPtr aNewickParser);
+
 		~Network();
 
 		const std::vector<NodeSharedPtr>& getNodes() const;
@@ -37,9 +39,12 @@ class Network {
 
 		std::string getNewickString();
 
+		void pruneExtinctTips();
+
 	private:
 
 		// nodes and edges
+		// only network gets shared pointers to these guys
 		NodeSharedPtr oldestNode;
 		std::vector<NodeSharedPtr> nodes;
 		std::vector<EdgeSharedPtr> edges;
@@ -52,6 +57,12 @@ class Network {
 		size_t numHybridNodes = 0;
 		size_t numSampledTips = 0;
 		size_t numExtinctTips = 0;
+
+		void pruneExtinctTipsRecursive(NodeSharedPtr aNode);
+
+		void buildNetworkFromNewick(const Data::NewickReader::TreeNode* aNewickRoot);
+		double createRecursiveNewick(const NewickReader::TreeNode *newickNode, NodeSharedPtr treeNode);
+		void mergeHybridNodesMyLabels(std::string aLabel);
 
 }; // end network
 

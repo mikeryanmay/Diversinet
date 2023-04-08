@@ -1,5 +1,5 @@
-#ifndef _NETDIV_INTERFACE_
-#define _NETDIV_INTERFACE_
+#ifndef _DIVNET_INTERFACE_
+#define _DIVNET_INTERFACE_
 
 #include <vector>
 #include <boost/smart_ptr/shared_ptr.hpp>
@@ -16,15 +16,15 @@ namespace Parameters {
 	typedef boost::shared_ptr<Container> ContainerSharedPtr;
 }
 
-namespace NetDiv {
+namespace Diversinet {
 namespace Interface {
 
-class NetDivInterface {
+class DiversinetInterface {
 
 	public:
 
-		NetDivInterface();
-		~NetDivInterface();
+		DiversinetInterface();
+		~DiversinetInterface();
 
 		// parameter setters
 		void setLambda(double lambda_);
@@ -37,14 +37,20 @@ class NetDivInterface {
 		// simulate
 		std::vector<std::string> simulate(double time, std::string condition, size_t nreps, int seed, bool extantOnly);
 
+		// read a network
+		void readNewick(std::string newick);
+
 	private:
 
 		// parameter values
 		Parameters::ContainerSharedPtr ptrParams;
 
+		// network variable
+		Data::Structure::NetworkSharedPtr ptrNetwork;
+
 };
 
 } // end namespace interface
-} // end namespace phyloploid
+} // end namespace diversinet
 
-#endif // _NETDIV_INTERFACE_
+#endif // _DIVNET_INTERFACE_

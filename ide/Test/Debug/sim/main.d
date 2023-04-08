@@ -502,7 +502,7 @@ sim/main.o: /Users/mike/repos/phyloploid_lib/sim/main.cpp \
   /Users/mike/libraries/boost_1_79_0/boost/program_options/detail/convert.hpp \
   /Users/mike/libraries/boost_1_79_0/boost/program_options/variables_map.hpp \
   /Users/mike/libraries/boost_1_79_0/boost/program_options/version.hpp \
-  /Users/mike/repos/phyloploid_lib/ide/Test/../../api/NetDivInterface.h
+  /Users/mike/repos/phyloploid_lib/ide/Test/../../api/DiversinetInterface.h
 
 /Users/mike/libraries/boost_1_79_0/boost/program_options.hpp:
 
@@ -1510,4 +1510,4 @@ sim/main.o: /Users/mike/repos/phyloploid_lib/sim/main.cpp \
 
 /Users/mike/libraries/boost_1_79_0/boost/program_options/version.hpp:
 
-/Users/mike/repos/phyloploid_lib/ide/Test/../../api/NetDivInterface.h:
+/Users/mike/repos/phyloploid_lib/ide/Test/../../api/DiversinetInterface.h:

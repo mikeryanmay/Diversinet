@@ -418,13 +418,15 @@ src/Simulate/BaseSimulator.o: \
   /Users/mike/libraries/boost_1_79_0/boost/system/api_config.hpp \
   /Users/mike/repos/phyloploid_lib/src/Simulate/BaseSimulator.h \
   /Users/mike/repos/phyloploid_lib/src/Simulate/../Data/Structure/IncFwdNetworkStructure.h \
+  /Users/mike/libraries/boost_1_79_0/boost/smart_ptr/weak_ptr.hpp \
   /Users/mike/repos/phyloploid_lib/src/Simulate/../Parameters/IncFwdParameterContainer.h \
   /Users/mike/repos/phyloploid_lib/src/Simulate/../Parameters/IncParameterContainer.h \
   /Users/mike/repos/phyloploid_lib/src/Simulate/../Parameters/Container.h \
   /Users/mike/repos/phyloploid_lib/src/Simulate/../Data/Structure/IncNetworkStructure.h \
   /Users/mike/repos/phyloploid_lib/src/Simulate/../Data/Structure/Edge.h \
   /Users/mike/repos/phyloploid_lib/src/Simulate/../Data/Structure/Node.h \
-  /Users/mike/repos/phyloploid_lib/src/Simulate/../Data/Structure/Network.h
+  /Users/mike/repos/phyloploid_lib/src/Simulate/../Data/Structure/Network.h \
+  /Users/mike/repos/phyloploid_lib/src/Simulate/../Data/Structure/../Reader/IncFwdPhyloReader.h
 
 /Users/mike/libraries/boost_1_79_0/boost/progress.hpp:
 
@@ -1262,6 +1264,8 @@ src/Simulate/BaseSimulator.o: \
 
 /Users/mike/repos/phyloploid_lib/src/Simulate/../Data/Structure/IncFwdNetworkStructure.h:
 
+/Users/mike/libraries/boost_1_79_0/boost/smart_ptr/weak_ptr.hpp:
+
 /Users/mike/repos/phyloploid_lib/src/Simulate/../Parameters/IncFwdParameterContainer.h:
 
 /Users/mike/repos/phyloploid_lib/src/Simulate/../Parameters/IncParameterContainer.h:
@@ -1275,3 +1279,5 @@ src/Simulate/BaseSimulator.o: \
 /Users/mike/repos/phyloploid_lib/src/Simulate/../Data/Structure/Node.h:
 
 /Users/mike/repos/phyloploid_lib/src/Simulate/../Data/Structure/Network.h:
+
+/Users/mike/repos/phyloploid_lib/src/Simulate/../Data/Structure/../Reader/IncFwdPhyloReader.h:

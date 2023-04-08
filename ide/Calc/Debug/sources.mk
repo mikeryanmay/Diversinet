@@ -18,14 +18,10 @@ CPP_DEPS :=
 CXX_DEPS := 
 C_DEPS := 
 C_UPPER_DEPS := 
-LIBRARIES := 
+EXECUTABLES := 
 OBJS := 
 
 # Every subdirectory with source files must be described here
 SUBDIRS := \
-src/Data/Reader/Newick \
-src/Data/Structure \
-src/Interface \
-src/Parameters \
-src/Simulate \
+calc \
 

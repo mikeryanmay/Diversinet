@@ -8,7 +8,7 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
--include sim/subdir.mk
+-include calc/subdir.mk
 ifneq ($(MAKECMDGOALS),clean)
 ifneq ($(strip $(C++_DEPS)),)
 -include $(C++_DEPS)
@@ -38,7 +38,7 @@ $(wildcard ../makefile.init) \
 $(wildcard ../makefile.targets) \
 
 
-BUILD_ARTIFACT_NAME := simDiversiNet
+BUILD_ARTIFACT_NAME := calcDiversiNet
 BUILD_ARTIFACT_EXTENSION :=
 BUILD_ARTIFACT_PREFIX := ../../../
 BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ARTIFACT_EXTENSION),.$(BUILD_ARTIFACT_EXTENSION),)
@@ -49,19 +49,19 @@ BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ART
 all: main-build
 
 # Main-build Target
-main-build: ../../../simDiversiNet
+main-build: ../../../calcDiversiNet
 
 # Tool invocations
-../../../simDiversiNet: $(OBJS) $(USER_OBJS) makefile $(OPTIONAL_TOOL_DEPS)
+../../../calcDiversiNet: $(OBJS) $(USER_OBJS) makefile $(OPTIONAL_TOOL_DEPS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: MacOS X C++ Linker'
-	g++ -L"/Users/mike/repos/phyloploid_lib/ide/Test/../../lib/" -L/opt/homebrew/lib -o "../../../simDiversiNet" $(OBJS) $(USER_OBJS) $(LIBS) -lboost_program_options -lboost_filesystem -ldiversinet
+	g++ -L/opt/homebrew/lib -L"/Users/mike/repos/phyloploid_lib/ide/Calc/../../lib/" -o "../../../calcDiversiNet" $(OBJS) $(USER_OBJS) $(LIBS) -ldiversinet -lboost_filesystem -lboost_program_options
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) ../../../simDiversiNet
+	-$(RM) ../../../calcDiversiNet
 	-@echo ' '
 
 .PHONY: all clean dependents main-build

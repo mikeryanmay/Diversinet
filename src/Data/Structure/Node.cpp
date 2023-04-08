@@ -14,7 +14,6 @@ namespace Data {
 namespace Structure {
 
 Node::Node(size_t aId, double aAge, NodeType aType) : id(aId), age(aAge), type(aType) {
-
 }
 
 Node::~Node() {
@@ -28,7 +27,7 @@ void Node::setType(NodeType aType) {
 	type = aType;
 }
 
-bool Node::validateType() {
+bool Node::validateType() const {
 
 	// get parents and children
 	std::vector<NodeSharedPtr> parents  = this->getParentNodes();
@@ -80,14 +79,33 @@ double Node::getAge() const {
 	return age;
 }
 
+std::vector<EdgeSharedPtr> Node::getEdges() const {
+
+	std::vector<EdgeSharedPtr> newEdges;
+	for(size_t iE = 0; iE < edges.size(); ++iE) {
+
+		// get a shared pointer to the edge
+		EdgeSharedPtr newEdge = edges[iE].lock();
+
+		// check that it's not null
+		assert(newEdge != nullptr && "Found an invalidated edge pointer. Something went wrong.");
+
+		// add to vector
+		newEdges.push_back(newEdge);
+
+	}
+	return newEdges;
+
+}
 
 std::vector<EdgeSharedPtr> Node::getEdgesToParents() const {
 
 	std::vector<EdgeSharedPtr> edgesToParents;
+	std::vector<EdgeSharedPtr> edgeSharedPtr = this->getEdges();
 
-	for (size_t iE = 0; iE < edges.size(); ++iE) {
-		if (edges[iE]->child.get() == this) {
-			edgesToParents.push_back(edges[iE]);
+	for (size_t iE = 0; iE < edgeSharedPtr.size(); ++iE) {
+		if (edgeSharedPtr[iE]->getChild().get() == this) {
+			edgesToParents.push_back(edgeSharedPtr[iE]);
 		}
 	}
 
@@ -98,10 +116,11 @@ std::vector<EdgeSharedPtr> Node::getEdgesToParents() const {
 std::vector<EdgeSharedPtr> Node::getEdgesToChildren() const {
 
 	std::vector<EdgeSharedPtr> edgesToChildren;
+	std::vector<EdgeSharedPtr> edgeSharedPtr = this->getEdges();
 
 	for (size_t iE = 0; iE < edges.size(); ++iE) {
-		if (edges[iE]->parent.get() == this) {
-			edgesToChildren.push_back(edges[iE]);
+		if (edgeSharedPtr[iE]->getParent().get() == this) {
+			edgesToChildren.push_back(edgeSharedPtr[iE]);
 		}
 	}
 
@@ -115,7 +134,7 @@ std::vector<NodeSharedPtr> Node::getParentNodes() const {
 	std::vector<NodeSharedPtr> parentNodes;
 
 	for(size_t iE = 0; iE < edgesToParents.size(); ++iE) {
-		parentNodes.push_back(edgesToParents[iE]->parent);
+		parentNodes.push_back(edgesToParents[iE]->getParent());
 	}
 
 	return parentNodes;
@@ -128,7 +147,7 @@ std::vector<NodeSharedPtr> Node::getChildNodes() const {
 	std::vector<NodeSharedPtr> childrenNodes;
 
 	for(size_t iE = 0; iE < edgesToChildren.size(); ++iE) {
-		childrenNodes.push_back(edgesToChildren[iE]->child);
+		childrenNodes.push_back(edgesToChildren[iE]->getChild());
 	}
 
 	return childrenNodes;
@@ -136,11 +155,49 @@ std::vector<NodeSharedPtr> Node::getChildNodes() const {
 }
 
 void Node::addEdge(EdgeSharedPtr aEdge) {
-	assert(aEdge->parent.get() == this || aEdge->child.get() == this); // Check that this is a meaningful edges
-	for(size_t iE = 0; iE < edges.size(); ++iE) { // Check that each edge is unique
-		assert(!(aEdge->child.get() == edges[iE]->child.get() && aEdge->parent.get() == edges[iE]->parent.get()));
+	assert(aEdge->getParent().get() == this || aEdge->getChild().get() == this); // Check that this is a meaningful edges
+	std::vector<EdgeSharedPtr> edgeSharedPtr = this->getEdges();
+//	for(size_t iE = 0; iE < edgeSharedPtr.size(); ++iE) { // Check that each edge is unique
+//		assert(!(aEdge->getChild().get() == edgeSharedPtr[iE]->getChild().get() && aEdge->getParent().get() == edgeSharedPtr[iE]->getParent().get()));
+//	}
+	EdgeWeakPtr newEdge = aEdge; // @suppress("Invalid arguments")
+	edges.push_back(newEdge);
+}
+
+void Node::removeEdge(EdgeSharedPtr aEdge) {
+
+	// loop over edges
+	for(std::vector<EdgeWeakPtr>::iterator it = edges.begin(); it != edges.end(); ++it) {
+
+		// get a shared ptr to the edge
+		EdgeSharedPtr thisEdge = (*it).lock();
+
+		// ensure it's valid
+		assert(thisEdge != nullptr && "Found invalid edge pointer when trying to remove and edge.");
+
+		// if they are the same edge, erase it and end
+		if ( thisEdge == aEdge ) {
+			edges.erase(it); // @suppress("Invalid arguments")
+			break;
+		}
+
 	}
-	edges.push_back(aEdge);
+
+}
+
+std::string Node::constructLabel() const {
+
+	std::string str;
+
+	if ( type == Sample || type == Extinction  ) {
+		str = label;
+	} else {
+//		str = "#" + label;
+		str = label;
+	}
+
+	return str;
+
 }
 
 void Node::resetVisits() {
@@ -154,16 +211,14 @@ std::string Node::recursivelyConstructNewickString(EdgeSharedPtr incomingEdge) {
 	// get the branch length
 	double bl = incomingEdge->getLength();
 	std::string bls = std::to_string(bl);
-//	std::string bls = bl < 1e-16 ? "1e-16" : std::to_string(bl);
 
 	// deal with multiple visits
 	visits++;
 	if (visits > 1) {
 
 		// treat this like a hybrid edge (don't traverse down)
-//		newick += label + "#H" + std::to_string(id) + ":" + bls;
+		newick += this->constructLabel() + ":" + bls;
 //		newick += std::to_string(id) + "#" + label + ":" + bls;
-		newick += "#" + label + ":" + bls;
 		return newick;
 
 	}
@@ -171,7 +226,7 @@ std::string Node::recursivelyConstructNewickString(EdgeSharedPtr incomingEdge) {
 	// terminate if we've hit the end of the road
 	if ( type == Sample || type == Extinction ) {
 		// add label plus branch length, then return prematurely
-		newick += label + ":" + bls;
+		newick += this->constructLabel() + ":" + bls;
 		return newick;
 	} else {
 		// open a parenthesis
@@ -192,7 +247,7 @@ std::string Node::recursivelyConstructNewickString(EdgeSharedPtr incomingEdge) {
 		assert( (type == Hybrid || type == HybridSpeciation) && "Only hybrid and hybrid-speciation nodes can have one descendant." );
 
 		// simply call on the only child
-		newick += edgesToChildren.at(0)->child->recursivelyConstructNewickString(edgesToChildren.at(0));
+		newick += edgesToChildren.at(0)->getChild()->recursivelyConstructNewickString(edgesToChildren.at(0));
 
 	} else if ( numChildren == 2 ) {
 
@@ -203,17 +258,15 @@ std::string Node::recursivelyConstructNewickString(EdgeSharedPtr incomingEdge) {
 		// 2: child is a hybrid speciation node
 
 		EdgeSharedPtr leftEdge = edgesToChildren.at(0);
-		if ( !leftEdge->type == Hybridization || leftEdge->child->type == HybridSpeciation ) {
+		if ( !leftEdge->type == Hybridization || leftEdge->getChild()->type == HybridSpeciation ) {
 			// safe to call recursively
-			newick += leftEdge->child->recursivelyConstructNewickString(leftEdge);
+			newick += leftEdge->getChild()->recursivelyConstructNewickString(leftEdge);
 		} else {
 			// duplicate the node string without doing anything recursive
 			double new_bl = leftEdge->getLength();
 			std::string new_bls = std::to_string(new_bl);
-//			std::string new_bls = new_bl < 1e-16 ? "1e-16" : std::to_string(new_bl);
-//			newick += leftEdge->child->label + "#LGT" + std::to_string(leftEdge->child->id) + ":" + new_bls;
-//			newick += std::to_string(leftEdge->child->id) + "#" + leftEdge->child->label + ":" + new_bls;
-			newick += "#" + leftEdge->child->label + ":" + new_bls;
+			newick += leftEdge->getChild()->constructLabel() + ":" + new_bls;
+//			newick += "#" + leftEdge->getChild()->label + ":" + new_bls;
 
 		}
 
@@ -221,17 +274,15 @@ std::string Node::recursivelyConstructNewickString(EdgeSharedPtr incomingEdge) {
 		newick += ",";
 
 		EdgeSharedPtr rightEdge = edgesToChildren.at(1);
-		if ( !rightEdge->type == Hybridization || rightEdge->child->type == HybridSpeciation ) {
+		if ( !rightEdge->type == Hybridization || rightEdge->getChild()->type == HybridSpeciation ) {
 			// safe to call recursively
-			newick += rightEdge->child->recursivelyConstructNewickString(rightEdge);
+			newick += rightEdge->getChild()->recursivelyConstructNewickString(rightEdge);
 		} else {
 			// duplicate the node string without doing anything recursive
 			double new_bl = rightEdge->getLength();
 			std::string new_bls = std::to_string(new_bl);
-//			std::string new_bls = new_bl < 1e-16 ? "1e-16" : std::to_string(new_bl);
-//			newick += rightEdge->child->label + "#LGT" + std::to_string(rightEdge->child->id) + ":" + new_bls;
-//			newick += std::to_string(rightEdge->child->id) + "#" + rightEdge->child->label + ":" + new_bls;
-			newick += "#" + rightEdge->child->label + ":" + new_bls;
+			newick += rightEdge->getChild()->constructLabel() + ":" + new_bls;
+//			newick += "#" + rightEdge->getChild()->label + ":" + new_bls;
 		}
 
 	}
@@ -243,16 +294,12 @@ std::string Node::recursivelyConstructNewickString(EdgeSharedPtr incomingEdge) {
 	if ( type == Hybrid ) {
 
 		// add the event indicator + id
-//		newick += label + "#LGT" + std::to_string(id) + ":" + bls;
-//		newick += std::to_string(id) + "#" + label + ":" + bls;
-		newick += "#" + label + ":" + bls;
+		newick += this->constructLabel() + ":" + bls;
 
 	} else if ( type == HybridSpeciation ) {
 
 		// add the event indicator + id
-//		newick += label + "#H" + std::to_string(id) + ":" + bls;
-//		newick += std::to_string(id) + "#" + label + ":" + bls;
-		newick += "#" + label + ":" + bls;
+		newick += this->constructLabel() + ":" + bls;
 
 	} else {
 

@@ -59,6 +59,11 @@ std::vector<Data::Structure::NetworkSharedPtr> BaseSimulator::simulate(double ti
 			// simulate a tree
 			network = this->simulateNetwork(time);
 
+			// if extant only, drop extinct tips
+			if ( extantOnly ) {
+				network->pruneExtinctTips();
+			}
+
 			// check conditions
 			if ( condition == "none" ) {
 				success = true;
@@ -70,11 +75,6 @@ std::vector<Data::Structure::NetworkSharedPtr> BaseSimulator::simulate(double ti
 				success = network->getNumSampledTips() > 1 && network->getNumHybridNodes() > 0;
 			}
 
-		}
-
-		// if extant only, drop extinct tips
-		if ( extantOnly ) {
-			// TODO: implement tree pruning
 		}
 
 		// add the simulation to the list
@@ -267,7 +267,7 @@ Data::Structure::NetworkSharedPtr BaseSimulator::simulateNetwork(double time) {
 
 			rightParent->setAge(current_time);
 			rightParent->setType(Hybrid);
-			rightParent->setLabel("A" + std::to_string(num_asym));
+			rightParent->setLabel("#A" + std::to_string(num_asym));
 
 			// create new lineages
 			NodeSharedPtr left  = boost::make_shared<Node>( Node(id++, current_time, Speciation) );
@@ -338,11 +338,11 @@ Data::Structure::NetworkSharedPtr BaseSimulator::simulateNetwork(double time) {
 			// change the age and type
 			leftParent->setAge(current_time);
 			leftParent->setType(Hybrid);
-			leftParent->setLabel("S" + std::to_string(++num_sym));
+			leftParent->setLabel("#S" + std::to_string(++num_sym));
 
 			rightParent->setAge(current_time);
 			rightParent->setType(Hybrid);
-			rightParent->setLabel("S" + std::to_string(++num_sym));
+			rightParent->setLabel("#S" + std::to_string(++num_sym));
 
 			// create new lineages
 			NodeSharedPtr left  = boost::make_shared<Node>( Node(id++, current_time, Speciation) );
@@ -432,7 +432,7 @@ Data::Structure::NetworkSharedPtr BaseSimulator::simulateNetwork(double time) {
 			NodeSharedPtr right    = boost::make_shared<Node>( Node(id++, current_time, Speciation) );
 
 			// add label to the middle node
-			middle->setLabel("H" + std::to_string(num_hyb));
+			middle->setLabel("#H" + std::to_string(num_hyb));
 
 			// create the new edges
 			EdgeSharedPtr leftToMiddle = boost::make_shared<Edge>( Edge(leftParent, middle) );

@@ -34,7 +34,7 @@ class Edge {
 
 	protected:
 
-		NodeSharedPtr parent, child;
+		NodeWeakPtr parent, child;
 		EdgeType type = Lineage;
 
 	private:

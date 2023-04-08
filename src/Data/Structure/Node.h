@@ -25,7 +25,7 @@ class Node {
 		// type stuff
 		NodeType getType() const;
 		void setType(NodeType aType);
-		bool validateType();
+		bool validateType() const;
 
 		// id stuff
 		size_t getId() const;
@@ -39,15 +39,19 @@ class Node {
 		double getAge() const;
 
 		// edge stuff
+		std::vector<EdgeSharedPtr> getEdges() const;
 		std::vector<EdgeSharedPtr> getEdgesToParents() const;
 		std::vector<EdgeSharedPtr> getEdgesToChildren() const;
 		std::vector<NodeSharedPtr> getParentNodes() const;
 		std::vector<NodeSharedPtr> getChildNodes() const;
 
 		void addEdge(EdgeSharedPtr aEdge);
+		void removeEdge(EdgeSharedPtr aEdge);
 
 		void resetVisits();
 		std::string recursivelyConstructNewickString(EdgeSharedPtr incomingEdge);
+
+		size_t visits = 0;
 
 	protected:
 
@@ -56,13 +60,15 @@ class Node {
 		NodeType type;
 
 		// edges
-		std::vector<EdgeSharedPtr> edges;
+		std::vector<EdgeWeakPtr> edges;
 
 	private:
 
 		friend class Edge;
 		std::string label = "";
-		size_t visits = 0;
+
+		std::string constructLabel() const;
+
 
 }; // end node
 

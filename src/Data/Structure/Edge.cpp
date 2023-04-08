@@ -13,32 +13,30 @@ namespace Data {
 namespace Structure {
 
 Edge::Edge(NodeSharedPtr aParent, NodeSharedPtr aChild) :
-		parent(aParent), child(aChild) {
-
-	assert(parent != NULL);
-	assert(child != NULL);
-
+		parent(aParent), child(aChild) { // @suppress("Symbol is not resolved")
 }
 
 Edge::~Edge() {
 }
 
 NodeSharedPtr Edge::getParent() {
-	return parent;
+	NodeSharedPtr sharedParent = parent.lock();
+	assert(sharedParent != nullptr && "Parent is invalid pointer.");
+	return sharedParent;
 }
 
 void Edge::setParent(NodeSharedPtr aParent) {
 	parent = aParent;
-	assert(parent != NULL);
 }
 
 NodeSharedPtr Edge::getChild() {
-	return child;
+	NodeSharedPtr sharedChild = child.lock();
+	assert(sharedChild != nullptr && "Parent is invalid pointer.");
+	return sharedChild;
 }
 
 void Edge::setChild(NodeSharedPtr aChild) {
 	child = aChild;
-	assert(child != NULL);
 }
 
 EdgeType Edge::getType() const {
@@ -49,9 +47,8 @@ void Edge::setType(EdgeType aType) {
 	type = aType;
 }
 
-
 double Edge::getLength() const {
-	return parent->getAge() - child->getAge();
+	return parent.lock()->getAge() - child.lock()->getAge();
 }
 
 } /* namespace Structure */

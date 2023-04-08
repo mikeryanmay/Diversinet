@@ -47,6 +47,7 @@ src/Data/Structure/Node.o: \
   /Users/mike/libraries/boost_1_79_0/boost/smart_ptr/detail/local_sp_deleter.hpp \
   /Users/mike/libraries/boost_1_79_0/boost/smart_ptr/detail/local_counted_base.hpp \
   /Users/mike/repos/phyloploid_lib/src/Data/Structure/IncFwdNetworkStructure.h \
+  /Users/mike/libraries/boost_1_79_0/boost/smart_ptr/weak_ptr.hpp \
   /Users/mike/repos/phyloploid_lib/src/Data/Structure/Edge.h
 
 /Users/mike/repos/phyloploid_lib/src/Data/Structure/Node.h:
@@ -142,5 +143,7 @@ src/Data/Structure/Node.o: \
 /Users/mike/libraries/boost_1_79_0/boost/smart_ptr/detail/local_counted_base.hpp:
 
 /Users/mike/repos/phyloploid_lib/src/Data/Structure/IncFwdNetworkStructure.h:
+
+/Users/mike/libraries/boost_1_79_0/boost/smart_ptr/weak_ptr.hpp:
 
 /Users/mike/repos/phyloploid_lib/src/Data/Structure/Edge.h:

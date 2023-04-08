@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>diversinetSim</name>
+	<name>diversinetCalc</name>
 	<comment></comment>
 	<projects>
-		<project>phyloploid</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
@@ -27,15 +26,9 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>sim</name>
+			<name>calc</name>
 			<type>2</type>
-			<locationURI>PARENT-2-PROJECT_LOC/sim</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/calc</locationURI>
 		</link>
 	</linkedResources>
-	<variableList>
-		<variable>
-			<name>copy_PARENT</name>
-			<value>$%7BPARENT-2-PROJECT_LOC%7D/repos/phyloploid_lib</value>
-		</variable>
-	</variableList>
 </projectDescription>

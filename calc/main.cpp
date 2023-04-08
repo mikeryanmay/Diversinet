@@ -2,7 +2,10 @@
 #include <fstream>
 #include <iterator>
 #include <string>
+
 #include <boost/program_options.hpp>
+#include <boost/filesystem.hpp>
+#include "boost/filesystem/fstream.hpp"
 
 #include <DiversinetInterface.h>
 
@@ -12,12 +15,7 @@ int main(int argc, const char* argv[]) {
 
 	// containers for arguments
 	double lambda, mu, eta, zeta, nu, rho; // parameters
-	int seed;
-	double time; // simulation time
-	bool extant; // whether to return extant trees
-	std::string condition; // condition on survival or tree?
-	size_t reps; // number of replicates
-	std::string outfile; // the path to the output file
+	std::string treefile; // the path to the output file
 
 	// parse command-line arguments
 	try {
@@ -26,18 +24,13 @@ int main(int argc, const char* argv[]) {
 		options_description desc("Options");
 		desc.add_options()
 		    ("help,h",                                                                    "print help message")
-			("out,o",       value<std::string>(&outfile)->required(),                     "output file")
+			("tree,t",      value<std::string>(&treefile)->required(),                    "tree file")
 			("lambda,l",    value<double>(&lambda)->required(),                           "speciation rate")
 			("mu,m",        value<double>(&mu)->required(),                               "extinction rate")
 			("eta,e",       value<double>(&eta)->required(),                              "symmetrical hybridization rate")
 			("zeta,z",      value<double>(&zeta)->required(),                             "asymmetrical hybridization rate")
 			("nu,n",        value<double>(&nu)->required(),                               "hybrid speciation rate")
 			("rho,p",       value<double>(&rho)->required(),                              "sampling fraction at the present")
-			("time,t",      value<double>(&time)->required(),                             "duration of the simulation")
-			("extant,x",    value<bool>(&extant)->default_value(true),                    "prune extinct tips? (true or false)")
-			("condition,c", value<std::string>(&condition)->default_value("tree+hybrid"), "condition of simulations (options: none, survival, tree, tree+hybrid)")
-			("reps,r",      value<size_t>(&reps)->required(),                             "number of simulation replicates")
-			("seed,s",      value<int>(&seed)->default_value(-1),                         "random number seed (optional)")
 		;
 
 		// get the variable map
@@ -53,6 +46,9 @@ int main(int argc, const char* argv[]) {
 		notify(vm);
 
 		// check other arguments
+		if (vm.count("tree")) {
+			std::cout << "Using tree file " << treefile << "\n";
+		}
 		if (vm.count("lambda")) {
 			std::cout << "Using speciation rate " << lambda << "\n";
 		}
@@ -71,32 +67,6 @@ int main(int argc, const char* argv[]) {
 		if (vm.count("rho")) {
 			std::cout << "Using sampling fraction " << rho << "\n";
 		}
-		if (vm.count("time")) {
-			std::cout << "Simulating for " << time << " time units.\n";
-		}
-		if (vm.count("condition")) {
-			std::cout << "Conditioning on: " << condition << ".\n";
-		}
-		if (vm.count("extant")) {
-			if ( extant == true ) {
-				std::cout << "Including only extant species: true.\n";
-			} else {
-				std::cout << "Including only extant species: false.\n";
-			}
-		}
-		if (vm.count("reps")) {
-			std::cout << "Simulating " << reps << " replicate(s).\n";
-		}
-		if (vm.count("seed")) {
-			if (seed == -1) {
-				std::cout << "Using random number seed from clock.\n";
-			} else {
-				std::cout << "Using random number seed " << seed << "\n";
-			}
-		}
-		if (vm.count("out")) {
-			std::cout << "Writing output to file " << outfile << "\n";
-		}
 
 	} catch (const error &ex) {
 		std::cerr << ex.what() << "\n";
@@ -114,13 +84,21 @@ int main(int argc, const char* argv[]) {
 	interface.setNu(nu);
 	interface.setRho(rho);
 
-	// simulate networks
-	std::vector<std::string> sims = interface.simulate(time, condition, reps, seed, extant);
+	// read the tree file
+	std::ifstream file(treefile);
+	std::string newick_string;
+	std::getline(file, newick_string);
 
-	// write to file
-	std::ofstream output_file(outfile);
-	std::ostream_iterator<std::string> output_iterator(output_file, "\n");
-	std::copy(sims.begin(), sims.end(), output_iterator);
+	// read the tree
+	interface.readNewick(newick_string);
+
+//	// simulate networks
+//	std::vector<std::string> sims = interface.simulate(time, condition, reps, seed, extant);
+//
+//	// write to file
+//	std::ofstream output_file(outfile);
+//	std::ostream_iterator<std::string> output_iterator(output_file, "\n");
+//	std::copy(sims.begin(), sims.end(), output_iterator);
 
 	// exit
 	return 0;

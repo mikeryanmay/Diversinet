@@ -12,6 +12,7 @@ RM := rm -rf
 -include src/Parameters/subdir.mk
 -include src/Interface/subdir.mk
 -include src/Data/Structure/subdir.mk
+-include src/Data/Reader/Newick/subdir.mk
 ifneq ($(MAKECMDGOALS),clean)
 ifneq ($(strip $(C++_DEPS)),)
 -include $(C++_DEPS)
@@ -41,7 +42,7 @@ $(wildcard ../makefile.init) \
 $(wildcard ../makefile.targets) \
 
 
-BUILD_ARTIFACT_NAME := phyloploid
+BUILD_ARTIFACT_NAME := diversinet
 BUILD_ARTIFACT_EXTENSION := dylib
 BUILD_ARTIFACT_PREFIX := ../../../lib/lib
 BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ARTIFACT_EXTENSION),.$(BUILD_ARTIFACT_EXTENSION),)
@@ -52,19 +53,19 @@ BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ART
 all: main-build
 
 # Main-build Target
-main-build: ../../../lib/libphyloploid.dylib
+main-build: ../../../lib/libdiversinet.dylib
 
 # Tool invocations
-../../../lib/libphyloploid.dylib: $(OBJS) $(USER_OBJS) makefile $(OPTIONAL_TOOL_DEPS)
+../../../lib/libdiversinet.dylib: $(OBJS) $(USER_OBJS) makefile $(OPTIONAL_TOOL_DEPS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: MacOS X C++ Linker'
-	g++ -L/opt/homebrew/lib -dynamiclib -o "../../../lib/libphyloploid.dylib" $(OBJS) $(USER_OBJS) $(LIBS) -lboost_random
+	g++ -L/opt/homebrew/lib -dynamiclib -o "../../../lib/libdiversinet.dylib" $(OBJS) $(USER_OBJS) $(LIBS) -lboost_random
 	@echo 'Finished building target: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) ../../../lib/libphyloploid.dylib
+	-$(RM) ../../../lib/libdiversinet.dylib
 	-@echo ' '
 
 .PHONY: all clean dependents main-build
