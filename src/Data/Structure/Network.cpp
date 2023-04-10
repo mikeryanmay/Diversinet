@@ -156,7 +156,9 @@ void Network::mergeHybridNodesMyLabels(std::string aLabel) {
 	assert(hashPos != std::string::npos && "Unable to find hash symbol.");
 
 	if ( aLabel[hashPos + 1] == 'H' ) {
-		nodeToKeep->setType(HybridSpeciation);
+		nodeToKeep->setType(HybridSpecies);
+	} else if (aLabel[hashPos + 1] == 'P') {
+		nodeToKeep->setType(Allopolyploid);
 	} else {
 		// node just has a one edge pointing into it
 		nodeToKeep->setType(Hybrid);
@@ -281,15 +283,15 @@ void Network::updateNodes() {
 			sampledTips.push_back(*it);
 		} else if ( (*it)->getType() == Extinction ) {
 			extinctTips.push_back(*it);
-		} else if ( (*it)->getType() == Hybrid || (*it)->getType() == HybridSpeciation ) {
+		} else if ( (*it)->getType() == Hybrid || (*it)->getType() == HybridSpecies || (*it)->getType() == Allopolyploid ) {
 			hybridNodes.push_back(*it);
 		}
 	}
 
 	// update number of tips
-	numHybridNodes = hybridNodes.size();
-	numSampledTips = sampledTips.size();
-	numExtinctTips = extinctTips.size();
+	numHybridNodes   = hybridNodes.size();
+	numSampledTips   = sampledTips.size();
+	numExtinctTips   = extinctTips.size();
 
 }
 

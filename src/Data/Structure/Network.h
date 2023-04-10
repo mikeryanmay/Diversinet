@@ -54,9 +54,9 @@ class Network {
 		std::vector<NodeSharedPtr> hybridNodes;
 		std::vector<NodeSharedPtr> sampledTips;
 		std::vector<NodeSharedPtr> extinctTips;
-		size_t numHybridNodes = 0;
-		size_t numSampledTips = 0;
-		size_t numExtinctTips = 0;
+		size_t numHybridNodes   = 0;
+		size_t numSampledTips   = 0;
+		size_t numExtinctTips   = 0;
 
 		void pruneExtinctTipsRecursive(NodeSharedPtr aNode);
 

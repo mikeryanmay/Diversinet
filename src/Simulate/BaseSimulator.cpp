@@ -99,6 +99,7 @@ Data::Structure::NetworkSharedPtr BaseSimulator::simulateNetwork(double time) {
 	double eta    = ptrParams->eta;
 	double zeta   = ptrParams->zeta;
 	double nu     = ptrParams->nu;
+	double psi    = ptrParams->psi;
 	double rho    = ptrParams->rho;
 
 	// create the uniform distribution
@@ -126,13 +127,11 @@ Data::Structure::NetworkSharedPtr BaseSimulator::simulateNetwork(double time) {
 
 	// simulate
 	double num_active, num_choose_two;
-	double speciation_rate, extinction_rate, asym_hybridization_rate, sym_hybridization_rate, hybrid_speciation_rate;
+	double speciation_rate, extinction_rate, asym_hybridization_rate, sym_hybridization_rate, hybrid_speciation_rate, allopolyploid_rate;
 	double total_rate;
 	double current_time = time, waiting_time;
 	double u;
-	size_t num_spec = 0, num_ext = 0, num_asym = 0, num_sym = 0, num_hyb = 0;
-	int event_type;
-
+	size_t num_spec = 0, num_ext = 0, num_asym = 0, num_sym = 0, num_hyb = 0, num_allo = 0;
 
 	// simulate until time is done
 	while (true) {
@@ -152,9 +151,10 @@ Data::Structure::NetworkSharedPtr BaseSimulator::simulateNetwork(double time) {
 		asym_hybridization_rate = num_choose_two * eta;
 		sym_hybridization_rate  = num_choose_two * zeta;
 		hybrid_speciation_rate  = num_choose_two * nu;
+		allopolyploid_rate      = num_choose_two * psi;
 
 		// compute the total rate
-		total_rate = speciation_rate + extinction_rate + asym_hybridization_rate + sym_hybridization_rate + hybrid_speciation_rate;
+		total_rate = speciation_rate + extinction_rate + asym_hybridization_rate + sym_hybridization_rate + hybrid_speciation_rate + allopolyploid_rate;
 
 		// draw a waiting time
 		u = runif();
@@ -427,12 +427,105 @@ Data::Structure::NetworkSharedPtr BaseSimulator::simulateNetwork(double time) {
 
 			// create new lineages
 			NodeSharedPtr left     = boost::make_shared<Node>( Node(id++, current_time, Speciation) );
-			NodeSharedPtr middle   = boost::make_shared<Node>( Node(id++, current_time, HybridSpeciation) );
+			NodeSharedPtr middle   = boost::make_shared<Node>( Node(id++, current_time, HybridSpecies) );
 			NodeSharedPtr daughter = boost::make_shared<Node>( Node(id++, current_time, Speciation) );
 			NodeSharedPtr right    = boost::make_shared<Node>( Node(id++, current_time, Speciation) );
 
 			// add label to the middle node
 			middle->setLabel("#H" + std::to_string(num_hyb));
+
+			// create the new edges
+			EdgeSharedPtr leftToMiddle = boost::make_shared<Edge>( Edge(leftParent, middle) );
+			leftToMiddle->setType(Hybridization);
+			leftParent->addEdge(leftToMiddle);
+			middle->addEdge(leftToMiddle);
+
+			EdgeSharedPtr leftToLeft = boost::make_shared<Edge>( Edge(leftParent, left) );
+			leftParent->addEdge(leftToLeft);
+			left->addEdge(leftToLeft);
+
+			EdgeSharedPtr rightToMiddle = boost::make_shared<Edge>( Edge(rightParent, middle) );
+			rightToMiddle->setType(Hybridization);
+			rightParent->addEdge(rightToMiddle);
+			middle->addEdge(rightToMiddle);
+
+			EdgeSharedPtr rightToRight = boost::make_shared<Edge>( Edge(rightParent, right) );
+			rightParent->addEdge(rightToRight);
+			right->addEdge(rightToRight);
+
+			EdgeSharedPtr middleToDaughter = boost::make_shared<Edge>( Edge(middle, daughter) );
+			middle->addEdge(middleToDaughter);
+			daughter->addEdge(middleToDaughter);
+
+			// remove the parents from active nodes
+			std::vector<NodeSharedPtr>::iterator it = activeNodes.begin();
+			size_t nr = 0;
+			while ( nr < 2 && it != activeNodes.end() ) {
+				// check if index is for left
+				if ( (*it)->getId() == leftParent->getId() || (*it)->getId() == rightParent->getId() ) {
+					// if so, delete
+					activeNodes.erase(it); // @suppress("Invalid arguments")
+					nr++;
+				} else {
+					// otherwise, move to the next value
+					it++;
+				}
+			}
+
+			// add the parents to the inactive nodes
+			inactiveNodes.push_back(leftParent);
+			inactiveNodes.push_back(rightParent);
+			inactiveNodes.push_back(middle);
+
+			// add new daughters to active nodes
+			activeNodes.push_back(left);
+			activeNodes.push_back(right);
+			activeNodes.push_back(daughter);
+
+			// add edges to vector of edges
+			edges.push_back(leftToMiddle);
+			edges.push_back(leftToLeft);
+			edges.push_back(rightToMiddle);
+			edges.push_back(rightToRight);
+			edges.push_back(middleToDaughter);
+
+			// do next event
+			continue;
+
+		}
+
+		// do a hybrid speciation event
+		u -= allopolyploid_rate;
+		if ( u < 0.0 ) {
+
+			++num_allo;
+
+			// pick the affected lineages
+			size_t left_lineage = runif() * num_active;
+			size_t right_lineage = left_lineage;
+			while (left_lineage == right_lineage) {
+				right_lineage = runif() * num_active;
+			}
+
+			// get the affected lineages
+			NodeSharedPtr leftParent  = activeNodes.at(left_lineage);
+			NodeSharedPtr rightParent = activeNodes.at(right_lineage);
+
+			// change the age and type
+			leftParent->setAge(current_time);
+			leftParent->setType(Donor);
+
+			rightParent->setAge(current_time);
+			rightParent->setType(Donor);
+
+			// create new lineages
+			NodeSharedPtr left     = boost::make_shared<Node>( Node(id++, current_time, Speciation) );
+			NodeSharedPtr middle   = boost::make_shared<Node>( Node(id++, current_time, Allopolyploid) );
+			NodeSharedPtr daughter = boost::make_shared<Node>( Node(id++, current_time, Speciation) );
+			NodeSharedPtr right    = boost::make_shared<Node>( Node(id++, current_time, Speciation) );
+
+			// add label to the middle node
+			middle->setLabel("#P" + std::to_string(num_allo));
 
 			// create the new edges
 			EdgeSharedPtr leftToMiddle = boost::make_shared<Edge>( Edge(leftParent, middle) );
@@ -522,12 +615,6 @@ Data::Structure::NetworkSharedPtr BaseSimulator::simulateNetwork(double time) {
 
 	}
 
-//	size_t num_hyb_events = num_asym + num_sym + num_hyb;
-//	if ( num_samples > 2 && num_hyb_events > 0 ) {
-//		// output the number of events
-////		std::cout << (num_asym <= num_sym) << std::endl;
-//		std::cout << num_asym << " -- " << num_sym / 2 << " -- " << num_hyb << std::endl;
-//	}
 
 	// create the network
 	NS::Network network(inactiveNodes, edges);

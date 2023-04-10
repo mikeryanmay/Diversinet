@@ -32,6 +32,7 @@ class DiversinetInterface {
 		void setEta(double eta_);
 		void setZeta(double zeta_);
 		void setNu(double nu_);
+		void setPsi(double psi_);
 		void setRho(double rho_);
 
 		// simulate

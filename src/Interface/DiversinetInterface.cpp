@@ -41,6 +41,10 @@ void DiversinetInterface::setNu(double nu_) {
 	ptrParams->nu = nu_;
 }
 
+void DiversinetInterface::setPsi(double psi_) {
+	ptrParams->psi = psi_;
+}
+
 void DiversinetInterface::setRho(double rho_) {
 	ptrParams->rho = rho_;
 }
@@ -63,9 +67,7 @@ std::vector<std::string> DiversinetInterface::simulate(double time, std::string 
 
 	// translate to newick strings
 	std::vector<std::string> newicks;
-	size_t i = 0;
 	for(std::vector<Data::Structure::NetworkSharedPtr>::iterator it = networks.begin(); it != networks.end(); ++it) {
-		std::cout << ++i << std::endl;
 		newicks.push_back( (*it)->getNewickString() );
 	}
 

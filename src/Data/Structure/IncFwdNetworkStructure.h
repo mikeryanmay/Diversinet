@@ -14,10 +14,12 @@
 namespace Data {
 namespace Structure {
 
+	// classes
 	class Edge;
 	class Node;
 	class Network;
 
+	// pointers
 	typedef boost::shared_ptr<Edge>    EdgeSharedPtr;
 	typedef boost::weak_ptr<Edge>      EdgeWeakPtr;
 
@@ -27,8 +29,9 @@ namespace Structure {
 	typedef boost::shared_ptr<Network> NetworkSharedPtr;
 	typedef boost::weak_ptr<Network>   NetworkWeakPtr;
 
+	// node and edge types
 	enum NodeType {
-		Origin, Root, Sample, Speciation, Extinction, Donor, Hybrid, HybridSpeciation
+		Origin, Root, Sample, Speciation, Extinction, Donor, Hybrid, HybridSpecies, Allopolyploid
 	};
 
 	enum EdgeType {
