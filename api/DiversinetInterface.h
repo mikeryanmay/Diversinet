@@ -16,6 +16,12 @@ namespace Parameters {
 	typedef boost::shared_ptr<Container> ContainerSharedPtr;
 }
 
+namespace Likelihood {
+namespace Scheduler {
+	class BaseScheduler;
+}
+}
+
 namespace Diversinet {
 namespace Interface {
 
@@ -35,6 +41,9 @@ class DiversinetInterface {
 		void setPsi(double psi_);
 		void setRho(double rho_);
 
+		// likelihood
+		double computeLogLikelihood();
+
 		// simulate
 		std::vector<std::string> simulate(double time, std::string condition, size_t nreps, int seed, bool extantOnly);
 
@@ -48,6 +57,11 @@ class DiversinetInterface {
 
 		// network variable
 		Data::Structure::NetworkSharedPtr ptrNetwork;
+
+		// scheduler
+		typedef enum {NONE = 0, UPDATE = 1, RESET = 2} schedulerOperation_t;
+		schedulerOperation_t schedulerOperation = RESET;
+		boost::shared_ptr<Likelihood::Scheduler::BaseScheduler> ptrScheduler;
 
 };
 

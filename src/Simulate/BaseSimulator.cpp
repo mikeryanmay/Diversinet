@@ -131,7 +131,7 @@ Data::Structure::NetworkSharedPtr BaseSimulator::simulateNetwork(double time) {
 	double total_rate;
 	double current_time = time, waiting_time;
 	double u;
-	size_t num_spec = 0, num_ext = 0, num_asym = 0, num_sym = 0, num_hyb = 0, num_allo = 0;
+	size_t num_spec = 0, num_ext = 0, num_lgt = 0, num_hyb = 0, num_allo = 0;
 
 	// simulate until time is done
 	while (true) {
@@ -248,7 +248,7 @@ Data::Structure::NetworkSharedPtr BaseSimulator::simulateNetwork(double time) {
 		u -= asym_hybridization_rate;
 		if ( u < 0.0 ) {
 
-			++num_asym;
+			++num_lgt;
 
 			// pick the affected lineages
 			size_t left_lineage = runif() * num_active;
@@ -267,7 +267,7 @@ Data::Structure::NetworkSharedPtr BaseSimulator::simulateNetwork(double time) {
 
 			rightParent->setAge(current_time);
 			rightParent->setType(Hybrid);
-			rightParent->setLabel("#A" + std::to_string(num_asym));
+			rightParent->setLabel("#LGT" + std::to_string(num_lgt));
 
 			// create new lineages
 			NodeSharedPtr left  = boost::make_shared<Node>( Node(id++, current_time, Speciation) );
@@ -338,11 +338,11 @@ Data::Structure::NetworkSharedPtr BaseSimulator::simulateNetwork(double time) {
 			// change the age and type
 			leftParent->setAge(current_time);
 			leftParent->setType(Hybrid);
-			leftParent->setLabel("#S" + std::to_string(++num_sym));
+			leftParent->setLabel("#LGT" + std::to_string(++num_lgt));
 
 			rightParent->setAge(current_time);
 			rightParent->setType(Hybrid);
-			rightParent->setLabel("#S" + std::to_string(++num_sym));
+			rightParent->setLabel("#LGT" + std::to_string(++num_lgt));
 
 			// create new lineages
 			NodeSharedPtr left  = boost::make_shared<Node>( Node(id++, current_time, Speciation) );

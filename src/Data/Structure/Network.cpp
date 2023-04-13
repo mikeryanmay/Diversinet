@@ -6,6 +6,7 @@
  */
 
 #include <iostream>
+#include <algorithm>
 
 #include <boost/make_shared.hpp>
 #include <boost/smart_ptr/shared_ptr.hpp>
@@ -42,7 +43,7 @@ Network::~Network() {
 void Network::buildNetworkFromNewick(const Data::NewickReader::TreeNode* aNewickRoot) {
 
 	// make the network
-	NodeSharedPtr origin = boost::make_shared<Node>(-1, 0.0, Origin);
+	NodeSharedPtr origin = boost::make_shared<Node>(0, 0.0, Origin);
 
 	// get the root edge length
 	double originTimeRespToRoot = aNewickRoot->getLength();
@@ -102,17 +103,17 @@ void Network::buildNetworkFromNewick(const Data::NewickReader::TreeNode* aNewick
 		}
 	}
 
-	// merge the labels
+	// merge nodes by label
 	for(size_t iH = 0; iH < hybidLabels.size(); ++iH) {
 		this->mergeHybridNodesMyLabels( hybidLabels[iH] );
 	}
 
 	// update the nodes
 	this->updateOldestNode();
+	this->ensureSimultaneousEvents();
 	this->updateNodes();
 
 }
-
 
 void Network::mergeHybridNodesMyLabels(std::string aLabel) {
 
@@ -150,6 +151,9 @@ void Network::mergeHybridNodesMyLabels(std::string aLabel) {
 
 	// set the type of the edge
 	parentEdge->setType(Hybridization);
+
+	// add the edge to the node we are keeping
+	nodeToKeep->addEdge(parentEdge);
 
 	// set the hybrid node types
 	size_t hashPos = aLabel.find("#");
@@ -222,6 +226,57 @@ double Network::createRecursiveNewick(const NewickReader::TreeNode *newickNode, 
 	}
 
 	return maxAge;
+
+}
+
+
+void Network::ensureSimultaneousEvents(double precision) {
+
+	// reset visits per node
+	for(std::vector<NodeSharedPtr>::iterator it = nodes.begin(); it != nodes.end(); ++it) {
+		(*it)->resetVisits();
+	}
+
+	// get the oldest node
+	NodeSharedPtr originNode = this->getOldestNode();
+
+	// call recursive function on oldest node
+	this->ensureSimultaneousEventsRecursive(originNode, precision);
+
+}
+
+void Network::ensureSimultaneousEventsRecursive(NodeSharedPtr aNode, double precision) {
+
+	// never re-age a sample
+	if ( aNode->getType() == Sample ) {
+		return;
+	}
+
+	// stop if we have already visited
+	if ( aNode->visits > 0 ) {
+		return;
+	}
+
+	// increment the visits
+	aNode->visits++;
+
+	// get the age of this node
+	double thisNodeAge = aNode->getAge();
+
+	// get all the children
+	std::vector<NodeSharedPtr> children = aNode->getChildNodes();
+	for(std::vector<NodeSharedPtr>::iterator it = children.begin(); it != children.end(); ++it) {
+
+		// if the difference between ages is lower than 1e-precision, reset descendant to this age
+		if ( fabs((*it)->getAge() - thisNodeAge) < precision ) {
+			// reset age of descendant
+			(*it)->setAge(thisNodeAge);
+		}
+
+		// call recursively
+		this->ensureSimultaneousEventsRecursive(*it, precision);
+
+	}
 
 }
 
@@ -304,8 +359,6 @@ std::string Network::getNewickString() {
 
 	// start with the root
 	NodeSharedPtr rootNode   = *oldestNode->getChildNodes().begin();
-
-
 	EdgeSharedPtr originEdge = *rootNode->getEdgesToParents().begin();
 
 	// recursively construct newick string

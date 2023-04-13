@@ -91,6 +91,8 @@ int main(int argc, const char* argv[]) {
 
 	// read the tree
 	interface.readNewick(newick_string);
+	interface.computeLogLikelihood();
+
 
 //	// simulate networks
 //	std::vector<std::string> sims = interface.simulate(time, condition, reps, seed, extant);

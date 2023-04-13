@@ -26,6 +26,7 @@ SUBDIRS := \
 src/Data/Reader/Newick \
 src/Data/Structure \
 src/Interface \
+src/Likelihood/Scheduler \
 src/Parameters \
 src/Simulate \
 

@@ -7,9 +7,10 @@
 
 #include "../Data/Structure/IncFwdNetworkStructure.h"
 #include "../Data/Structure/IncNetworkStructure.h"
-#include "../Simulate/BaseSimulator.h"
-#include "../Parameters/IncParameterContainer.h"
 #include "../Data/Reader/IncPhyloReader.h"
+#include "../Parameters/IncParameterContainer.h"
+#include "../Simulate/BaseSimulator.h"
+#include "../Likelihood/Scheduler/BaseScheduler.h"
 
 namespace Diversinet {
 namespace Interface {
@@ -49,6 +50,28 @@ void DiversinetInterface::setRho(double rho_) {
 	ptrParams->rho = rho_;
 }
 
+double DiversinetInterface::computeLogLikelihood() {
+
+	// only works if we have a network set
+	assert(ptrNetwork && "No network set, cannot compute likelihood.");
+
+	// update the parameters
+	// TODO
+
+	// initialize the scheduler
+	if ( ptrScheduler == nullptr || schedulerOperation == RESET) {
+		ptrScheduler.reset( new Likelihood::Scheduler::BaseScheduler(ptrNetwork) );
+	} else if (schedulerOperation == UPDATE) {
+		// TODO
+	}
+
+	double lnL = 0.0;
+
+	return lnL;
+
+}
+
+
 std::vector<std::string> DiversinetInterface::simulate(double time, std::string condition, size_t nreps, int seed, bool extantOnly) {
 
 	// check time argument
@@ -86,22 +109,8 @@ void DiversinetInterface::readNewick(std::string newick) {
 	// now pass it to the network constructor
 	Data::Structure::Network network(ptrParsedNewick);
 
-	// TEST: write it to a file
-	std::string newickString = network.getNewickString();
-    std::ofstream out("/Users/mike/repos/phyloploid_lib/files/testfile.txt");
-    out << newickString;
-    out << '\n';
-    out.close();
-
-//	std::vector<std::string> newickStrings;
-//	newickStrings.push_back();
-//
-//	std::ofstream output_file("/Users/mike/repos/phyloploid_lib/files/testfile.txt");
-//	std::ostream_iterator<std::string> output_iterator(output_file, "\n");
-//	std::copy(newickStrings.begin(), newickStrings.end(), output_iterator);
-
-
-	std::cout << "STOP RIGHT THERE" << std::endl;
+	// assign the pointer
+	ptrNetwork = boost::make_shared<Data::Structure::Network>(network);
 
 }
 

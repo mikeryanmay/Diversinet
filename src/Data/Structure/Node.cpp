@@ -59,6 +59,19 @@ bool Node::validateType() const {
 
 }
 
+bool Node::hasChild(NodeSharedPtr aNode) const {
+
+	// get the children of this node
+	std::vector<NodeSharedPtr> childNodes = this->getChildNodes();
+
+	// try to find the provided node
+	std::vector<NodeSharedPtr>::iterator inChildren = std::find(childNodes.begin(), childNodes.end(), aNode);
+
+	// did we find the provided node?
+	return inChildren != childNodes.end();
+
+}
+
 size_t Node::getId() const {
 	return id;
 }
@@ -112,6 +125,23 @@ std::vector<EdgeSharedPtr> Node::getEdgesToParents() const {
 	return edgesToParents;
 
 }
+
+std::vector<EdgeSharedPtr> Node::getNonHorizontalEdgesToParents() const {
+
+	std::vector<EdgeSharedPtr> edgesToParents;
+	std::vector<EdgeSharedPtr> edgeSharedPtr = this->getEdges();
+	for (size_t iE = 0; iE < edgeSharedPtr.size(); ++iE) {
+		if (edgeSharedPtr[iE]->getLength() > 0) {
+			if (edgeSharedPtr[iE]->getChild().get() == this) {
+				edgesToParents.push_back(edgeSharedPtr[iE]);
+			}
+		}
+	}
+
+	return edgesToParents;
+
+}
+
 
 std::vector<EdgeSharedPtr> Node::getEdgesToChildren() const {
 
@@ -185,21 +215,6 @@ void Node::removeEdge(EdgeSharedPtr aEdge) {
 
 }
 
-std::string Node::constructLabel() const {
-
-	std::string str;
-
-	if ( type == Sample || type == Extinction  ) {
-		str = label;
-	} else {
-//		str = "#" + label;
-		str = label;
-	}
-
-	return str;
-
-}
-
 void Node::resetVisits() {
 	visits = 0;
 }
@@ -209,15 +224,14 @@ std::string Node::recursivelyConstructNewickString(EdgeSharedPtr incomingEdge) {
 	std::string newick = "";
 
 	// get the branch length
-	double bl = incomingEdge->getLength();
-	std::string bls = std::to_string(bl);
+	std::string bls = incomingEdge->getLengthString();
 
 	// deal with multiple visits
 	visits++;
 	if (visits > 1) {
 
 		// treat this like a hybrid edge (don't traverse down)
-		newick += this->constructLabel() + ":" + bls;
+		newick += label + ":" + bls;
 		return newick;
 
 	}
@@ -225,7 +239,7 @@ std::string Node::recursivelyConstructNewickString(EdgeSharedPtr incomingEdge) {
 	// terminate if we've hit the end of the road
 	if ( type == Sample || type == Extinction ) {
 		// add label plus branch length, then return prematurely
-		newick += this->constructLabel() + ":" + bls;
+		newick += label + ":" + bls;
 		return newick;
 	} else {
 		// open a parenthesis
@@ -260,9 +274,7 @@ std::string Node::recursivelyConstructNewickString(EdgeSharedPtr incomingEdge) {
 			newick += leftEdge->getChild()->recursivelyConstructNewickString(leftEdge);
 		} else {
 			// duplicate the node string without doing anything recursive
-			double new_bl = leftEdge->getLength();
-			std::string new_bls = std::to_string(new_bl);
-			newick += leftEdge->getChild()->constructLabel() + ":" + new_bls;
+			newick += leftEdge->getChild()->getLabel() + ":" + leftEdge->getLengthString();
 		}
 
 		// comma
@@ -274,9 +286,7 @@ std::string Node::recursivelyConstructNewickString(EdgeSharedPtr incomingEdge) {
 			newick += rightEdge->getChild()->recursivelyConstructNewickString(rightEdge);
 		} else {
 			// duplicate the node string without doing anything recursive
-			double new_bl = rightEdge->getLength();
-			std::string new_bls = std::to_string(new_bl);
-			newick += rightEdge->getChild()->constructLabel() + ":" + new_bls;
+			newick += rightEdge->getChild()->getLabel() + ":" + rightEdge->getLengthString();
 		}
 
 	}
@@ -285,7 +295,7 @@ std::string Node::recursivelyConstructNewickString(EdgeSharedPtr incomingEdge) {
 	newick += ")";
 
 	// add label for hybridization events
-	newick += this->constructLabel() + ":" + bls;
+	newick += label + ":" + bls;
 
 	return newick;
 

@@ -31,6 +31,7 @@ class Edge {
 		void setType(EdgeType aType);
 
 		double getLength() const;
+		std::string getLengthString(size_t precision = 10) const;
 
 	protected:
 

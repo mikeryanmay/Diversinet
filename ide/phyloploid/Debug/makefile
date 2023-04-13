@@ -10,6 +10,7 @@ RM := rm -rf
 -include sources.mk
 -include src/Simulate/subdir.mk
 -include src/Parameters/subdir.mk
+-include src/Likelihood/Scheduler/subdir.mk
 -include src/Interface/subdir.mk
 -include src/Data/Structure/subdir.mk
 -include src/Data/Reader/Newick/subdir.mk

@@ -64,6 +64,9 @@ class Network {
 		double createRecursiveNewick(const NewickReader::TreeNode *newickNode, NodeSharedPtr treeNode);
 		void mergeHybridNodesMyLabels(std::string aLabel);
 
+		void ensureSimultaneousEvents(double precision = 1.0e-6);
+		void ensureSimultaneousEventsRecursive(NodeSharedPtr aNode, double precision);
+
 }; // end network
 
 

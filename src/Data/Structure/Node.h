@@ -42,8 +42,13 @@ class Node {
 		std::vector<EdgeSharedPtr> getEdges() const;
 		std::vector<EdgeSharedPtr> getEdgesToParents() const;
 		std::vector<EdgeSharedPtr> getEdgesToChildren() const;
+		std::vector<EdgeSharedPtr> getNonHorizontalEdgesToParents() const;
+
+		// node stuff
 		std::vector<NodeSharedPtr> getParentNodes() const;
 		std::vector<NodeSharedPtr> getChildNodes() const;
+
+		bool hasChild(NodeSharedPtr aNode) const;
 
 		void addEdge(EdgeSharedPtr aEdge);
 		void removeEdge(EdgeSharedPtr aEdge);
@@ -66,9 +71,6 @@ class Node {
 
 		friend class Edge;
 		std::string label = "";
-
-		std::string constructLabel() const;
-
 
 }; // end node
 

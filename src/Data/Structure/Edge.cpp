@@ -5,6 +5,9 @@
  *      Author: mike
  */
 
+#include <iomanip>
+#include <sstream>
+
 #include "Edge.h"
 #include "Node.h"
 #include "IncFwdNetworkStructure.h"
@@ -50,6 +53,17 @@ void Edge::setType(EdgeType aType) {
 double Edge::getLength() const {
 	return parent.lock()->getAge() - child.lock()->getAge();
 }
+
+std::string Edge::getLengthString(size_t precision) const {
+
+	double bl = this->getLength();
+	std::stringstream stream;
+	stream << std::fixed << std::setprecision(precision) << bl;
+	return stream.str();
+
+}
+
+
 
 } /* namespace Structure */
 } /* namespace Network */
