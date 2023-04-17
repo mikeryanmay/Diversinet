@@ -26,7 +26,15 @@ SUBDIRS := \
 src/Data/Reader/Newick \
 src/Data/Structure \
 src/Interface \
+src/Likelihood/Approximator \
+src/Likelihood/Kernels/CPU \
 src/Likelihood/Scheduler \
+src/Likelihood/StateTypes \
+src/Likelihood/StateTypes/Vector \
+src/Models \
 src/Parameters \
 src/Simulate \
+src/Utils/MemoryPool \
+src/Utils/Output \
+src/Utils/Parallel \
 

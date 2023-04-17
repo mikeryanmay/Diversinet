@@ -8,9 +8,17 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
+-include src/Utils/Parallel/subdir.mk
+-include src/Utils/Output/subdir.mk
+-include src/Utils/MemoryPool/subdir.mk
 -include src/Simulate/subdir.mk
 -include src/Parameters/subdir.mk
+-include src/Models/subdir.mk
+-include src/Likelihood/StateTypes/Vector/subdir.mk
+-include src/Likelihood/StateTypes/subdir.mk
 -include src/Likelihood/Scheduler/subdir.mk
+-include src/Likelihood/Kernels/CPU/subdir.mk
+-include src/Likelihood/Approximator/subdir.mk
 -include src/Interface/subdir.mk
 -include src/Data/Structure/subdir.mk
 -include src/Data/Reader/Newick/subdir.mk

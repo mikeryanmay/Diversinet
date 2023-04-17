@@ -5,17 +5,21 @@
 #include <boost/make_shared.hpp>
 #include <boost/smart_ptr/shared_ptr.hpp>
 
-#include "../Data/Structure/IncFwdNetworkStructure.h"
-#include "../Data/Structure/IncNetworkStructure.h"
-#include "../Data/Reader/IncPhyloReader.h"
-#include "../Parameters/IncParameterContainer.h"
-#include "../Simulate/BaseSimulator.h"
-#include "../Likelihood/Scheduler/BaseScheduler.h"
+#include "Data/Structure/IncFwdNetworkStructure.h"
+#include "Data/Structure/IncNetworkStructure.h"
+#include "Data/Reader/IncPhyloReader.h"
+#include "Likelihood/Scheduler/BaseScheduler.h"
+#include "Likelihood/Approximator/Factory.h"
+#include "Parameters/IncParameterContainer.h"
+#include "Models/IncModel.h"
+#include "Simulate/BaseSimulator.h"
+
 
 namespace Diversinet {
 namespace Interface {
 
-DiversinetInterface::DiversinetInterface() : ptrParams(new Parameters::Container()) {
+DiversinetInterface::DiversinetInterface() :
+	ptrParams(new Parameters::Container()) {
 }
 
 DiversinetInterface::~DiversinetInterface() {
@@ -50,13 +54,27 @@ void DiversinetInterface::setRho(double rho_) {
 	ptrParams->rho = rho_;
 }
 
+void DiversinetInterface::setKMax(size_t kmax_) {
+	kMax = kmax_;
+	if ( ptrModel != nullptr ) {
+		ptrModel->setNumberOfStates(kMax);
+	}
+}
+
 double DiversinetInterface::computeLogLikelihood() {
 
 	// only works if we have a network set
 	assert(ptrNetwork && "No network set, cannot compute likelihood.");
 
-	// update the parameters
-	// TODO
+	// initialize the model
+	if ( ptrModel == nullptr ) {
+		if (modelVersion == SIMPLE) {
+			ptrModel = Models::Factory::createTimeHomogeneousNetworkModel(ptrParams, kMax);
+		} else {
+			assert(ptrModel && "Requested model is not available.");
+		}
+	}
+	assert(ptrModel && "Model is invalid.");
 
 	// initialize the scheduler
 	if ( ptrScheduler == nullptr || schedulerOperation == RESET) {
@@ -64,6 +82,19 @@ double DiversinetInterface::computeLogLikelihood() {
 	} else if (schedulerOperation == UPDATE) {
 		// TODO
 	}
+	assert(ptrScheduler && "Scheduler is invalid.");
+
+	// initialize the approximator
+	if ( ptrApproximator == nullptr || dirtyApproximator ) {
+		Likelihood::Integrator::integrationScheme_t intType = Likelihood::Integrator::intToIntegratorType(integrationScheme);
+		if ( approxVersion == DEFAULT ) {
+			ptrApproximator = Likelihood::Approximator::Factory::createDefaultApproximator(intType, ptrScheduler, ptrModel);
+		} else {
+			assert(ptrApproximator && "Requested approximator not available.");
+		}
+	}
+	assert(ptrApproximator && "Approximator is invalid.");
+
 
 	double lnL = 0.0;
 

@@ -56,6 +56,7 @@
 									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../api&quot;"/>
 									<listOptionValue builtIn="false" value="/Users/mike/libraries/boost_1_79_0"/>
 									<listOptionValue builtIn="false" value="/Users/mike/libraries/eigen-3.4.0"/>
+									<listOptionValue builtIn="false" value="&quot;${ProjDirPath}/../../src&quot;"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.other.pic.527935459" name="Position Independent Code (-fPIC)" superClass="gnu.cpp.compiler.option.other.pic" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<option id="gnu.cpp.compiler.option.dialect.std.1040074444" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.c++17" valueType="enumerated"/>

@@ -1,0 +1,3 @@
+Legendary actions:
+(1) Attack: The creature makes one attack or uses one of its other actions.
+(2) Spell: Casts a first-level spell

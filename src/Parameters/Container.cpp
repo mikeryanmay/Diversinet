@@ -10,12 +10,9 @@
 namespace Parameters {
 
 Container::Container() {
-	// TODO Auto-generated constructor stub
-
 }
 
 Container::~Container() {
-	// TODO Auto-generated destructor stub
 }
 
 } /* namespace Parameters */
