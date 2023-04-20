@@ -14,7 +14,7 @@
 namespace Likelihood {
 namespace StateType {
 
-static const double MIN_SCALING_THRESHOLD = 1.e-3;
+static const double MIN_SCALING_THRESHOLD = 1.e-1;
 static const double MAX_SCALING_THRESHOLD = 1.e+3;
 static const double LOG_OF_2 = log(2.);
 

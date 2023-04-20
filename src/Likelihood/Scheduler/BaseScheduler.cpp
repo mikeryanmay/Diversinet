@@ -117,9 +117,9 @@ eventType_t BaseScheduler::eventTypeFromEventNodes(std::vector<NS::NodeSharedPtr
 		if ( nodeType == NS::Speciation || nodeType == NS::Root ) {
 			eventType = SPECIATION_EVENT;
 		} else if ( nodeType == NS::Hybrid || nodeType == NS::HybridSpecies ) {
-			eventType = AMBIGUOUS_HYBRIDIZATION_EVENT;
+			eventType = HYBRID_DIAMOND;
 		} else if ( nodeType == NS::Allopolyploid) {
-			eventType = ALLOPOLYPLOIDIZATION_EVENT_ONE;
+			eventType = POLYPLOID_DIAMOND;
 		} else {
 			assert(false && "Could not determine type of event with one descendant.");
 		}
@@ -139,7 +139,7 @@ eventType_t BaseScheduler::eventTypeFromEventNodes(std::vector<NS::NodeSharedPtr
 		if ( isPolyploid ) {
 
 			// this is just a polyploid event
-			eventType = ALLOPOLYPLOIDIZATION_EVENT_TWO;
+			eventType = POLYPLOID_TRIANGLE;
 
 		} else {
 
@@ -165,9 +165,9 @@ eventType_t BaseScheduler::eventTypeFromEventNodes(std::vector<NS::NodeSharedPtr
 
 			// decide symmetrical or asymmetrical
 			if ( leftOwnsRight != rightOwnsLeft ) { /* XOR */
-				eventType = ASYMMETRICAL_HYBRIDIZATION_EVENT;
+				eventType = DIRECTIONAL_TRIANGLE;
 			} else {
-				eventType = SYMMETRICAL_HYBRIDIZATION_EVENT;
+				eventType = BIDIRECTIONAL_TRIANGLE;
 			}
 
 		}
@@ -186,9 +186,9 @@ eventType_t BaseScheduler::eventTypeFromEventNodes(std::vector<NS::NodeSharedPtr
 		}
 
 		if ( isPolyploid ) {
-			eventType = ALLOPOLYPLOIDIZATION_EVENT_THREE;
+			eventType = NEW_POLYPLOID_TRIANGLE;
 		} else {
-			eventType = HYBRID_SPECIATION_EVENT;
+			eventType = NEW_HYBRID_TRIANGLE;
 		}
 
 	}
@@ -278,6 +278,11 @@ std::vector<NS::NodeSharedPtr> BaseScheduler::defineNextEdgesLayerAndEvent(Event
 
 }
 
+
+size_t BaseScheduler::getNumEdgesForLayer(size_t iLayer) {
+	edgesList_t &theEdges = layeredEdges.at(iLayer);
+	return theEdges.size();
+}
 
 bool BaseScheduler::hasBeenUpdated() const {
 	return updated;

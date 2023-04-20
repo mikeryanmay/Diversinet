@@ -25,13 +25,14 @@ class EigenKernels {
 
 		void setInitialCondition(const std::vector<Data::Structure::NodeSharedPtr>& extantNodes, Likelihood::StateType::Vector::EigenState &x);
 		void computeSpeciationEvent(double t, Likelihood::StateType::Vector::EigenState &x);
-		void computeAsymmetricalHybridizationEvent(double t, Likelihood::StateType::Vector::EigenState &x);
-		void computeSymmetricalHybridizationEvent(double t, Likelihood::StateType::Vector::EigenState &x);
-		void computeHybridSpeciationEvent(double t, Likelihood::StateType::Vector::EigenState &x);
-		void computeAmbiguousHybridizationEvent(double t, Likelihood::StateType::Vector::EigenState &x);
-		void computeAllopolyploidizationEventOne(double t, Likelihood::StateType::Vector::EigenState &x);
-		void computeAllopolyploidizationEventTwo(double t, Likelihood::StateType::Vector::EigenState &x);
-		void computeAllopolyploidizationEventThree(double t, Likelihood::StateType::Vector::EigenState &x);
+		void computeDirectionalTriangle(double t, Likelihood::StateType::Vector::EigenState &x);
+		void computeBidirectionalTriangle(double t, Likelihood::StateType::Vector::EigenState &x);
+		void computeNewHybridTriangle(double t, Likelihood::StateType::Vector::EigenState &x);
+		void computeHybridDiamond(double t, Likelihood::StateType::Vector::EigenState &x);
+		void computePolyploidDiamond(double t, Likelihood::StateType::Vector::EigenState &x);
+		void computePolyploidTriangle(double t, Likelihood::StateType::Vector::EigenState &x);
+		void computeNewPolyploidTriangle(double t, Likelihood::StateType::Vector::EigenState &x);
+		void rescaleProbabilities(Likelihood::StateType::Vector::EigenState &x);
 		double computeLogLikelihood(double t, Likelihood::StateType::Vector::EigenState &x);
 
 	private:

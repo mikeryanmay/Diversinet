@@ -95,10 +95,16 @@ double DiversinetInterface::computeLogLikelihood() {
 	}
 	assert(ptrApproximator && "Approximator is invalid.");
 
+	// now other settings to the approximator
+	ptrApproximator->setDefaultDeltaT(initDeltaT);
 
-	double lnL = 0.0;
+	// compute the log likelihood
+	double logLik = ptrApproximator->approximateLogLikelihood();
 
-	return lnL;
+	// clear the scheduler operation
+	schedulerOperation = NONE;
+
+	return logLik;
 
 }
 

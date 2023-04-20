@@ -23,8 +23,8 @@ class Container {
 		double mu = 0.0;     // extinction rate
 		double eta = 0.0;    // asymmetrical hybridization rate
 		double zeta = 0.0;   // symmetrical hybridiziation rate
-		double psi = 0.0;    // allopolyploidization rate
 		double nu = 0.0;     // hybrid speciation rate
+		double psi = 0.0;    // allopolyploidization rate
 		double rho = 1.0;    // sampling fraction at the present
 
 };

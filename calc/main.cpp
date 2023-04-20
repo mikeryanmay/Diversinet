@@ -14,7 +14,7 @@ using namespace boost::program_options;
 int main(int argc, const char* argv[]) {
 
 	// containers for arguments
-	double lambda, mu, eta, zeta, nu, rho; // parameters
+	double lambda, mu, eta, zeta, nu, psi, rho; // parameters
 	std::string treefile; // the path to the output file
 
 	// parse command-line arguments
@@ -30,6 +30,7 @@ int main(int argc, const char* argv[]) {
 			("eta,e",       value<double>(&eta)->required(),                              "symmetrical hybridization rate")
 			("zeta,z",      value<double>(&zeta)->required(),                             "asymmetrical hybridization rate")
 			("nu,n",        value<double>(&nu)->required(),                               "hybrid speciation rate")
+			("psi,s",       value<double>(&psi)->required(),                              "allopolyploid speciation rate")
 			("rho,p",       value<double>(&rho)->required(),                              "sampling fraction at the present")
 		;
 
@@ -64,6 +65,9 @@ int main(int argc, const char* argv[]) {
 		if (vm.count("nu")) {
 			std::cout << "Using hybrid speciation rate " << nu << "\n";
 		}
+		if (vm.count("psi")) {
+			std::cout << "Using allopolyploid speciation rate " << psi << "\n";
+		}
 		if (vm.count("rho")) {
 			std::cout << "Using sampling fraction " << rho << "\n";
 		}
@@ -82,6 +86,7 @@ int main(int argc, const char* argv[]) {
 	interface.setEta(eta);
 	interface.setZeta(zeta);
 	interface.setNu(nu);
+	interface.setPsi(psi);
 	interface.setRho(rho);
 
 	// read the tree file

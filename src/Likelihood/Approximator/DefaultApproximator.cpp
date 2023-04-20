@@ -76,7 +76,7 @@ double DefaultApproximator::approximateLogLikelihood() {
 		// Integrate over the edges
 		doIntegrationStep(iEvent);
 		// Next event
-		iEvent ++;
+		iEvent++;
 	}
 
 	// Final event compute the likelihood
@@ -91,23 +91,74 @@ double DefaultApproximator::approximateLogLikelihood() {
 }
 
 void DefaultApproximator::doPreProcessingSteps() {
-
+	probState = Likelihood::StateType::Vector::EigenState();
+	integrationTimes.clear();
 }
 
 void DefaultApproximator::doIntegrationStep(size_t iEdgesLayer) {
+
+	// iEdgesLayer starts at iEvent = iEdgesLayer and ends at iEvent+1=iEdgesLayer+1
+	double startTime = ptrScheduler->getEvents()[iEdgesLayer]->getTime();
+	double endTime = ptrScheduler->getEvents()[iEdgesLayer+1]->getTime();
+
+	// tell the kernel the number of edges in this layer
+	size_t numEdges = ptrScheduler->getNumEdgesForLayer(iEdgesLayer);
+	ptrModel->setNumberOfLineages(numEdges); // TODO: CONFIRM THAT THIS IS SETTING THE CORRECT NUMBER OF LINEAGES
+
+	if(endTime == startTime) return;
+
+	if(endTime != ptrScheduler->getEvents().back()->getTime()) {
+		endTime = std::nextafter(endTime,-std::numeric_limits<double>::infinity());
+	}
+
+	assert(ptrIntegrator != NULL);
+	ptrIntegrator->integrate(startTime, endTime, probState, intKernel);
+
+	integrationTimes.insert(integrationTimes.end(), ptrIntegrator->getVecTimes().begin(), ptrIntegrator->getVecTimes().end()); // @suppress("Invalid arguments")
 
 }
 
 void DefaultApproximator::doEventStep(size_t iEvent) {
 
+	// get the event
+	Likelihood::Scheduler::Event* event = ptrScheduler->getEvents()[iEvent];
+
+	// do the event
+	if ( event->checkEvent(Likelihood::Scheduler::PRESENT_TIME_EVENT) ) {
+		kernels.setInitialCondition(event->getNodes(), probState);
+		kernels.rescaleProbabilities(probState);
+	} else if ( event->checkEvent(Likelihood::Scheduler::SPECIATION_EVENT) ) {
+		kernels.computeSpeciationEvent(event->getTime(), probState);
+	} else if ( event->checkEvent(Likelihood::Scheduler::DIRECTIONAL_TRIANGLE) ) {
+		kernels.computeDirectionalTriangle(event->getTime(), probState);
+	} else if ( event->checkEvent(Likelihood::Scheduler::BIDIRECTIONAL_TRIANGLE) ) {
+		kernels.computeBidirectionalTriangle(event->getTime(), probState);
+	} else if ( event->checkEvent(Likelihood::Scheduler::NEW_HYBRID_TRIANGLE) ) {
+		kernels.computeNewHybridTriangle(event->getTime(), probState);
+	} else if ( event->checkEvent(Likelihood::Scheduler::HYBRID_DIAMOND) ) {
+		kernels.computeHybridDiamond(event->getTime(), probState);
+	} else if ( event->checkEvent(Likelihood::Scheduler::POLYPLOID_DIAMOND) ) {
+		kernels.computePolyploidDiamond(event->getTime(), probState);
+	} else if ( event->checkEvent(Likelihood::Scheduler::POLYPLOID_TRIANGLE) ) {
+		kernels.computePolyploidTriangle(event->getTime(), probState);
+	} else if ( event->checkEvent(Likelihood::Scheduler::NEW_POLYPLOID_TRIANGLE) ) {
+		kernels.computeNewPolyploidTriangle(event->getTime(), probState);
+	} else if ( event->checkEvent(Likelihood::Scheduler::FINAL_NODE_EVENT) ) {
+		logLikelihood = kernels.computeLogLikelihood(event->getTime(), probState);
+	} else if ( event->checkEvent(Likelihood::Scheduler::RESCALING_EVENT) ) {
+		kernels.rescaleProbabilities(probState);
+	} else {
+		assert(false && "Event is not implemented.");
+	}
+
 }
 
 void DefaultApproximator::doPostProcessingSteps() {
-
+	// TODO
 }
 
 void DefaultApproximator::doReportState(double t) {
-
+	// TODO
 }
 
 

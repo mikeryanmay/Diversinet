@@ -10,12 +10,14 @@
 
 #include <vector>
 #include <boost/smart_ptr/shared_ptr.hpp>
+#include <Eigen/Sparse>
 
 namespace Models {
 
 	class Factory;
 	class BaseModel;
 	typedef boost::shared_ptr<BaseModel> ModelSharedPtr;
+	typedef Eigen::SparseMatrix<double> SpMat;
 
 }
 

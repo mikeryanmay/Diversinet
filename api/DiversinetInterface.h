@@ -98,6 +98,7 @@ class DiversinetInterface {
 		Likelihood::Scheduler::SchedulerSharedPtr ptrScheduler;
 
 		// approximator
+		double initDeltaT = 0.05;
 		bool dirtyApproximator = false;
 		approximatorVersion_t approxVersion = approximatorVersion_t::DEFAULT;
 		Likelihood::Approximator::ApproximatorSharedPtr ptrApproximator;

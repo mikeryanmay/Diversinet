@@ -20,7 +20,27 @@ class SimpleNetworkModel: public BaseModel {
 		SimpleNetworkModel(Parameters::ContainerSharedPtr aPtrParameter, size_t aKMax);
 		virtual ~SimpleNetworkModel();
 
+		const SpMat& getTransitionRateMatrix(double t);
+		const SpMat& getSpeciationEventMatrix(double t);
+		const SpMat& getDirectionalTriangleEventMatrix(double t);
+		const SpMat& getBidirectionalTriangleEventMatrix(double t);
+		const SpMat& getNewHybridTriangleEventMatrix(double t);
+		const SpMat& getHybridDiamondEventMatrix(double t);
+		const SpMat& getPolyploidTriangleEventMatrix(double t);
+		const SpMat& getNewPolyploidTriangleEventMatrix(double t);
+		const SpMat& getPolyploidDiamondEventMatrix(double t);
+
 	private:
+
+		void updateRateMatrix();
+		void updateSpeciationEventMatrix();
+		void updateDirectionalTriangleEventMatrix();
+		void updateBidirectionalTriangleEventMatrix();
+		void updateNewHybridTriangleEventMatrix();
+		void updateHybridDiamondEventMatrix();
+		void updatePolyploidTriangleEventMatrix();
+		void updateNewPolyploidTriangleEventMatrix();
+		void updatePolyploidDiamondEventMatrix();
 
 };
 

@@ -65,13 +65,13 @@ bool Event::checkEvent(eventType_t aEventType) const {
 
 bool Event::isNodeEvent() const {
 	bool isNodeEvent = eventType == SPECIATION_EVENT ||
-	                   eventType == ASYMMETRICAL_HYBRIDIZATION_EVENT ||
-	                   eventType == SYMMETRICAL_HYBRIDIZATION_EVENT ||
-	                   eventType == HYBRID_SPECIATION_EVENT ||
-	                   eventType == AMBIGUOUS_HYBRIDIZATION_EVENT ||
-	                   eventType == ALLOPOLYPLOIDIZATION_EVENT_ONE ||
-	                   eventType == ALLOPOLYPLOIDIZATION_EVENT_TWO ||
-	                   eventType == ALLOPOLYPLOIDIZATION_EVENT_THREE;
+	                   eventType == DIRECTIONAL_TRIANGLE ||
+	                   eventType == BIDIRECTIONAL_TRIANGLE ||
+	                   eventType == NEW_HYBRID_TRIANGLE ||
+	                   eventType == HYBRID_DIAMOND ||
+	                   eventType == POLYPLOID_TRIANGLE ||
+	                   eventType == NEW_POLYPLOID_TRIANGLE ||
+	                   eventType == POLYPLOID_DIAMOND;
 	return isNodeEvent;
 }
 
@@ -110,21 +110,21 @@ bool Event::isEventPossible() const {
 		case SPECIATION_EVENT:
 			isValid = eventNodes.size() == 1 && (eventNodes[0]->getType() == NS::Speciation || eventNodes[0]->getType() == NS::Root);
 			break;
-		case ASYMMETRICAL_HYBRIDIZATION_EVENT:
+		case BIDIRECTIONAL_TRIANGLE:
 			isValid = eventNodes.size() == 2; // must be two nodes
 			isValid = isValid && eventNodes[0]->getAge() == eventNodes[1]->getAge(); // nodes must be same age
 			oneOwnsTwo = eventNodes[0]->hasChild(eventNodes[1]);
 			twoOwnsOne = eventNodes[1]->hasChild(eventNodes[0]);
 			isValid = oneOwnsTwo != twoOwnsOne; // XOR, exactly one can own the other
 			break;
-		case SYMMETRICAL_HYBRIDIZATION_EVENT:
+		case DIRECTIONAL_TRIANGLE:
 			isValid = eventNodes.size() == 2; // must be two nodes
 			isValid = isValid && eventNodes[0]->getAge() == eventNodes[1]->getAge(); // nodes must be same age
 			oneOwnsTwo = eventNodes[0]->hasChild(eventNodes[1]);
 			twoOwnsOne = eventNodes[1]->hasChild(eventNodes[0]);
 			isValid = oneOwnsTwo && twoOwnsOne; // nodes must own each other
 			break;
-		case HYBRID_SPECIATION_EVENT:
+		case NEW_HYBRID_TRIANGLE:
 			isValid = eventNodes.size() == 3; // must be three nodes
 			for(size_t iN = 0; iN < eventNodes.size(); ++iN) {
 				if ( eventNodes[iN]->getType() == NS::HybridSpecies ) {
@@ -139,14 +139,14 @@ bool Event::isEventPossible() const {
 				isValid = isValid && eventNodes[nonHybrids[iN]]->hasChild(eventNodes[hybrid]);
 			}
 			break;
-		case AMBIGUOUS_HYBRIDIZATION_EVENT:
+		case HYBRID_DIAMOND:
 			isValid = eventNodes.size() == 1;
 			isValid = isValid && (eventNodes[0]->getType() == NS::Hybrid || eventNodes[0]->getType() == NS::HybridSpecies);
 			break;
-		case ALLOPOLYPLOIDIZATION_EVENT_ONE:
+		case POLYPLOID_DIAMOND:
 			isValid = eventNodes.size() == 1 && eventNodes[0]->getType() == NS::Allopolyploid;
 			break;
-		case ALLOPOLYPLOIDIZATION_EVENT_TWO:
+		case POLYPLOID_TRIANGLE:
 			isValid = eventNodes.size() == 2; // must be two nodes
 			isValid = isValid && eventNodes[0]->getAge() == eventNodes[1]->getAge(); // nodes must be same age
 			oneIsAllo = eventNodes[0]->getType() == NS::Allopolyploid;
@@ -154,7 +154,7 @@ bool Event::isEventPossible() const {
 			isValid = isValid && oneIsAllo != twoIsAllo; // exactly one must be an allopolyploid
 			isValid = isValid && eventNodes[oneIsAllo]->hasChild(eventNodes[twoIsAllo]); // the allopolyploid must be owned by the other node
 			break;
-		case ALLOPOLYPLOIDIZATION_EVENT_THREE:
+		case NEW_POLYPLOID_TRIANGLE:
 			isValid = eventNodes.size() == 3; // must be three nodes
 			for(size_t iN = 0; iN < eventNodes.size(); ++iN) {
 				if ( eventNodes[iN]->getType() == NS::Allopolyploid ) {
@@ -209,7 +209,7 @@ std::string Event::toString() const {
 			}
 			ss << "] - age = " << time;
 			break;
-		case ASYMMETRICAL_HYBRIDIZATION_EVENT:
+		case DIRECTIONAL_TRIANGLE:
 			ss << "Asymmetrical hybridization event : " << "  time = " << time;
 			ss << std::endl << "Nodes : [ ";
 			for(size_t iN=0; iN<eventNodes.size(); ++iN) {
@@ -217,7 +217,7 @@ std::string Event::toString() const {
 			}
 			ss << "]";
 			break;
-		case SYMMETRICAL_HYBRIDIZATION_EVENT:
+		case BIDIRECTIONAL_TRIANGLE:
 			ss << "Symmetrical hybridization event : " << "  time = " << time;
 			ss << std::endl << "Nodes : [ ";
 			for(size_t iN=0; iN<eventNodes.size(); ++iN) {
@@ -225,7 +225,7 @@ std::string Event::toString() const {
 			}
 			ss << "]";
 			break;
-		case HYBRID_SPECIATION_EVENT:
+		case NEW_HYBRID_TRIANGLE:
 			ss << "Hybrid speciation event : " << "  time = " << time;
 			ss << std::endl << "Nodes : [ ";
 			for(size_t iN=0; iN<eventNodes.size(); ++iN) {
@@ -233,7 +233,7 @@ std::string Event::toString() const {
 			}
 			ss << "]";
 			break;
-		case AMBIGUOUS_HYBRIDIZATION_EVENT:
+		case HYBRID_DIAMOND:
 			ss << "Ambiguous hybridization event : " << "  time = " << time;
 			ss << std::endl << "Nodes : [ ";
 			for(size_t iN=0; iN<eventNodes.size(); ++iN) {
@@ -241,7 +241,7 @@ std::string Event::toString() const {
 			}
 			ss << "]";
 			break;
-		case ALLOPOLYPLOIDIZATION_EVENT_ONE:
+		case POLYPLOID_DIAMOND:
 			assert(!eventNodes.empty());
 			ss << "Allopolyploid singleton : [ ";
 			for(size_t iN=0; iN<eventNodes.size(); ++iN) {
@@ -249,7 +249,7 @@ std::string Event::toString() const {
 			}
 			ss << "] - age = " << time;
 			break;
-		case ALLOPOLYPLOIDIZATION_EVENT_TWO:
+		case POLYPLOID_TRIANGLE:
 			ss << "Allopolyploid and one parent event : " << "  time = " << time;
 			ss << std::endl << "Nodes : [ ";
 			for(size_t iN=0; iN<eventNodes.size(); ++iN) {
@@ -257,7 +257,7 @@ std::string Event::toString() const {
 			}
 			ss << "]";
 			break;
-		case ALLOPOLYPLOIDIZATION_EVENT_THREE:
+		case NEW_POLYPLOID_TRIANGLE:
 			ss << "Allopolyploid and two parents event : " << "  time = " << time;
 			ss << std::endl << "Nodes : [ ";
 			for(size_t iN=0; iN<eventNodes.size(); ++iN) {

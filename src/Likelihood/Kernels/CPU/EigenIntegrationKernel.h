@@ -20,9 +20,10 @@ class EigenIntegrationKernel {
 
 	public:
 
-		EigenIntegrationKernel(const size_t N_MAX_STATE_VECTOR,
-				               Models::ModelSharedPtr aPtrModel);
+		EigenIntegrationKernel(const size_t N_MAX_STATE_VECTOR, Models::ModelSharedPtr aPtrModel);
 		~EigenIntegrationKernel();
+
+		void setNumEdgesInterval(size_t aNumEdges);
 
 		void operator() (const Likelihood::StateType::Vector::EigenState &x, Likelihood::StateType::Vector::EigenState &dxdt, double t);
 

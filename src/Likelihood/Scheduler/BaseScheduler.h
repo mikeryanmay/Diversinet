@@ -36,6 +36,8 @@ class BaseScheduler {
 		bool hasBeenUpdated() const;
 		void clearHasBeenUpdatedFlag();
 
+		size_t getNumEdgesForLayer(size_t iLayer);
+
 	protected:
 
 		bool updated = true;

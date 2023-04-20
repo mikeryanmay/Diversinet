@@ -29,55 +29,143 @@ void EigenKernels::setInitialCondition(const std::vector<Data::Structure::NodeSh
 	size_t nNodes = extantNodes.size();
 
 	// sampling fraction parameter
-	double &rho = ptrModel->ptrParameters->rho;
+	double &sampleProb  = ptrModel->ptrParameters->rho;
+	double noSampleProb = 1.0 - sampleProb;
+
+	// get reference to probabilities
+	Eigen::VectorXd& probs = x.getStateProb();
 
 	// compute the base probability
-	double baseProb = std::pow(rho, (double)nNodes);
+	double baseProb = std::pow(sampleProb, (double)nNodes);
 
 	// initialize each probability
-	for(size_t iL = 0; iL < x.size(); ++iL) {
-		// TODO
+	for(size_t iL = 0; iL < probs.size(); ++iL) {
+		probs(iL) = baseProb * std::pow(noSampleProb, (double)iL);
 	}
-
 
 }
 
 void EigenKernels::computeSpeciationEvent(double t, Likelihood::StateType::Vector::EigenState &x) {
 	// TODO
+
+	// get the transition matrix
+	const Models::SpMat &P = ptrModel->getSpeciationEventMatrix(t);
+
+	// get the probability elements
+	Eigen::VectorXd &p = x.getStateProb();
+
+	// do the operation
+	p = P * p;
+
 }
 
-void EigenKernels::computeAsymmetricalHybridizationEvent(double t, Likelihood::StateType::Vector::EigenState &x) {
+void EigenKernels::computeDirectionalTriangle(double t, Likelihood::StateType::Vector::EigenState &x) {
 	// TODO
+
+	// get the transition matrix
+	const Models::SpMat &P = ptrModel->getDirectionalTriangleEventMatrix(t);
+
+	// get the probability elements
+	Eigen::VectorXd &p = x.getStateProb();
+
+	// do the operation
+	p = P * p;
+
 }
 
-void EigenKernels::computeSymmetricalHybridizationEvent(double t, Likelihood::StateType::Vector::EigenState &x) {
+void EigenKernels::computeBidirectionalTriangle(double t, Likelihood::StateType::Vector::EigenState &x) {
 	// TODO
+
+	// get the transition matrix
+	const Models::SpMat &P = ptrModel->getBidirectionalTriangleEventMatrix(t);
+
+	// get the probability elements
+	Eigen::VectorXd &p = x.getStateProb();
+
+	// do the operation
+	p = P * p;
+
 }
 
-void EigenKernels::computeHybridSpeciationEvent(double t, Likelihood::StateType::Vector::EigenState &x) {
+void EigenKernels::computeNewHybridTriangle(double t, Likelihood::StateType::Vector::EigenState &x) {
 	// TODO
+
+	// get the transition matrix
+	const Models::SpMat &P = ptrModel->getNewHybridTriangleEventMatrix(t);
+
+	// get the probability elements
+	Eigen::VectorXd &p = x.getStateProb();
+
+	// do the operation
+	p = P * p;
+
 }
 
-void EigenKernels::computeAmbiguousHybridizationEvent(double t, Likelihood::StateType::Vector::EigenState &x) {
+void EigenKernels::computeHybridDiamond(double t, Likelihood::StateType::Vector::EigenState &x) {
 	// TODO
+
+	// get the transition matrix
+	const Models::SpMat &P = ptrModel->getHybridDiamondEventMatrix(t);
+
+	// get the probability elements
+	Eigen::VectorXd &p = x.getStateProb();
+
+	// do the operation
+	p = P * p;
+
 }
 
-void EigenKernels::computeAllopolyploidizationEventOne(double t, Likelihood::StateType::Vector::EigenState &x) {
+void EigenKernels::computePolyploidDiamond(double t, Likelihood::StateType::Vector::EigenState &x) {
 	// TODO
+
+	// get the transition matrix
+	const Models::SpMat &P = ptrModel->getPolyploidTriangleEventMatrix(t);
+
+	// get the probability elements
+	Eigen::VectorXd &p = x.getStateProb();
+
+	// do the operation
+	p = P * p;
+
 }
 
-void EigenKernels::computeAllopolyploidizationEventTwo(double t, Likelihood::StateType::Vector::EigenState &x) {
+void EigenKernels::computePolyploidTriangle(double t, Likelihood::StateType::Vector::EigenState &x) {
 	// TODO
+
+	// get the transition matrix
+	const Models::SpMat &P = ptrModel->getNewPolyploidTriangleEventMatrix(t);
+
+	// get the probability elements
+	Eigen::VectorXd &p = x.getStateProb();
+
+	// do the operation
+	p = P * p;
+
 }
 
-void EigenKernels::computeAllopolyploidizationEventThree(double t, Likelihood::StateType::Vector::EigenState &x) {
+void EigenKernels::computeNewPolyploidTriangle(double t, Likelihood::StateType::Vector::EigenState &x) {
 	// TODO
+
+	// get the transition matrix
+	const Models::SpMat &P = ptrModel->getPolyploidDiamondEventMatrix(t);
+
+	// get the probability elements
+	Eigen::VectorXd &p = x.getStateProb();
+
+	// do the operation
+	p = P * p;
+
 }
 
 double EigenKernels::computeLogLikelihood(double t, Likelihood::StateType::Vector::EigenState &x) {
 	// TODO
 	return 0.0;
 }
+
+void EigenKernels::rescaleProbabilities(Likelihood::StateType::Vector::EigenState &x) {
+	x.rescaleProbabilities();
+}
+
 
 } /* namespace CPU */
 } /* namespace Kernels */
