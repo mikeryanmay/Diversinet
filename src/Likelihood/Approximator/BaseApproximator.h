@@ -39,7 +39,7 @@ class BaseApproximator {
 
 	protected:
 
-		double deltaT, logLikelihood = 0.0;
+		double deltaT, logLikelihood = 0.0, scalingFactor = 0.0;
 		Likelihood::Integrator::integrationScheme_t intScheme;
 		Models::ModelSharedPtr ptrModel;
 		Scheduler::SchedulerSharedPtr ptrScheduler;

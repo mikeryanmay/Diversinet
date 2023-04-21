@@ -93,6 +93,7 @@ double DefaultApproximator::approximateLogLikelihood() {
 void DefaultApproximator::doPreProcessingSteps() {
 	probState = Likelihood::StateType::Vector::EigenState();
 	integrationTimes.clear();
+	scalingFactor = 0.0;
 }
 
 void DefaultApproximator::doIntegrationStep(size_t iEdgesLayer) {
@@ -103,7 +104,7 @@ void DefaultApproximator::doIntegrationStep(size_t iEdgesLayer) {
 
 	// tell the kernel the number of edges in this layer
 	size_t numEdges = ptrScheduler->getNumEdgesForLayer(iEdgesLayer);
-	ptrModel->setNumberOfLineages(numEdges); // TODO: CONFIRM THAT THIS IS SETTING THE CORRECT NUMBER OF LINEAGES
+	ptrModel->setNumberOfLineages(numEdges);
 
 	if(endTime == startTime) return;
 
@@ -127,6 +128,7 @@ void DefaultApproximator::doEventStep(size_t iEvent) {
 	if ( event->checkEvent(Likelihood::Scheduler::PRESENT_TIME_EVENT) ) {
 		kernels.setInitialCondition(event->getNodes(), probState);
 		kernels.rescaleProbabilities(probState);
+		scalingFactor = probState.getScaling();
 	} else if ( event->checkEvent(Likelihood::Scheduler::SPECIATION_EVENT) ) {
 		kernels.computeSpeciationEvent(event->getTime(), probState);
 	} else if ( event->checkEvent(Likelihood::Scheduler::DIRECTIONAL_TRIANGLE) ) {
@@ -147,6 +149,7 @@ void DefaultApproximator::doEventStep(size_t iEvent) {
 		logLikelihood = kernels.computeLogLikelihood(event->getTime(), probState);
 	} else if ( event->checkEvent(Likelihood::Scheduler::RESCALING_EVENT) ) {
 		kernels.rescaleProbabilities(probState);
+		scalingFactor += probState.getScaling();
 	} else {
 		assert(false && "Event is not implemented.");
 	}
@@ -154,11 +157,10 @@ void DefaultApproximator::doEventStep(size_t iEvent) {
 }
 
 void DefaultApproximator::doPostProcessingSteps() {
-	// TODO
+	logLikelihood += scalingFactor;
 }
 
 void DefaultApproximator::doReportState(double t) {
-	// TODO
 }
 
 

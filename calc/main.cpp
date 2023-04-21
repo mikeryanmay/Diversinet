@@ -15,7 +15,9 @@ int main(int argc, const char* argv[]) {
 
 	// containers for arguments
 	double lambda, mu, eta, zeta, nu, psi, rho; // parameters
+	size_t kmax;
 	std::string treefile; // the path to the output file
+	bool screen;
 
 	// parse command-line arguments
 	try {
@@ -25,6 +27,7 @@ int main(int argc, const char* argv[]) {
 		desc.add_options()
 		    ("help,h",                                                                    "print help message")
 			("tree,t",      value<std::string>(&treefile)->required(),                    "tree file")
+			("kmax,k",      value<size_t>(&kmax)->required(),                             "the maximum number of states")
 			("lambda,l",    value<double>(&lambda)->required(),                           "speciation rate")
 			("mu,m",        value<double>(&mu)->required(),                               "extinction rate")
 			("eta,e",       value<double>(&eta)->required(),                              "symmetrical hybridization rate")
@@ -32,6 +35,7 @@ int main(int argc, const char* argv[]) {
 			("nu,n",        value<double>(&nu)->required(),                               "hybrid speciation rate")
 			("psi,s",       value<double>(&psi)->required(),                              "allopolyploid speciation rate")
 			("rho,p",       value<double>(&rho)->required(),                              "sampling fraction at the present")
+			("screen,o",    value<bool>(&screen)->default_value(true),                    "print parameters to screen")
 		;
 
 		// get the variable map
@@ -47,28 +51,31 @@ int main(int argc, const char* argv[]) {
 		notify(vm);
 
 		// check other arguments
-		if (vm.count("tree")) {
+		if (vm.count("tree") && screen) {
 			std::cout << "Using tree file " << treefile << "\n";
 		}
-		if (vm.count("lambda")) {
+		if (vm.count("kmax") && screen) {
+			std::cout << "Using maximum number of states " << kmax << "\n";
+		}
+		if (vm.count("lambda") && screen) {
 			std::cout << "Using speciation rate " << lambda << "\n";
 		}
-		if (vm.count("mu")) {
+		if (vm.count("mu") && screen) {
 			std::cout << "Using extinction rate " << mu << "\n";
 		}
-		if (vm.count("eta")) {
+		if (vm.count("eta") && screen) {
 			std::cout << "Using asymmetrical hybridization rate " << eta << "\n";
 		}
-		if (vm.count("zeta")) {
+		if (vm.count("zeta") && screen) {
 			std::cout << "Using symmetrical hybridization rate " << zeta << "\n";
 		}
-		if (vm.count("nu")) {
+		if (vm.count("nu") && screen) {
 			std::cout << "Using hybrid speciation rate " << nu << "\n";
 		}
-		if (vm.count("psi")) {
+		if (vm.count("psi") && screen) {
 			std::cout << "Using allopolyploid speciation rate " << psi << "\n";
 		}
-		if (vm.count("rho")) {
+		if (vm.count("rho") && screen) {
 			std::cout << "Using sampling fraction " << rho << "\n";
 		}
 
@@ -88,6 +95,7 @@ int main(int argc, const char* argv[]) {
 	interface.setNu(nu);
 	interface.setPsi(psi);
 	interface.setRho(rho);
+	interface.setKMax(kmax);
 
 	// read the tree file
 	std::ifstream file(treefile);
@@ -96,16 +104,10 @@ int main(int argc, const char* argv[]) {
 
 	// read the tree
 	interface.readNewick(newick_string);
-	interface.computeLogLikelihood();
+	double lnl = interface.computeLogLikelihood();
 
-
-//	// simulate networks
-//	std::vector<std::string> sims = interface.simulate(time, condition, reps, seed, extant);
-//
-//	// write to file
-//	std::ofstream output_file(outfile);
-//	std::ostream_iterator<std::string> output_iterator(output_file, "\n");
-//	std::copy(sims.begin(), sims.end(), output_iterator);
+	// report to screen
+	std::cout << "log likelihood is: " << std::setprecision(10) << lnl << std::endl;
 
 	// exit
 	return 0;

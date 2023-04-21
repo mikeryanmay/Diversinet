@@ -30,6 +30,9 @@ class BaseScheduler {
 		BaseScheduler(NS::NetworkSharedPtr aPtrNetwork);
 		virtual ~BaseScheduler();
 
+		void defineAndSetRescalingEvents();
+		void removeRescalingEvents();
+
 		NS::NetworkSharedPtr getPtrNetwork() const;
 		const std::vector<Event*>& getEvents() const;
 
@@ -55,6 +58,9 @@ class BaseScheduler {
 		std::vector<NS::NodeSharedPtr> defineNextEdgesLayerAndEvent(Event *lastEvent);
 
 		eventType_t eventTypeFromEventNodes(std::vector<NS::NodeSharedPtr> eventNodes);
+
+		int getFirstEventAfterTimeT(double aTime);
+		void removeEventsByType(eventType_t aEventType);
 
 };
 

@@ -27,6 +27,10 @@ class BaseModel {
 		void setNumberOfLineages(size_t aNumLineages);
 		void setNeedsUpdate();
 
+		// get initial probs
+		virtual Eigen::VectorXd getInitialProbabilities(size_t numLineages) = 0;
+
+		// get transition rates/event matrices
 		virtual const SpMat& getTransitionRateMatrix(double t) = 0;
 		virtual const SpMat& getSpeciationEventMatrix(double t) = 0;
 		virtual const SpMat& getDirectionalTriangleEventMatrix(double t) = 0;
@@ -37,10 +41,12 @@ class BaseModel {
 		virtual const SpMat& getNewPolyploidTriangleEventMatrix(double t) = 0;
 		virtual const SpMat& getPolyploidDiamondEventMatrix(double t) = 0;
 
-		Parameters::ContainerSharedPtr ptrParameters;
-
 	protected:
 
+		// keep the parameters
+		Parameters::ContainerSharedPtr ptrParameters;
+
+		// update everything
 		void setNeedsUpdateAll();
 
 		// constants

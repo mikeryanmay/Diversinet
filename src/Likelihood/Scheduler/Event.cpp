@@ -110,14 +110,14 @@ bool Event::isEventPossible() const {
 		case SPECIATION_EVENT:
 			isValid = eventNodes.size() == 1 && (eventNodes[0]->getType() == NS::Speciation || eventNodes[0]->getType() == NS::Root);
 			break;
-		case BIDIRECTIONAL_TRIANGLE:
+		case DIRECTIONAL_TRIANGLE:
 			isValid = eventNodes.size() == 2; // must be two nodes
 			isValid = isValid && eventNodes[0]->getAge() == eventNodes[1]->getAge(); // nodes must be same age
 			oneOwnsTwo = eventNodes[0]->hasChild(eventNodes[1]);
 			twoOwnsOne = eventNodes[1]->hasChild(eventNodes[0]);
 			isValid = oneOwnsTwo != twoOwnsOne; // XOR, exactly one can own the other
 			break;
-		case DIRECTIONAL_TRIANGLE:
+		case BIDIRECTIONAL_TRIANGLE:
 			isValid = eventNodes.size() == 2; // must be two nodes
 			isValid = isValid && eventNodes[0]->getAge() == eventNodes[1]->getAge(); // nodes must be same age
 			oneOwnsTwo = eventNodes[0]->hasChild(eventNodes[1]);

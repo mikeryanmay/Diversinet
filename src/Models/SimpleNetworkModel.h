@@ -20,6 +20,10 @@ class SimpleNetworkModel: public BaseModel {
 		SimpleNetworkModel(Parameters::ContainerSharedPtr aPtrParameter, size_t aKMax);
 		virtual ~SimpleNetworkModel();
 
+		// get initial probs
+		Eigen::VectorXd getInitialProbabilities(size_t numLineages);
+
+		// get transition rates/event matrices
 		const SpMat& getTransitionRateMatrix(double t);
 		const SpMat& getSpeciationEventMatrix(double t);
 		const SpMat& getDirectionalTriangleEventMatrix(double t);

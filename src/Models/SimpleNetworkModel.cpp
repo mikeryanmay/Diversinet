@@ -19,6 +19,28 @@ SimpleNetworkModel::SimpleNetworkModel(Parameters::ContainerSharedPtr aPtrParame
 SimpleNetworkModel::~SimpleNetworkModel() {
 }
 
+
+Eigen::VectorXd SimpleNetworkModel::getInitialProbabilities(size_t numLineages) {
+
+	// sampling fraction parameter
+	double &sampleProb  = ptrParameters->rho;
+	double noSampleProb = 1.0 - sampleProb;
+
+	// get reference to probabilities
+	Eigen::VectorXd probs(Kmax);
+
+	// compute the base probability
+	double baseProb = std::pow(sampleProb, (double)numLineages);
+
+	// initialize each probability
+	for(size_t iL = 0; iL < probs.size(); ++iL) {
+		probs(iL) = baseProb * std::pow(noSampleProb, (double)iL);
+	}
+
+	return probs;
+
+}
+
 const SpMat& SimpleNetworkModel::getTransitionRateMatrix(double t) {
 	updateRateMatrix();
 	return transitionRateMatrix;
@@ -240,12 +262,15 @@ void SimpleNetworkModel::updateHybridDiamondEventMatrix() {
 		// fill in values
 		for (size_t iU = 0; iU < Kmax; ++iU) {
 
+			// no diagonal value
+			hybridDiamondEventMatrix.coeffRef(iU, iU) = 0.0;
 
-			// up value (only if we can transition up
+			// up value (only if we can transition up)
 			if ( iU < (Kmax - 1) ) {
 				hybridDiamondEventMatrix.coeffRef(iU, iU + 1) = eta + 2.0 * zeta;
 			}
 
+			// up value (only if we can transition up twice)
 			if ( iU < (Kmax - 2) ) {
 				hybridDiamondEventMatrix.coeffRef(iU, iU + 2) = nu;
 			}
@@ -264,7 +289,7 @@ void SimpleNetworkModel::updatePolyploidTriangleEventMatrix() {
 	if (needsUpdatePolyploidTriangleEventMatrix) {
 
 		// resize matrix
-		hybridDiamondEventMatrix.resize(Kmax, Kmax);
+		polyploidTriangleEventMatrix.resize(Kmax, Kmax);
 
 		// get parameters
 		const double &psi = ptrParameters->psi;    // allopolyploidization rate
@@ -272,8 +297,12 @@ void SimpleNetworkModel::updatePolyploidTriangleEventMatrix() {
 		// fill in values
 		for (size_t iU = 0; iU < Kmax; ++iU) {
 
-			if ( iU < (Kmax - 2) ) {
-				polyploidTriangleEventMatrix.coeffRef(iU, iU + 2) = psi;
+			// no diagonal value
+			polyploidTriangleEventMatrix.coeffRef(iU, iU) = 0.0;
+
+			// up value (only if we can transition up)
+			if ( iU < (Kmax - 1) ) {
+				polyploidTriangleEventMatrix.coeffRef(iU, iU + 1) = psi;
 			}
 
 		}
@@ -293,14 +322,13 @@ void SimpleNetworkModel::updateNewPolyploidTriangleEventMatrix() {
 		newPolyploidTriangleEventMatrix.resize(Kmax, Kmax);
 
 		// get parameters
-		const double &psi = ptrParameters->psi;    // allopolyploidization rate
+		const double &psi = ptrParameters->psi; // allopolyploidization rate
 
 		// fill in values
 		for (size_t iU = 0; iU < Kmax; ++iU) {
 
-			if ( iU < (Kmax - 1) ) {
-				newPolyploidTriangleEventMatrix.coeffRef(iU, iU + 1) = psi;
-			}
+			// diagonal value
+			newPolyploidTriangleEventMatrix.coeffRef(iU, iU) = psi;
 
 		}
 
@@ -322,7 +350,15 @@ void SimpleNetworkModel::SimpleNetworkModel::updatePolyploidDiamondEventMatrix()
 
 		// fill in values
 		for (size_t iU = 0; iU < Kmax; ++iU) {
-			polyploidDiamondEventMatrix.coeffRef(iU, iU) = psi;
+
+			// no diagonal value
+			polyploidDiamondEventMatrix.coeffRef(iU, iU) = 0.0;
+
+			// up value (only if we can transition up twice)
+			if ( iU < (Kmax - 2) ) {
+				polyploidDiamondEventMatrix.coeffRef(iU, iU + 2) = psi;
+			}
+
 		}
 
 		// mark as clean

@@ -76,11 +76,14 @@ double DiversinetInterface::computeLogLikelihood() {
 	}
 	assert(ptrModel && "Model is invalid.");
 
+	// make sure parameters are updated
+	ptrModel->setNeedsUpdate();
+
 	// initialize the scheduler
 	if ( ptrScheduler == nullptr || schedulerOperation == RESET) {
 		ptrScheduler.reset( new Likelihood::Scheduler::BaseScheduler(ptrNetwork) );
+		ptrScheduler->defineAndSetRescalingEvents();
 	} else if (schedulerOperation == UPDATE) {
-		// TODO
 	}
 	assert(ptrScheduler && "Scheduler is invalid.");
 

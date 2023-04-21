@@ -85,7 +85,7 @@ class DiversinetInterface {
 		Parameters::ContainerSharedPtr ptrParams;
 
 		// model
-		size_t kMax = 1024;
+		size_t kMax = 128;
 		modelVersion_t modelVersion = modelVersion_t::SIMPLE;
 		Models::ModelSharedPtr ptrModel;
 

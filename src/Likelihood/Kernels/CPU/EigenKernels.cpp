@@ -28,20 +28,11 @@ void EigenKernels::setInitialCondition(const std::vector<Data::Structure::NodeSh
 	// number of nodes
 	size_t nNodes = extantNodes.size();
 
-	// sampling fraction parameter
-	double &sampleProb  = ptrModel->ptrParameters->rho;
-	double noSampleProb = 1.0 - sampleProb;
-
-	// get reference to probabilities
+	// get the probability
 	Eigen::VectorXd& probs = x.getStateProb();
 
-	// compute the base probability
-	double baseProb = std::pow(sampleProb, (double)nNodes);
-
-	// initialize each probability
-	for(size_t iL = 0; iL < probs.size(); ++iL) {
-		probs(iL) = baseProb * std::pow(noSampleProb, (double)iL);
-	}
+	// set to probability from model
+	probs = ptrModel->getInitialProbabilities(nNodes);
 
 }
 
@@ -119,7 +110,7 @@ void EigenKernels::computePolyploidDiamond(double t, Likelihood::StateType::Vect
 	// TODO
 
 	// get the transition matrix
-	const Models::SpMat &P = ptrModel->getPolyploidTriangleEventMatrix(t);
+	const Models::SpMat &P = ptrModel->getPolyploidDiamondEventMatrix(t);
 
 	// get the probability elements
 	Eigen::VectorXd &p = x.getStateProb();
@@ -133,7 +124,7 @@ void EigenKernels::computePolyploidTriangle(double t, Likelihood::StateType::Vec
 	// TODO
 
 	// get the transition matrix
-	const Models::SpMat &P = ptrModel->getNewPolyploidTriangleEventMatrix(t);
+	const Models::SpMat &P = ptrModel->getPolyploidTriangleEventMatrix(t);
 
 	// get the probability elements
 	Eigen::VectorXd &p = x.getStateProb();
@@ -147,7 +138,7 @@ void EigenKernels::computeNewPolyploidTriangle(double t, Likelihood::StateType::
 	// TODO
 
 	// get the transition matrix
-	const Models::SpMat &P = ptrModel->getPolyploidDiamondEventMatrix(t);
+	const Models::SpMat &P = ptrModel->getNewPolyploidTriangleEventMatrix(t);
 
 	// get the probability elements
 	Eigen::VectorXd &p = x.getStateProb();
@@ -158,8 +149,15 @@ void EigenKernels::computeNewPolyploidTriangle(double t, Likelihood::StateType::
 }
 
 double EigenKernels::computeLogLikelihood(double t, Likelihood::StateType::Vector::EigenState &x) {
-	// TODO
-	return 0.0;
+
+	// get the probability elements
+	Eigen::VectorXd &p = x.getStateProb();
+
+	// get the probability of the first element
+	double logLikelihood = std::log(p[0]);
+
+	// return
+	return logLikelihood;
 }
 
 void EigenKernels::rescaleProbabilities(Likelihood::StateType::Vector::EigenState &x) {
