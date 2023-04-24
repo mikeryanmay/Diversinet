@@ -34,6 +34,7 @@ size_t BaseModel::getNumberOfStates() const {
 }
 
 void BaseModel::setNeedsUpdateAll() {
+	needsUpdateInitialProbabilities = true;
 	needsUpdateRateMatrix = true;
 	needsUpdateSpeciationEventMatrix = true;
 	needsUpdateDirectionalTriangleEventMatrix = true;

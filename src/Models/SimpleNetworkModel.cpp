@@ -20,24 +20,10 @@ SimpleNetworkModel::~SimpleNetworkModel() {
 }
 
 
-Eigen::VectorXd SimpleNetworkModel::getInitialProbabilities(size_t numLineages) {
+const Eigen::VectorXd& SimpleNetworkModel::getInitialProbabilities(size_t numLineages) {
 
-	// sampling fraction parameter
-	double &sampleProb  = ptrParameters->rho;
-	double noSampleProb = 1.0 - sampleProb;
-
-	// get reference to probabilities
-	Eigen::VectorXd probs(Kmax);
-
-	// compute the base probability
-	double baseProb = std::pow(sampleProb, (double)numLineages);
-
-	// initialize each probability
-	for(size_t iL = 0; iL < probs.size(); ++iL) {
-		probs(iL) = baseProb * std::pow(noSampleProb, (double)iL);
-	}
-
-	return probs;
+	updateInitialProbabilities(numLineages);
+	return initialProbabilities;
 
 }
 
@@ -84,6 +70,31 @@ const SpMat& SimpleNetworkModel::getNewPolyploidTriangleEventMatrix(double t) {
 const SpMat& SimpleNetworkModel::getPolyploidDiamondEventMatrix(double t) {
 	updatePolyploidDiamondEventMatrix();
 	return polyploidDiamondEventMatrix;
+}
+
+void SimpleNetworkModel::updateInitialProbabilities(size_t initialNumberOfLineages) {
+
+	if (needsUpdateInitialProbabilities) {
+
+		initialProbabilities.resize(Kmax);
+
+		// sampling fraction parameter
+		double &sampleProb  = ptrParameters->rho;
+		double noSampleProb = 1.0 - sampleProb;
+
+		// compute the base probability
+		double baseProb = std::pow(sampleProb, (double)initialNumberOfLineages);
+
+		// initialize each probability
+		for(size_t iL = 0; iL < initialProbabilities.size(); ++iL) {
+			initialProbabilities(iL) = baseProb * std::pow(noSampleProb, (double)iL);
+		}
+
+		// mark as clean
+		needsUpdateInitialProbabilities = false;
+
+	}
+
 }
 
 void SimpleNetworkModel::updateRateMatrix() {
@@ -155,7 +166,7 @@ void SimpleNetworkModel::updateSpeciationEventMatrix() {
 		for (size_t iU = 0; iU < Kmax; ++iU) {
 
 			// diagonal value
-			speciationEventMatrix.coeffRef(iU, iU) = lambda;
+			speciationEventMatrix.coeffRef(iU, iU) = 2.0 * lambda;
 
 		}
 

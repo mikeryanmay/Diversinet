@@ -27,10 +27,8 @@ class BaseModel {
 		void setNumberOfLineages(size_t aNumLineages);
 		void setNeedsUpdate();
 
-		// get initial probs
-		virtual Eigen::VectorXd getInitialProbabilities(size_t numLineages) = 0;
-
-		// get transition rates/event matrices
+		// get rate/event matrices
+		virtual const Eigen::VectorXd& getInitialProbabilities(size_t numLineages) = 0;
 		virtual const SpMat& getTransitionRateMatrix(double t) = 0;
 		virtual const SpMat& getSpeciationEventMatrix(double t) = 0;
 		virtual const SpMat& getDirectionalTriangleEventMatrix(double t) = 0;
@@ -52,6 +50,11 @@ class BaseModel {
 		// constants
 		size_t Kmax;
 		size_t numLineages = 0;
+
+		// the rate matrix
+		bool needsUpdateInitialProbabilities = true;
+		Eigen::VectorXd initialProbabilities;
+		virtual void updateInitialProbabilities(size_t initialNumberOfLineages) = 0;
 
 		// the rate matrix
 		bool needsUpdateRateMatrix = true;

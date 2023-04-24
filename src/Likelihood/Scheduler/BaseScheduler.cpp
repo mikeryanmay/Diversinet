@@ -57,12 +57,12 @@ void BaseScheduler::removeEventsByType(eventType_t aEventType) {
 		if((*it)->checkEvent(aEventType)) {
 
 			// Finding the position of the event
-			size_t pos = std::distance(events.begin(), it);
+			size_t pos = std::distance(events.begin(), it); // @suppress("Invalid arguments")
 			// Erase the associated layer of edges
-			layeredEdges.erase(layeredEdges.begin() + (pos - 1));
+			layeredEdges.erase(layeredEdges.begin() + (pos - 1)); // @suppress("Invalid arguments")
 			// Erase the event
 			delete (*it);
-			it = events.erase(it);
+			it = events.erase(it); // @suppress("Invalid arguments")
 
 		} else {
 			it++;
@@ -167,7 +167,7 @@ void BaseScheduler::defineAndSetRescalingEvents() {
 				}
 
 				nodesId.push_back(edges[iE]->getChild());
-				rescalingTime.push_back(std::make_pair(requestedTime, rescalingTime.size()));
+				rescalingTime.push_back(std::make_pair(requestedTime, rescalingTime.size())); // @suppress("Invalid arguments")
 				//std::cout << "Final time  :" << requestedTime << std::endl;
 			}
 			//std::cout << "--------------------------------------------" << std::endl;
@@ -218,13 +218,13 @@ void BaseScheduler::defineAndSetRescalingEvents() {
 			//std::cout << "Creating event : " << newEvent->toString() << std::endl;
 			std::vector<Event*>::iterator itE = events.begin();
 			std::advance(itE, index);
-			events.insert(itE, newEvent);
+			events.insert(itE, newEvent); // @suppress("Invalid arguments")
 
 			// update the edges layer
 			std::vector< edgesList_t >::iterator itL = layeredEdges.begin();
 			std::advance(itL, index-1);
 			edgesList_t layerCopy  = *itL;
-			layeredEdges.insert(itL, layerCopy);
+			layeredEdges.insert(itL, layerCopy); // @suppress("Invalid arguments")
 
 			// We clear the rescalingEventNode buffer
 			rescalingEventNodes.clear();

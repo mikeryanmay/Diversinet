@@ -1,6 +1,10 @@
 library(ape)
 library(TESS)
 
+format_num <- function(x) {
+    sprintf("%.10f", x)
+}
+
 #########################################
 # 1: Yule tree, no hybridization events #
 #########################################
@@ -15,7 +19,7 @@ tree <- read.tree(text = "((A:0.5,B:0.5):0.25,C:0.75):0.25;")
 write.tree(tree, "../data/yule_tree.tre")
 
 ## compute the probability
-log(lambda * lambda * exp(-2.25 * lambda))
+format_num(log(4 * lambda * lambda * exp(-2.25 * lambda)))
 
 ################################################
 # 2: Yule tree with asymmetrical hybridization #
@@ -32,7 +36,7 @@ tree <- read.evonet(text = "((A:0.5,C#A:0.00):0.25,(B:0.5)C#A:0.25):0.25;")
 write.evonet(tree, "../data/yule_asymmetrical_tree.tre")
 
 ## compute the probability
-log(0.5 * eta * lambda * exp(-1.75 * lambda - 0.75 * eta))
+format_num(log(2 * 0.5 * eta * lambda * exp(-1.75 * lambda - 0.75 * eta)))
 
 ###############################################
 # 3: Yule tree with symmetrical hybridization #
@@ -49,7 +53,7 @@ tree <- read.evonet(text = "((A:0.5,C#S1:0.00)D#S2:0.25,(B:0.5,D#S2:0.00)C#S1:0.
 write.evonet(tree, "../data/yule_symmetrical_tree.tre")
 
 # compute the probability
-log(zeta * lambda * exp(-1.75 * lambda - 0.75 * zeta))
+format_num(log(2 * zeta * lambda * exp(-1.75 * lambda - 0.75 * zeta)))
 
 #############################################
 # 4: Yule tree with hybrid speciation event #
@@ -66,7 +70,7 @@ tree <- read.evonet(text = "((A:0.5,(B:0.5)D#H:0.0):0.25,(C:0.5,D#H:0.0):0.25):0
 write.evonet(tree, "../data/yule_hybrid_speciation_tree.tre")
 
 # compute the probability
-log(nu * lambda * exp(-2.25 * lambda - 1.75 * nu))
+format(log(nu * 2 * lambda * exp(-2.25 * lambda - 1.75 * nu)))
 
 ####################################################
 # 5: Yule tree with allopolyploid speciation event #
@@ -82,7 +86,7 @@ tree <- read.evonet(text = "((A:0.5,(B:0.5)D#P:0.0):0.25,(C:0.5,D#P:0.0):0.25):0
 write.evonet(tree, "../data/yule_allopolyploid_speciation_tree.tre")
 
 # compute the probability
-log(psi * lambda * exp(-2.25 * lambda - 1.75 * psi))
+format_num(log(psi * 2 * lambda * exp(-2.25 * lambda - 1.75 * psi)))
 
 #########################################
 # 6: Yule tree with incomplete sampling #
@@ -101,7 +105,7 @@ p1 <- function(lambda, mu, rho, t) {
     TESS:::tess.equations.p1.constant(lambda, mu, c(), c(), rho, 0, t)
 }
 
-log(lambda * lambda * p1(lambda, mu, rho, 1) * p1(lambda, mu, rho, 0.75) * p1(lambda, mu, rho, 0.5))
+format_num(log(4 * lambda * lambda * p1(lambda, mu, rho, 1) * p1(lambda, mu, rho, 0.75) * p1(lambda, mu, rho, 0.5)))
 
 ####################################################
 # 7: birth-death tree with no hybridization events #
@@ -120,7 +124,7 @@ p1 <- function(lambda, mu, rho, t) {
     TESS:::tess.equations.p1.constant(lambda, mu, c(), c(), rho, 0, t)
 }
 
-log(lambda * lambda * p1(lambda, mu, rho, 1) * p1(lambda, mu, rho, 0.75) * p1(lambda, mu, rho, 0.5))
+format_num(log(lambda * lambda * p1(lambda, mu, rho, 1) * p1(lambda, mu, rho, 0.75) * p1(lambda, mu, rho, 0.5)))
 
 
 
