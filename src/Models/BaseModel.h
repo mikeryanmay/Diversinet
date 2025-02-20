@@ -28,7 +28,7 @@ class BaseModel {
 		void setNeedsUpdate();
 
 		// get rate/event matrices
-		virtual const Eigen::VectorXd& getInitialProbabilities(size_t numLineages) = 0;
+		virtual const Eigen::VectorXd& getInitialProbabilities(size_t initialNumberOfLineages) = 0;
 		virtual const SpMat& getTransitionRateMatrix(double t) = 0;
 		virtual const SpMat& getSpeciationEventMatrix(double t) = 0;
 		virtual const SpMat& getDirectionalTriangleEventMatrix(double t) = 0;

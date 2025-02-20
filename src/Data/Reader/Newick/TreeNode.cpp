@@ -105,6 +105,10 @@ bool TreeNode::isLeaf() const {
 	return children.empty();
 }
 
+bool TreeNode::isSampledAncestor() const {
+	return children.size() == 1;
+}
+
 /**
  * This function extract the compatible revbayes node id if possible.
  * If not it uses the default newick node id.

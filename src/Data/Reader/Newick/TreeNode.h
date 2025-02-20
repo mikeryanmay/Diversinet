@@ -71,6 +71,7 @@ public:
 	size_t defineRBCompatibleNodeID() const;
 
 	bool isLeaf() const;
+	bool isSampledAncestor() const;
 
 	std::string toString() const;
 	std::string subtreeToString() const;

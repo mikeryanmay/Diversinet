@@ -61,6 +61,13 @@ void DiversinetInterface::setKMax(size_t kmax_) {
 	}
 }
 
+void DiversinetInterface::setKMaxInt(int kmax_) {
+	kMax = (size_t)kmax_;
+	if ( ptrModel != nullptr ) {
+		ptrModel->setNumberOfStates(kMax);
+	}
+}
+
 double DiversinetInterface::computeLogLikelihood() {
 
 	// only works if we have a network set
@@ -111,6 +118,28 @@ double DiversinetInterface::computeLogLikelihood() {
 
 }
 
+std::string DiversinetInterface::simulate(double time, std::string condition, int seed, bool extantOnly) {
+
+	// check time argument
+	bool check_time = time > 0.0;
+	assert(check_time && "Invalid time provided. Ensure that time > 0.");
+
+	// check condition
+	bool check_condition = condition == "none" || condition == "survival" || condition == "tree" || condition == "tree+hybrid";
+	assert(check_condition && "Invalid condition provided. Options are: none, survival, tree, tree+hybrid.");
+
+	// create the simulator
+	Simulate::BaseSimulator simulator(ptrParams, seed);
+
+	// simulate the network
+	std::vector<Data::Structure::NetworkSharedPtr> networks = simulator.simulate(time, condition, 1, extantOnly);
+
+	// translate to newick string
+	std::string newick = networks.at(0)->getNewickString();
+
+	return newick;
+
+}
 
 std::vector<std::string> DiversinetInterface::simulate(double time, std::string condition, size_t nreps, int seed, bool extantOnly) {
 

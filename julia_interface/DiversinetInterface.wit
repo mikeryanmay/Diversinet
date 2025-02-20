@@ -1,0 +1,5 @@
+module_name         = "DiversinetInterface"
+input               = [ "../api/DiversinetInterface.h" ] 
+include_dirs        = [ "../api/" ]
+cxx-std             = "c++20"
+veto_list           = "jlDiversinet-veto.h"

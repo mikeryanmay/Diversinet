@@ -1,0 +1,10 @@
+name = "DiversinetInterface"
+uuid = "9812f326-93f9-f297-273e-1bc1d4536ae0"
+
+[deps]
+CxxWrap = "1f15a43c-97ca-5a2a-ae31-89f07a497df4"
+Libdl = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
+
+
+[compat]
+CxxWrap = "0.16"

@@ -9,6 +9,7 @@
 #define CATCH_CONFIG_MAIN
 
 // TESTS ARE IMPLEMENTED THERE
+#include "Test/SimulateTests.cpp"
 #include "Test/SimpleTests.cpp"
 
 

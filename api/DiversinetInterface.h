@@ -1,7 +1,6 @@
 #ifndef _DIVNET_INTERFACE_
 #define _DIVNET_INTERFACE_
 
-#include <vector>
 #include <boost/smart_ptr/shared_ptr.hpp>
 
 namespace Data {
@@ -69,11 +68,13 @@ class DiversinetInterface {
 		void setPsi(double psi_);
 		void setRho(double rho_);
 		void setKMax(size_t kmax_);
+		void setKMaxInt(int kmax_);
 
 		// likelihood
 		double computeLogLikelihood();
 
 		// simulate
+		std::string simulate(double time, std::string condition, int seed, bool extantOnly);
 		std::vector<std::string> simulate(double time, std::string condition, size_t nreps, int seed, bool extantOnly);
 
 		// read a network

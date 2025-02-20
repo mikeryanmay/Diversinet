@@ -8,7 +8,7 @@
 #include <vector>
 #include <string>
 
-#include <boost/progress.hpp>
+// #include <boost/progress.hpp>
 
 #include <boost/make_shared.hpp>
 #include <boost/smart_ptr/shared_ptr.hpp>
@@ -49,7 +49,7 @@ std::vector<Data::Structure::NetworkSharedPtr> BaseSimulator::simulate(double ti
 	bool success;
 
 	std::cout << "\nSimulation in progress." << std::endl;
-	boost::progress_display show_progress( nreps );
+	// boost::progress_display show_progress( nreps );
 	for(size_t i = 0; i < nreps; ++i) {
 
 		// simulate for condition
@@ -81,7 +81,7 @@ std::vector<Data::Structure::NetworkSharedPtr> BaseSimulator::simulate(double ti
 		networks.push_back(network);
 
 		// increment progress bar
-		++show_progress;
+		// ++show_progress;
 
 	}
 

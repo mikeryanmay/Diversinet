@@ -21,7 +21,7 @@ class SimpleNetworkModel: public BaseModel {
 		virtual ~SimpleNetworkModel();
 
 		// get rate/event matrices
-		const Eigen::VectorXd& getInitialProbabilities(size_t numLineages);
+		const Eigen::VectorXd& getInitialProbabilities(size_t initialNumberOfLineages);
 		const SpMat& getTransitionRateMatrix(double t);
 		const SpMat& getSpeciationEventMatrix(double t);
 		const SpMat& getDirectionalTriangleEventMatrix(double t);

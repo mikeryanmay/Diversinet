@@ -269,7 +269,7 @@ std::string Node::recursivelyConstructNewickString(EdgeSharedPtr incomingEdge) {
 		// 2: child is a hybrid speciation node or polyploid node
 
 		EdgeSharedPtr leftEdge = edgesToChildren.at(0);
-		if ( !leftEdge->type == Hybridization || leftEdge->getChild()->type == HybridSpecies || leftEdge->getChild()->type == Allopolyploid ) {
+		if ( !(leftEdge->type == Hybridization) || leftEdge->getChild()->type == HybridSpecies || leftEdge->getChild()->type == Allopolyploid ) {
 			// safe to call recursively
 			newick += leftEdge->getChild()->recursivelyConstructNewickString(leftEdge);
 		} else {
@@ -281,7 +281,7 @@ std::string Node::recursivelyConstructNewickString(EdgeSharedPtr incomingEdge) {
 		newick += ",";
 
 		EdgeSharedPtr rightEdge = edgesToChildren.at(1);
-		if ( !rightEdge->type == Hybridization || rightEdge->getChild()->type == HybridSpecies || rightEdge->getChild()->type == Allopolyploid ) {
+		if ( !(rightEdge->type == Hybridization) || rightEdge->getChild()->type == HybridSpecies || rightEdge->getChild()->type == Allopolyploid ) {
 			// safe to call recursively
 			newick += rightEdge->getChild()->recursivelyConstructNewickString(rightEdge);
 		} else {

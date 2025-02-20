@@ -31,7 +31,7 @@ namespace Structure {
 
 	// node and edge types
 	enum NodeType {
-		Origin, Root, Sample, Speciation, Extinction, Donor, Hybrid, HybridSpecies, Allopolyploid
+		Origin, Root, Sample, Speciation, Extinction, Donor, Hybrid, HybridSpecies, Allopolyploid, SampledAncestor
 	};
 
 	enum EdgeType {

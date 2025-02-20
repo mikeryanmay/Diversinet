@@ -8,7 +8,6 @@ project('diversinet', 'cpp',
 eigen_dep          = dependency('eigen3')
 boost_dep_for_lib  = dependency('boost', modules : ['random'])
 boost_dep_for_calc = dependency('boost', modules : ['filesystem', 'program_options'])
-# test_dep           = dependency('catch2')
 
 # locations of header files
 inc_for_lib  = include_directories('api', 'src')

@@ -197,10 +197,12 @@ double Network::createRecursiveNewick(const NewickReader::TreeNode *newickNode, 
 		// get the age
 		double temporaryAge = treeNode->getAge() + branchLengthToParent;
 
-		// determine whether node is a tip
+		// determine whether node is a tip or sampled ancestor
 		NodeType type = Speciation;
 		if ( childNewick->isLeaf() ) {
 			type = Sample;
+		} else if ( childNewick->isSampledAncestor() ) {
+			type = SampledAncestor;
 		}
 
 		// create the node
@@ -450,11 +452,18 @@ void Network::pruneExtinctTipsRecursive(NodeSharedPtr aNode) {
 
 		// we are a knuckle
 
-		// this node is responsible for:
+		// if this is a sampled ancestor, retain it
+		if ( aNode->getType() == SampledAncestor ) {
+			// don't try to delete me
+			return;
+		}
+
+		// otherwise, this node is responsible for:
 		// - removing the descendant edge from its descendant node
 		// - attaching the ancestral edge to the descendant node
 		// - removing itself from the node vector
 		// - if this is a hybrid node, assign label to the descendant
+
 
 		// get child edges, make sure there's only one
 		std::vector<EdgeSharedPtr> edgesToChildren = aNode->getEdgesToChildren();
@@ -531,7 +540,6 @@ void Network::pruneExtinctTipsRecursive(NodeSharedPtr aNode) {
 			this->pruneExtinctTipsRecursive(aNode);
 
 		}
-
 
 	}
 
