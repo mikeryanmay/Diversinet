@@ -131,22 +131,31 @@ void DefaultApproximator::doEventStep(size_t iEvent) {
 		scalingFactor = probState.getScaling();
 	} else if ( event->checkEvent(Likelihood::Scheduler::SPECIATION_EVENT) ) {
 		kernels.computeSpeciationEvent(event->getTime(), probState);
+		scalingFactor += probState.getScaling();
 	} else if ( event->checkEvent(Likelihood::Scheduler::DIRECTIONAL_TRIANGLE) ) {
 		kernels.computeDirectionalTriangle(event->getTime(), probState);
+		scalingFactor += probState.getScaling();
 	} else if ( event->checkEvent(Likelihood::Scheduler::BIDIRECTIONAL_TRIANGLE) ) {
 		kernels.computeBidirectionalTriangle(event->getTime(), probState);
+		scalingFactor += probState.getScaling();
 	} else if ( event->checkEvent(Likelihood::Scheduler::NEW_HYBRID_TRIANGLE) ) {
 		kernels.computeNewHybridTriangle(event->getTime(), probState);
+		scalingFactor += probState.getScaling();
 	} else if ( event->checkEvent(Likelihood::Scheduler::HYBRID_DIAMOND) ) {
 		kernels.computeHybridDiamond(event->getTime(), probState);
+		scalingFactor += probState.getScaling();
 	} else if ( event->checkEvent(Likelihood::Scheduler::POLYPLOID_DIAMOND) ) {
 		kernels.computePolyploidDiamond(event->getTime(), probState);
+		scalingFactor += probState.getScaling();
 	} else if ( event->checkEvent(Likelihood::Scheduler::POLYPLOID_TRIANGLE) ) {
 		kernels.computePolyploidTriangle(event->getTime(), probState);
+		scalingFactor += probState.getScaling();
 	} else if ( event->checkEvent(Likelihood::Scheduler::NEW_POLYPLOID_TRIANGLE) ) {
 		kernels.computeNewPolyploidTriangle(event->getTime(), probState);
+		scalingFactor += probState.getScaling();
 	} else if ( event->checkEvent(Likelihood::Scheduler::FINAL_NODE_EVENT) ) {
 		logLikelihood = kernels.computeLogLikelihood(event->getTime(), probState);
+		scalingFactor += probState.getScaling();
 	} else if ( event->checkEvent(Likelihood::Scheduler::RESCALING_EVENT) ) {
 		kernels.rescaleProbabilities(probState);
 		scalingFactor += probState.getScaling();
@@ -157,7 +166,10 @@ void DefaultApproximator::doEventStep(size_t iEvent) {
 }
 
 void DefaultApproximator::doPostProcessingSteps() {
+	
+	// include the scaling factors in the log likelihood
 	logLikelihood += scalingFactor;
+
 }
 
 void DefaultApproximator::doReportState(double t) {

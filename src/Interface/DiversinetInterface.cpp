@@ -58,6 +58,9 @@ void DiversinetInterface::setKMax(size_t kmax_) {
 	kMax = kmax_;
 	if ( ptrModel != nullptr ) {
 		ptrModel->setNumberOfStates(kMax);
+		// schedulerOperation = RESET;
+		// dirtyApproximator = true;
+		// ptrModel = nullptr;
 	}
 }
 
@@ -65,6 +68,9 @@ void DiversinetInterface::setKMaxInt(int kmax_) {
 	kMax = (size_t)kmax_;
 	if ( ptrModel != nullptr ) {
 		ptrModel->setNumberOfStates(kMax);
+		// schedulerOperation = RESET;
+		// dirtyApproximator = true;
+		// ptrModel = nullptr;
 	}
 }
 
@@ -102,6 +108,7 @@ double DiversinetInterface::computeLogLikelihood() {
 		} else {
 			assert(ptrApproximator && "Requested approximator not available.");
 		}
+		dirtyApproximator = false;
 	}
 	assert(ptrApproximator && "Approximator is invalid.");
 
@@ -118,7 +125,7 @@ double DiversinetInterface::computeLogLikelihood() {
 
 }
 
-std::string DiversinetInterface::simulate(double time, std::string condition, int seed, bool extantOnly) {
+std::string DiversinetInterface::simulate(double time, std::string condition, int seed, bool extantOnly, int max_lineages) {
 
 	// check time argument
 	bool check_time = time > 0.0;
@@ -132,7 +139,7 @@ std::string DiversinetInterface::simulate(double time, std::string condition, in
 	Simulate::BaseSimulator simulator(ptrParams, seed);
 
 	// simulate the network
-	std::vector<Data::Structure::NetworkSharedPtr> networks = simulator.simulate(time, condition, 1, extantOnly);
+	std::vector<Data::Structure::NetworkSharedPtr> networks = simulator.simulate(time, condition, 1, extantOnly, max_lineages);
 
 	// translate to newick string
 	std::string newick = networks.at(0)->getNewickString();
@@ -141,7 +148,7 @@ std::string DiversinetInterface::simulate(double time, std::string condition, in
 
 }
 
-std::vector<std::string> DiversinetInterface::simulate(double time, std::string condition, size_t nreps, int seed, bool extantOnly) {
+std::vector<std::string> DiversinetInterface::simulate(double time, std::string condition, size_t nreps, int seed, bool extantOnly, int max_lineages) {
 
 	// check time argument
 	bool check_time = time > 0.0;
@@ -155,7 +162,7 @@ std::vector<std::string> DiversinetInterface::simulate(double time, std::string 
 	Simulate::BaseSimulator simulator(ptrParams, seed);
 
 	// simulate the networks
-	std::vector<Data::Structure::NetworkSharedPtr> networks = simulator.simulate(time, condition, nreps, extantOnly);
+	std::vector<Data::Structure::NetworkSharedPtr> networks = simulator.simulate(time, condition, nreps, extantOnly, max_lineages);
 
 	// translate to newick strings
 	std::vector<std::string> newicks;

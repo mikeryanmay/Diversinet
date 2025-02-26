@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <string>
+#include <limits>
 
 // #include <boost/progress.hpp>
 
@@ -39,7 +40,7 @@ BaseSimulator::BaseSimulator(Parameters::ContainerSharedPtr someParams, int seed
 BaseSimulator::~BaseSimulator() {
 }
 
-std::vector<Data::Structure::NetworkSharedPtr> BaseSimulator::simulate(double time, std::string condition, size_t nreps, bool extantOnly) {
+std::vector<Data::Structure::NetworkSharedPtr> BaseSimulator::simulate(double time, std::string condition, size_t nreps, bool extantOnly, int max_lineages) {
 
 	// create the container for networks
 	std::vector<Data::Structure::NetworkSharedPtr> networks;
@@ -57,7 +58,7 @@ std::vector<Data::Structure::NetworkSharedPtr> BaseSimulator::simulate(double ti
 		while ( success == false ) {
 
 			// simulate a tree
-			network = this->simulateNetwork(time);
+			network = this->simulateNetwork(time, max_lineages);
 
 			// if extant only, drop extinct tips
 			if ( extantOnly ) {
@@ -89,7 +90,51 @@ std::vector<Data::Structure::NetworkSharedPtr> BaseSimulator::simulate(double ti
 
 }
 
-Data::Structure::NetworkSharedPtr BaseSimulator::simulateNetwork(double time) {
+Data::Structure::NetworkSharedPtr BaseSimulator::simulateNetwork(double time, int max_lineages) {
+
+	using namespace Data::Structure;
+
+	// interpret any max lineages < 1 as infinity lineages
+	if (max_lineages < 1) {
+		max_lineages = std::numeric_limits<int>::infinity();
+	}
+
+	// create containers for active and inactive nodes
+	std::vector<NodeSharedPtr> activeNodes;
+	std::vector<NodeSharedPtr> inactiveNodes;
+	std::vector<EdgeSharedPtr> edges;
+
+	while (true) {
+		
+		// try to simulate the network
+		bool hit_max = simulateNetworkInternal(activeNodes, inactiveNodes, edges, time, max_lineages);
+
+		if (hit_max) {
+
+			// if we hit the max, clear and restart
+			activeNodes.clear();
+			inactiveNodes.clear();
+			edges.clear();
+	
+		} else {
+
+			// otherwise, terminate
+			break;
+
+		}
+
+	}
+
+	// create the network
+	NS::Network network(inactiveNodes, edges);
+	NetworkSharedPtr ptrNetwork = boost::make_shared<NS::Network>( network );
+
+	// return
+	return ptrNetwork;
+
+}
+
+bool BaseSimulator::simulateNetworkInternal(std::vector<Data::Structure::NodeSharedPtr>& activeNodes, std::vector<Data::Structure::NodeSharedPtr>& inactiveNodes, std::vector<Data::Structure::EdgeSharedPtr>& edges, double time, int max_lineages) {
 
 	using namespace Data::Structure;
 
@@ -105,11 +150,6 @@ Data::Structure::NetworkSharedPtr BaseSimulator::simulateNetwork(double time) {
 	// create the uniform distribution
 	boost::random::uniform_real_distribution<double> unif(0.0, 1.0);
 	boost::variate_generator<RNGType&, boost::random::uniform_real_distribution<> > runif(rng, unif);
-
-	// create containers for active and inactive nodes
-	std::vector<NodeSharedPtr> activeNodes;
-	std::vector<NodeSharedPtr> inactiveNodes;
-	std::vector<EdgeSharedPtr> edges;
 
 	// create the initial nodes and edge
 	size_t id = 0;
@@ -139,6 +179,11 @@ Data::Structure::NetworkSharedPtr BaseSimulator::simulateNetwork(double time) {
 		// if no active lineages, terminate
 		if ( activeNodes.size() == 0 ) {
 			break;
+		}
+
+		// if we hit the maximum number of lineages, terminate
+		if ( activeNodes.size() == max_lineages ) {
+			return true;
 		}
 
 		// compute the number of active lineages
@@ -615,13 +660,7 @@ Data::Structure::NetworkSharedPtr BaseSimulator::simulateNetwork(double time) {
 
 	}
 
-
-	// create the network
-	NS::Network network(inactiveNodes, edges);
-	NetworkSharedPtr ptrNetwork = boost::make_shared<NS::Network>( network );
-
-	// return
-	return ptrNetwork;
+	return false;
 
 }
 

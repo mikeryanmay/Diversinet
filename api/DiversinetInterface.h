@@ -74,8 +74,8 @@ class DiversinetInterface {
 		double computeLogLikelihood();
 
 		// simulate
-		std::string simulate(double time, std::string condition, int seed, bool extantOnly);
-		std::vector<std::string> simulate(double time, std::string condition, size_t nreps, int seed, bool extantOnly);
+		std::string simulate(double time, std::string condition, int seed, bool extantOnly, int max_lineages);
+		std::vector<std::string> simulate(double time, std::string condition, size_t nreps, int seed, bool extantOnly, int max_lineages);
 
 		// read a network
 		void readNewick(std::string newick);
@@ -100,13 +100,12 @@ class DiversinetInterface {
 
 		// approximator
 		double initDeltaT = 0.05;
-		bool dirtyApproximator = false;
+		bool dirtyApproximator = true;
 		approximatorVersion_t approxVersion = approximatorVersion_t::DEFAULT;
 		Likelihood::Approximator::ApproximatorSharedPtr ptrApproximator;
 
 		// integration schemes
 		integrationScheme_t integrationScheme = integrationScheme_t::RUNGE_KUTTA_DOPRI5;
-
 
 };
 

@@ -26,7 +26,7 @@ TEST_CASE("A basic simulation test [Simulation]") {
 	interface.setRho(0.5);
 
 	// simulate networks
-	std::string sim = interface.simulate(4.0, "tree+hybrid", 1, 1234, true)[0];
+	std::string sim = interface.simulate(4.0, "tree+hybrid", 1, 1234, true, -1)[0];
 
 	// check for equality
 	REQUIRE( sim == newick );

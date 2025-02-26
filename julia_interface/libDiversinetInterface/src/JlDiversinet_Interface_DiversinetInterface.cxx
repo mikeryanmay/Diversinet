@@ -71,10 +71,10 @@ struct JlDiversinet_Interface_DiversinetInterface: public Wrapper {
     // defined in ../api/../api/DiversinetInterface.h:74:10
     t.method("computeLogLikelihood", static_cast<double (Diversinet::Interface::DiversinetInterface::*)() >(&Diversinet::Interface::DiversinetInterface::computeLogLikelihood));
 
-    DEBUG_MSG("Adding wrapper for int Diversinet::Interface::DiversinetInterface::simulate(double, int, int, bool) (" __HERE__ ")");
-    // signature to use in the veto list: int Diversinet::Interface::DiversinetInterface::simulate(double, int, int, bool)
+    DEBUG_MSG("Adding wrapper for int Diversinet::Interface::DiversinetInterface::simulate(double, int, int, bool, int) (" __HERE__ ")");
+    // signature to use in the veto list: int Diversinet::Interface::DiversinetInterface::simulate(double, int, int, bool, int)
     // defined in ../api/../api/DiversinetInterface.h:77:15
-    t.method("simulate", static_cast<int (Diversinet::Interface::DiversinetInterface::*)(double, int, int, bool) >(&Diversinet::Interface::DiversinetInterface::simulate));
+    t.method("simulate", static_cast<int (Diversinet::Interface::DiversinetInterface::*)(double, int, int, bool, int) >(&Diversinet::Interface::DiversinetInterface::simulate));
 
     DEBUG_MSG("Adding wrapper for void Diversinet::Interface::DiversinetInterface::readNewick(int) (" __HERE__ ")");
     // signature to use in the veto list: void Diversinet::Interface::DiversinetInterface::readNewick(int)

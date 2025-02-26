@@ -12,7 +12,8 @@ int main(int argc, const char* argv[]) {
 
 	// containers for arguments
 	double lambda, mu, eta, zeta, nu, psi, rho; // parameters
-	int seed;
+	int seed; // random number seed
+	int max; // maximum number of lineages
 	double time; // simulation time
 	bool extant; // whether to return extant trees
 	std::string condition; // condition on survival or tree?
@@ -37,6 +38,7 @@ int main(int argc, const char* argv[]) {
 			("time,t",      value<double>(&time)->required(),                             "duration of the simulation")
 			("extant,x",    value<bool>(&extant)->default_value(true),                    "prune extinct tips? (true or false)")
 			("condition,c", value<std::string>(&condition)->default_value("tree+hybrid"), "condition of simulations (options: none, survival, tree, tree+hybrid)")
+			("max,m",       value<int>(&max)->default_value(-1),                          "maximum number of lineages (optional)")
 			("reps,r",      value<size_t>(&reps)->required(),                             "number of simulation replicates")
 			("seed",        value<int>(&seed)->default_value(-1),                         "random number seed (optional)")
 		;
@@ -88,6 +90,13 @@ int main(int argc, const char* argv[]) {
 				std::cout << "Including only extant species: false.\n";
 			}
 		}
+		if (vm.count("max")) {
+			if (max == -1) {
+				std::cout << "Simulating with no maximum number of lineages.\n";
+			} else {
+				std::cout << "Simulating up to " << max << " maximum number of lineages." << "\n";
+			}
+		}
 		if (vm.count("reps")) {
 			std::cout << "Simulating " << reps << " replicate(s).\n";
 		}
@@ -120,7 +129,7 @@ int main(int argc, const char* argv[]) {
 	interface.setRho(rho);
 
 	// simulate networks
-	std::vector<std::string> sims = interface.simulate(time, condition, reps, seed, extant);
+	std::vector<std::string> sims = interface.simulate(time, condition, reps, seed, extant, max);
 
 	// write to file
 	std::ofstream output_file(outfile);
