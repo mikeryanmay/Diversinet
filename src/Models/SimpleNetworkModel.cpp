@@ -166,7 +166,8 @@ void SimpleNetworkModel::updateSpeciationEventMatrix() {
 		for (size_t iU = 0; iU < Kmax; ++iU) {
 
 			// diagonal value
-			speciationEventMatrix.coeffRef(iU, iU) = 2.0 * lambda;
+			// speciationEventMatrix.coeffRef(iU, iU) = 2.0 * lambda;
+			speciationEventMatrix.coeffRef(iU, iU) = lambda;
 
 		}
 

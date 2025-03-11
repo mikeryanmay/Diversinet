@@ -112,6 +112,8 @@ void DefaultApproximator::doIntegrationStep(size_t iEdgesLayer) {
 		endTime = std::nextafter(endTime,-std::numeric_limits<double>::infinity());
 	}
 
+	// std::cout << startTime << " -- " << endTime << " -- " << numEdges << std::endl;
+
 	assert(ptrIntegrator != NULL);
 	ptrIntegrator->integrate(startTime, endTime, probState, intKernel);
 
@@ -126,39 +128,48 @@ void DefaultApproximator::doEventStep(size_t iEvent) {
 
 	// do the event
 	if ( event->checkEvent(Likelihood::Scheduler::PRESENT_TIME_EVENT) ) {
+		// std::cout << "present time event at time " << event->getTime() << std::endl;
 		kernels.setInitialCondition(event->getNodes(), probState);
 		kernels.rescaleProbabilities(probState);
-		scalingFactor = probState.getScaling();
 	} else if ( event->checkEvent(Likelihood::Scheduler::SPECIATION_EVENT) ) {
+		// std::cout << "speciation event at time " << event->getTime() << std::endl;
 		kernels.computeSpeciationEvent(event->getTime(), probState);
-		scalingFactor += probState.getScaling();
-	} else if ( event->checkEvent(Likelihood::Scheduler::DIRECTIONAL_TRIANGLE) ) {
-		kernels.computeDirectionalTriangle(event->getTime(), probState);
-		scalingFactor += probState.getScaling();
-	} else if ( event->checkEvent(Likelihood::Scheduler::BIDIRECTIONAL_TRIANGLE) ) {
-		kernels.computeBidirectionalTriangle(event->getTime(), probState);
-		scalingFactor += probState.getScaling();
-	} else if ( event->checkEvent(Likelihood::Scheduler::NEW_HYBRID_TRIANGLE) ) {
-		kernels.computeNewHybridTriangle(event->getTime(), probState);
-		scalingFactor += probState.getScaling();
-	} else if ( event->checkEvent(Likelihood::Scheduler::HYBRID_DIAMOND) ) {
-		kernels.computeHybridDiamond(event->getTime(), probState);
-		scalingFactor += probState.getScaling();
-	} else if ( event->checkEvent(Likelihood::Scheduler::POLYPLOID_DIAMOND) ) {
-		kernels.computePolyploidDiamond(event->getTime(), probState);
-		scalingFactor += probState.getScaling();
-	} else if ( event->checkEvent(Likelihood::Scheduler::POLYPLOID_TRIANGLE) ) {
-		kernels.computePolyploidTriangle(event->getTime(), probState);
-		scalingFactor += probState.getScaling();
-	} else if ( event->checkEvent(Likelihood::Scheduler::NEW_POLYPLOID_TRIANGLE) ) {
-		kernels.computeNewPolyploidTriangle(event->getTime(), probState);
-		scalingFactor += probState.getScaling();
-	} else if ( event->checkEvent(Likelihood::Scheduler::FINAL_NODE_EVENT) ) {
-		logLikelihood = kernels.computeLogLikelihood(event->getTime(), probState);
-		scalingFactor += probState.getScaling();
-	} else if ( event->checkEvent(Likelihood::Scheduler::RESCALING_EVENT) ) {
 		kernels.rescaleProbabilities(probState);
-		scalingFactor += probState.getScaling();
+	} else if ( event->checkEvent(Likelihood::Scheduler::DIRECTIONAL_TRIANGLE) ) {
+		// std::cout << "triangle event at time " << event->getTime() << std::endl;
+		kernels.computeDirectionalTriangle(event->getTime(), probState);
+		kernels.rescaleProbabilities(probState);
+	} else if ( event->checkEvent(Likelihood::Scheduler::BIDIRECTIONAL_TRIANGLE) ) {
+		// std::cout << "triangle event at time " << event->getTime() << std::endl;
+		kernels.computeBidirectionalTriangle(event->getTime(), probState);
+		kernels.rescaleProbabilities(probState);
+	} else if ( event->checkEvent(Likelihood::Scheduler::NEW_HYBRID_TRIANGLE) ) {
+		// std::cout << "hybrid triangle event at time " << event->getTime() << std::endl;
+		kernels.computeNewHybridTriangle(event->getTime(), probState);
+		kernels.rescaleProbabilities(probState);
+	} else if ( event->checkEvent(Likelihood::Scheduler::HYBRID_DIAMOND) ) {
+		// std::cout << "hybrid diamond event at time " << event->getTime() << std::endl;
+		kernels.computeHybridDiamond(event->getTime(), probState);
+		kernels.rescaleProbabilities(probState);
+	} else if ( event->checkEvent(Likelihood::Scheduler::POLYPLOID_DIAMOND) ) {
+		// std::cout << "polyploid diamond event at time " << event->getTime() << std::endl;
+		kernels.computePolyploidDiamond(event->getTime(), probState);
+		kernels.rescaleProbabilities(probState);
+	} else if ( event->checkEvent(Likelihood::Scheduler::POLYPLOID_TRIANGLE) ) {
+		// std::cout << "polyploid triangle event at time " << event->getTime() << std::endl;
+		kernels.computePolyploidTriangle(event->getTime(), probState);
+		kernels.rescaleProbabilities(probState);
+	} else if ( event->checkEvent(Likelihood::Scheduler::NEW_POLYPLOID_TRIANGLE) ) {
+		// std::cout << "new polyploid triangle event at time " << event->getTime() << std::endl;
+		kernels.computeNewPolyploidTriangle(event->getTime(), probState);
+		kernels.rescaleProbabilities(probState);
+	} else if ( event->checkEvent(Likelihood::Scheduler::FINAL_NODE_EVENT) ) {
+		// std::cout << "final node event at time " << event->getTime() << std::endl;
+		logLikelihood = kernels.computeLogLikelihood(event->getTime(), probState);
+		kernels.rescaleProbabilities(probState);
+	} else if ( event->checkEvent(Likelihood::Scheduler::RESCALING_EVENT) ) {
+		// std::cout << "rescaling event at time " << event->getTime() << std::endl;
+		kernels.rescaleProbabilities(probState);
 	} else {
 		assert(false && "Event is not implemented.");
 	}
@@ -168,7 +179,8 @@ void DefaultApproximator::doEventStep(size_t iEvent) {
 void DefaultApproximator::doPostProcessingSteps() {
 	
 	// include the scaling factors in the log likelihood
-	logLikelihood += scalingFactor;
+	// logLikelihood += scalingFactor;
+	logLikelihood += probState.getScaling();
 
 }
 

@@ -24,6 +24,7 @@ class BaseScheduler {
 
 	public:
 		static const double MAX_SEGMENT_SIZE_WITHOUT_RESCALING;
+		static const size_t NUM_RECALING_EVENTS;
 
 	public:
 

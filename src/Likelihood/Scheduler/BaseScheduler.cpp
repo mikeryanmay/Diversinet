@@ -19,7 +19,8 @@
 namespace Likelihood {
 namespace Scheduler {
 
-const double BaseScheduler::MAX_SEGMENT_SIZE_WITHOUT_RESCALING = 0.5;
+const double BaseScheduler::MAX_SEGMENT_SIZE_WITHOUT_RESCALING = 0.02;
+const size_t BaseScheduler::NUM_RECALING_EVENTS = 100;
 
 BaseScheduler::BaseScheduler(NS::NetworkSharedPtr aPtrNetwork) : ptrNetwork(aPtrNetwork) {
 	initEvents();
@@ -106,8 +107,10 @@ void BaseScheduler::initEvents() {
 			// make the event
 			nextEvent = new Event(nextEventType, nextEventNodes);
 
+			// std::cout << "found event of type " << nextEventType << " at time " << nextEvent->getTime() << std::endl;
+
 			// make sure the event is valid
-			isValid = isValid && nextEvent->isEventPossible();
+			// isValid = isValid && nextEvent->isEventPossible();
 
 		}
 
@@ -117,8 +120,7 @@ void BaseScheduler::initEvents() {
 	}
 
 	// warn us if not all the events are valid
-	assert(isValid && "Not all events are valid; something went wrong");
-
+	// assert(isValid && "Not all events are valid; something went wrong");
 
 }
 
@@ -126,96 +128,33 @@ void BaseScheduler::defineAndSetRescalingEvents() {
 
 	removeRescalingEvents();
 
-	std::vector< std::pair<double, size_t> > rescalingTime; // Trick to get the argsort
-	std::vector<Data::Structure::NodeSharedPtr> nodesId;
-	std::vector<bool> associatedToOtherEvent;
+	// get the oldest node in the network
+	double startTime = ptrNetwork->getOldestNode()->getAge();
 
-	// For each edges
-	const std::vector<Data::Structure::EdgeSharedPtr>& edges = ptrNetwork->getEdges();
-	for(size_t iE=0; iE<edges.size(); ++iE) {
-		// If the edges is longer than a given length, we request for rescaling events
-		if(edges[iE]->getLength() > MAX_SEGMENT_SIZE_WITHOUT_RESCALING) {
-			double edgeLength = edges[iE]->getLength();
-			size_t nSubSegment = std::floor(edgeLength/MAX_SEGMENT_SIZE_WITHOUT_RESCALING);
-			double subsegmentSize = edgeLength/nSubSegment;
-
-			//std::cout << "Treating edge : " << edges[iE]->toString();
-			//std::cout << "With child node : " << edges[iE]->getChild()->toString();
-
-			// Request a rescaling at time child_node + i*subsegment_length
-			for(size_t iS=1; iS<nSubSegment; ++iS) {
-				double requestedTime = edges[iE]->getChild()->getAge()+subsegmentSize*iS;
-				//std::cout << "Subsegment boundary " << iS << " with requested time = " << requestedTime << std::endl;
-
-				int firstEventAfterReqTime = getFirstEventAfterTimeT(requestedTime);
-				assert(firstEventAfterReqTime >= 0);
-
-				int firstEventPriorReqTime = firstEventAfterReqTime - 1;
-				assert(firstEventAfterReqTime >= 0);
-
-				// if it is within a 30% subsegment length tolerance of the requested time, we update the req time
-				if(std::fabs(events[firstEventAfterReqTime]->getTime() - requestedTime) < (0.3*MAX_SEGMENT_SIZE_WITHOUT_RESCALING)/2.) {
-					requestedTime = events[firstEventAfterReqTime]->getTime();
-					associatedToOtherEvent.push_back(true);
-					//std::cout << "Updated to next event  :" << events[firstEventAfterReqTime]->toString() << std::endl;
-				} else if(std::fabs(events[firstEventPriorReqTime]->getTime() - requestedTime) < (0.3*MAX_SEGMENT_SIZE_WITHOUT_RESCALING)/2.) {
-					requestedTime = events[firstEventPriorReqTime]->getTime();
-					//std::cout << "Updated to prior event  :" << events[firstEventPriorReqTime]->toString() << std::endl;
-					associatedToOtherEvent.push_back(true);
-				} else {
-					associatedToOtherEvent.push_back(false);
-				}
-
-				nodesId.push_back(edges[iE]->getChild());
-				rescalingTime.push_back(std::make_pair(requestedTime, rescalingTime.size())); // @suppress("Invalid arguments")
-				//std::cout << "Final time  :" << requestedTime << std::endl;
-			}
-			//std::cout << "--------------------------------------------" << std::endl;
-		}
+	// get all the node ages
+	const std::vector<NS::NodeSharedPtr>& allNodes = ptrNetwork->getNodes();
+	std::vector<double> nodeAges(allNodes.size());
+	for(int iN = 0; iN < allNodes.size(); ++iN) {
+		nodeAges[iN] = allNodes[iN]->getAge();
 	}
 
-	if(rescalingTime.empty()) return; // no rescaling times, we are out
+	// compute delta T between events
+	double rescalingInterval = startTime / (double)(NUM_RECALING_EVENTS + 1);
 
-	updated = true;
-
-	// Otherwise, regroup them and add events
-	// Order and regroup events
-	std::sort(rescalingTime.begin(), rescalingTime.end()); // Getting the sorted time and argsort
-
-	// First element
-	double firstTime = -1;
+	// create the rescaling events
+	double currentTime = 0.0;
 	std::vector<Data::Structure::NodeSharedPtr> rescalingEventNodes;
-	for(size_t iR=0; iR<rescalingTime.size(); ++iR) {
+	for(int iR = 0; iR < NUM_RECALING_EVENTS; ++iR) {
 
-		double time = rescalingTime[iR].first;
-		if(firstTime < 0.) firstTime = time;
+		// get the time
+		currentTime += rescalingInterval;
 
-		size_t pos = rescalingTime[iR].second;
-
-		rescalingEventNodes.push_back(nodesId[pos]);
-
-		// There is 3 reasons to create an event at this point:
-		// 1) We are the last rescaling event
-		// 2) There is already a synchronous event at this time and the next rescaling event differ in time
-		// 3) The difference between rescaling events unrelated to an existing synchronous event exceed 30% of the MAX_SEGMENT_SIZE
-		if(iR == rescalingTime.size()-1 ||
-		   (associatedToOtherEvent[pos] && rescalingTime[iR+1].first != time) ||
-				(rescalingTime[iR+1].first - firstTime) > 0.3*MAX_SEGMENT_SIZE_WITHOUT_RESCALING) {
-
-			if(!associatedToOtherEvent[pos]) { // if we are not associated, we take the mean time
-				time = 0.;
-				for(size_t iS=0; iS<rescalingEventNodes.size(); ++iS) {
-					time += rescalingTime[iR-iS].first/rescalingEventNodes.size();
-				}
-				//std::cout << "We are a bunch of free rescaling, thus averaging time to t = " << time << std::endl;
-			} else {
-				//std::cout << "We are associated with an event, thus keeping time t = " << time << std::endl;
-			}
-
-			// We create and insert an event
-			int index = getFirstEventAfterTimeT(time);
-			Event* newEvent = new Event(RESCALING_EVENT, time, rescalingEventNodes);
-			//std::cout << "Creating event : " << newEvent->toString() << std::endl;
+		// check if this event is simultaneous with a node event
+		if (std::find(nodeAges.begin(), nodeAges.end(), currentTime) == nodeAges.end()) {
+			
+			// if not, create the new rescaling event
+			int index = getFirstEventAfterTimeT(currentTime);
+			Event* newEvent = new Event(RESCALING_EVENT, currentTime, rescalingEventNodes);
 			std::vector<Event*>::iterator itE = events.begin();
 			std::advance(itE, index);
 			events.insert(itE, newEvent); // @suppress("Invalid arguments")
@@ -226,12 +165,117 @@ void BaseScheduler::defineAndSetRescalingEvents() {
 			edgesList_t layerCopy  = *itL;
 			layeredEdges.insert(itL, layerCopy); // @suppress("Invalid arguments")
 
-			// We clear the rescalingEventNode buffer
-			rescalingEventNodes.clear();
-			firstTime = -1.;
 		}
+		
 	}
-	//std::cout << "--------------------------------------------" << std::endl;
+
+	// std::vector< std::pair<double, size_t> > rescalingTime; // Trick to get the argsort
+	// std::vector<Data::Structure::NodeSharedPtr> nodesId;
+	// std::vector<bool> associatedToOtherEvent;
+
+	// // For each edges
+	// const std::vector<Data::Structure::EdgeSharedPtr>& edges = ptrNetwork->getEdges();
+	// for(size_t iE=0; iE<edges.size(); ++iE) {
+	// 	// If the edges is longer than a given length, we request for rescaling events
+	// 	if(edges[iE]->getLength() > MAX_SEGMENT_SIZE_WITHOUT_RESCALING) {
+	// 		double edgeLength = edges[iE]->getLength();
+	// 		size_t nSubSegment = std::floor(edgeLength/MAX_SEGMENT_SIZE_WITHOUT_RESCALING);
+	// 		double subsegmentSize = edgeLength/nSubSegment;
+
+	// 		//std::cout << "Treating edge : " << edges[iE]->toString();
+	// 		//std::cout << "With child node : " << edges[iE]->getChild()->toString();
+
+	// 		// Request a rescaling at time child_node + i*subsegment_length
+	// 		for(size_t iS=1; iS<nSubSegment; ++iS) {
+	// 			double requestedTime = edges[iE]->getChild()->getAge()+subsegmentSize*iS;
+	// 			//std::cout << "Subsegment boundary " << iS << " with requested time = " << requestedTime << std::endl;
+
+	// 			int firstEventAfterReqTime = getFirstEventAfterTimeT(requestedTime);
+	// 			assert(firstEventAfterReqTime >= 0);
+
+	// 			int firstEventPriorReqTime = firstEventAfterReqTime - 1;
+	// 			assert(firstEventAfterReqTime >= 0);
+
+	// 			// if it is within a 30% subsegment length tolerance of the requested time, we update the req time
+	// 			if(std::fabs(events[firstEventAfterReqTime]->getTime() - requestedTime) < (0.3*MAX_SEGMENT_SIZE_WITHOUT_RESCALING)/2.) {
+	// 				requestedTime = events[firstEventAfterReqTime]->getTime();
+	// 				associatedToOtherEvent.push_back(true);
+	// 				//std::cout << "Updated to next event  :" << events[firstEventAfterReqTime]->toString() << std::endl;
+	// 			} else if(std::fabs(events[firstEventPriorReqTime]->getTime() - requestedTime) < (0.3*MAX_SEGMENT_SIZE_WITHOUT_RESCALING)/2.) {
+	// 				requestedTime = events[firstEventPriorReqTime]->getTime();
+	// 				//std::cout << "Updated to prior event  :" << events[firstEventPriorReqTime]->toString() << std::endl;
+	// 				associatedToOtherEvent.push_back(true);
+	// 			} else {
+	// 				associatedToOtherEvent.push_back(false);
+	// 			}
+
+	// 			nodesId.push_back(edges[iE]->getChild());
+	// 			rescalingTime.push_back(std::make_pair(requestedTime, rescalingTime.size())); // @suppress("Invalid arguments")
+	// 			//std::cout << "Final time  :" << requestedTime << std::endl;
+	// 		}
+	// 		//std::cout << "--------------------------------------------" << std::endl;
+	// 	}
+	// }
+
+	// if(rescalingTime.empty()) return; // no rescaling times, we are out
+
+	// updated = true;
+
+	// // Otherwise, regroup them and add events
+	// // Order and regroup events
+	// std::sort(rescalingTime.begin(), rescalingTime.end()); // Getting the sorted time and argsort
+
+	// // First element
+	// double firstTime = -1;
+	// std::vector<Data::Structure::NodeSharedPtr> rescalingEventNodes;
+	// for(size_t iR=0; iR<rescalingTime.size(); ++iR) {
+
+	// 	double time = rescalingTime[iR].first;
+	// 	if(firstTime < 0.) firstTime = time;
+
+	// 	size_t pos = rescalingTime[iR].second;
+
+	// 	rescalingEventNodes.push_back(nodesId[pos]);
+
+	// 	// There is 3 reasons to create an event at this point:
+	// 	// 1) We are the last rescaling event
+	// 	// 2) There is already a synchronous event at this time and the next rescaling event differ in time
+	// 	// 3) The difference between rescaling events unrelated to an existing synchronous event exceed 30% of the MAX_SEGMENT_SIZE
+	// 	if(iR == rescalingTime.size()-1 ||
+	// 	   (associatedToOtherEvent[pos] && rescalingTime[iR+1].first != time) ||
+	// 			(rescalingTime[iR+1].first - firstTime) > 0.3*MAX_SEGMENT_SIZE_WITHOUT_RESCALING) {
+
+	// 		if(!associatedToOtherEvent[pos]) { // if we are not associated, we take the mean time
+	// 			time = 0.;
+	// 			for(size_t iS=0; iS<rescalingEventNodes.size(); ++iS) {
+	// 				time += rescalingTime[iR-iS].first/rescalingEventNodes.size();
+	// 			}
+	// 			//std::cout << "We are a bunch of free rescaling, thus averaging time to t = " << time << std::endl;
+	// 		} else {
+	// 			//std::cout << "We are associated with an event, thus keeping time t = " << time << std::endl;
+	// 		}
+
+	// 		// We create and insert an event
+	// 		int index = getFirstEventAfterTimeT(time);
+	// 		Event* newEvent = new Event(RESCALING_EVENT, time, rescalingEventNodes);
+	// 		//std::cout << "Creating event : " << newEvent->toString() << std::endl;
+	// 		std::vector<Event*>::iterator itE = events.begin();
+	// 		std::advance(itE, index);
+	// 		events.insert(itE, newEvent); // @suppress("Invalid arguments")
+
+	// 		// update the edges layer
+	// 		std::vector< edgesList_t >::iterator itL = layeredEdges.begin();
+	// 		std::advance(itL, index-1);
+	// 		edgesList_t layerCopy  = *itL;
+	// 		layeredEdges.insert(itL, layerCopy); // @suppress("Invalid arguments")
+
+	// 		// We clear the rescalingEventNode buffer
+	// 		rescalingEventNodes.clear();
+	// 		firstTime = -1.;
+	// 	}
+	// }
+	// //std::cout << "--------------------------------------------" << std::endl;
+
 }
 
 int BaseScheduler::getFirstEventAfterTimeT(double aTime) {
@@ -259,8 +303,8 @@ eventType_t BaseScheduler::eventTypeFromEventNodes(std::vector<NS::NodeSharedPtr
 	}
 
 	// validate
-	assert(numOfEachType[NS::HybridSpecies] <= 1 && "No more than one hybrid species allowed per event.");
-	assert(numOfEachType[NS::Allopolyploid] <= 1 && "No more than one allopolyploid species allowed per event.");
+	// assert(numOfEachType[NS::HybridSpecies] <= 1 && "No more than one hybrid species allowed per event.");
+	// assert(numOfEachType[NS::Allopolyploid] <= 1 && "No more than one allopolyploid species allowed per event.");
 
 	size_t isPolyploid;
 	if ( numNodes == 1 ) {
@@ -311,13 +355,14 @@ eventType_t BaseScheduler::eventTypeFromEventNodes(std::vector<NS::NodeSharedPtr
 			bool leftOwnsRight = leftNode->hasChild(rightNode);
 			bool rightOwnsLeft = rightNode->hasChild(leftNode);
 
-			// validate
-			assert( (leftOwnsRight || rightOwnsLeft) &&
-					"At least one node must own the other when there are two simultaneous nodes.");
-			assert( (leftOwnsRight ? (rightType == NS::Hybrid || rightType == NS::HybridSpecies) : true) &&
-					"If left node ones right node, right node must be a hybrid.");
-			assert( (rightOwnsLeft ? (leftType == NS::Hybrid || leftType == NS::HybridSpecies) : true) &&
-					"If right node ones left node, left node must be a hybrid.");
+			// // validate
+			// assert( (leftOwnsRight || rightOwnsLeft) &&
+			// 		"At least one node must own the other when there are two simultaneous nodes.");
+			// assert( (leftOwnsRight ? (rightType == NS::Hybrid || rightType == NS::HybridSpecies) : true) &&
+			// 		"If left node ones right node, right node must be a hybrid.");
+			// assert( (rightOwnsLeft ? (leftType == NS::Hybrid || leftType == NS::HybridSpecies) : true) &&
+			// 		"If right node ones left node, left node must be a hybrid.");
+			// MRM 2025: leave this to isEventsValid step so we can jitter if necessary
 
 			// decide symmetrical or asymmetrical
 			if ( leftOwnsRight != rightOwnsLeft ) { /* XOR */
@@ -330,7 +375,7 @@ eventType_t BaseScheduler::eventTypeFromEventNodes(std::vector<NS::NodeSharedPtr
 
 	} else {
 
-		assert( numNodes == 3 && "Should only reach here if three nodes are in event.");
+		// assert( numNodes == 3 && "Should only reach here if three nodes are in event.");
 
 		// could be an allopolyploid or hybrid speciation event
 		bool isPolyploid = false;
@@ -420,14 +465,29 @@ std::vector<NS::NodeSharedPtr> BaseScheduler::defineNextEdgesLayerAndEvent(Event
 
 		NS::EdgeSharedPtr edge = (*itE);
 
-		if (edge->getParent()->getAge() < nextEventAge) { // If sooner that current event, clear and memorize
+		if (std::fabs(edge->getParent()->getAge() - nextEventAge) < 1e-6 && // If same age and different node, add
+			std::find(nextEventNodes.begin(), nextEventNodes.end(), edge->getParent()) == nextEventNodes.end() ) {
+			nextEventNodes.push_back(edge->getParent());
+		} else if (edge->getParent()->getAge() < nextEventAge) {
 			nextEventAge = edge->getParent()->getAge();
 			nextEventNodes.clear();
 			nextEventNodes.push_back(edge->getParent());
-		} else if (edge->getParent()->getAge() == nextEventAge && // If same age and different node, add
-					  std::find(nextEventNodes.begin(), nextEventNodes.end(), edge->getParent()) == nextEventNodes.end() ) {
-			nextEventNodes.push_back(edge->getParent());
 		}
+		
+		// if (edge->getParent()->getAge() < nextEventAge) { // If sooner that current event, clear and memorize
+		// 	nextEventAge = edge->getParent()->getAge();
+		// 	nextEventNodes.clear();
+		// 	nextEventNodes.push_back(edge->getParent());
+		// } else if (edge->getParent()->getAge() == nextEventAge && // If same age and different node, add
+		// 			  std::find(nextEventNodes.begin(), nextEventNodes.end(), edge->getParent()) == nextEventNodes.end() ) {
+		// 	nextEventNodes.push_back(edge->getParent());
+		// }
+
+	}
+
+	// make sure all the nodes have the same age
+	for(std::vector<NS::NodeSharedPtr>::iterator it = nextEventNodes.begin(); it != nextEventNodes.end(); ++it) {
+		(*it)->setAge(nextEventAge);
 	}
 
 	return nextEventNodes;

@@ -9,6 +9,11 @@
 #define SRC_DATA_STRUCTURE_NETWORK_H_
 
 #include <vector>
+#include <set>
+
+#include <boost/random.hpp>
+#include <boost/random/random_device.hpp>
+
 #include "IncFwdNetworkStructure.h"
 #include "../Reader/IncFwdPhyloReader.h"
 
@@ -41,6 +46,8 @@ class Network {
 
 		void pruneExtinctTips();
 
+		void jitterNetwork(double factor);
+
 	private:
 
 		// nodes and edges
@@ -62,10 +69,15 @@ class Network {
 
 		void buildNetworkFromNewick(const Data::NewickReader::TreeNode* aNewickRoot);
 		double createRecursiveNewick(const NewickReader::TreeNode *newickNode, NodeSharedPtr treeNode);
-		void mergeHybridNodesMyLabels(std::string aLabel);
+		void mergeHybridNodesByLabels(std::string aLabel);
 
 		void ensureSimultaneousEvents(double precision = 1.0e-6);
 		void ensureSimultaneousEventsRecursive(NodeSharedPtr aNode, double precision);
+
+		void jitterNetworkRecursive(NodeSharedPtr node, std::set<double>& ages, double factor);
+
+		// RNG for jittering
+		boost::mt19937 rng;
 
 }; // end network
 

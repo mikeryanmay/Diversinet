@@ -190,7 +190,25 @@ void DiversinetInterface::readNewick(std::string newick) {
 
 }
 
+std::string DiversinetInterface::jitterNewick(std::string newick, double factor) {
 
+	using namespace Data::NewickReader;
+
+	// first, get the newick parsed object
+	NewickParser parsedNewick(newick, NewickParser::IS_TREE_STRING);
+	NewickParserSharedPtr ptrParsedNewick = boost::make_shared<NewickParser>(parsedNewick);
+
+	// now pass it to the network constructor
+	Data::Structure::Network network(ptrParsedNewick);
+
+	// now jitter the network
+	network.jitterNetwork(factor);
+
+	// finally, get the newick string
+	std::string jittered_newick = network.getNewickString();
+	return jittered_newick;
+
+}
 
 
 } // end namespace interface

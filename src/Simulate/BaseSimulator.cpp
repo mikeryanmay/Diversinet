@@ -49,7 +49,7 @@ std::vector<Data::Structure::NetworkSharedPtr> BaseSimulator::simulate(double ti
 	Data::Structure::NetworkSharedPtr network;
 	bool success;
 
-	std::cout << "\nSimulation in progress." << std::endl;
+	// std::cout << "\nSimulation in progress." << std::endl;
 	// boost::progress_display show_progress( nreps );
 	for(size_t i = 0; i < nreps; ++i) {
 

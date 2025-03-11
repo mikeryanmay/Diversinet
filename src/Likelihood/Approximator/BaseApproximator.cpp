@@ -15,8 +15,8 @@ namespace Likelihood {
 namespace Approximator {
 
 const double BaseApproximator::DEFAULT_DELTA_T = 5.E-1;
-const double BaseApproximator::DEFAULT_ABS_TOLERANCE = 1.E-7;
-const double BaseApproximator::DEFAULT_REL_TOLERANCE = 1.E-7;
+const double BaseApproximator::DEFAULT_ABS_TOLERANCE = 1.E-12;
+const double BaseApproximator::DEFAULT_REL_TOLERANCE = 1.E-12;
 
 BaseApproximator::BaseApproximator(Likelihood::Integrator::integrationScheme_t aIntScheme,
                                    Scheduler::SchedulerSharedPtr aPtrScheduler,

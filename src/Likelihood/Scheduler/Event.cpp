@@ -43,16 +43,17 @@ Event::Event(eventType_t anEventType, const std::vector<NS::NodeSharedPtr> &aNod
 Event::Event(eventType_t anEventType, double atTime, const std::vector<NS::NodeSharedPtr> &aNodes) :
 		eventType(anEventType), time(atTime), eventNodes(aNodes) {
 
-	// make sure we have nodes
-	assert(!eventNodes.empty());
-
 	// this is only for rescaling events
 	assert(anEventType == RESCALING_EVENT);
-	for(size_t iN = 0; iN < eventNodes.size(); ++iN) {
-		assert(eventNodes[iN]);
-		assert(!(eventNodes[iN]->getType() == Data::Structure::Origin));
-		assert(eventNodes[iN]->getAge() < atTime);
-	}
+
+	// make sure we have nodes
+	assert(eventNodes.empty());
+
+	// for(size_t iN = 0; iN < eventNodes.size(); ++iN) {
+	// 	assert(eventNodes[iN]);
+	// 	assert(!(eventNodes[iN]->getType() == Data::Structure::Origin));
+	// 	assert(eventNodes[iN]->getAge() < atTime);
+	// }
 
 }
 
@@ -115,14 +116,14 @@ bool Event::isEventPossible() const {
 			isValid = isValid && eventNodes[0]->getAge() == eventNodes[1]->getAge(); // nodes must be same age
 			oneOwnsTwo = eventNodes[0]->hasChild(eventNodes[1]);
 			twoOwnsOne = eventNodes[1]->hasChild(eventNodes[0]);
-			isValid = oneOwnsTwo != twoOwnsOne; // XOR, exactly one can own the other
+			isValid = isValid && (oneOwnsTwo != twoOwnsOne); // XOR, exactly one can own the other
 			break;
 		case BIDIRECTIONAL_TRIANGLE:
 			isValid = eventNodes.size() == 2; // must be two nodes
 			isValid = isValid && eventNodes[0]->getAge() == eventNodes[1]->getAge(); // nodes must be same age
 			oneOwnsTwo = eventNodes[0]->hasChild(eventNodes[1]);
 			twoOwnsOne = eventNodes[1]->hasChild(eventNodes[0]);
-			isValid = oneOwnsTwo && twoOwnsOne; // nodes must own each other
+			isValid = isValid && oneOwnsTwo && twoOwnsOne; // nodes must own each other
 			break;
 		case NEW_HYBRID_TRIANGLE:
 			isValid = eventNodes.size() == 3; // must be three nodes
@@ -147,6 +148,12 @@ bool Event::isEventPossible() const {
 			isValid = eventNodes.size() == 1 && eventNodes[0]->getType() == NS::Allopolyploid;
 			break;
 		case POLYPLOID_TRIANGLE:
+			
+			// std::cout << eventType << " is a POLYPLOID_TRIANGLE" << std::endl;
+			// std::cout << eventNodes.size() << std::endl;
+			// std::cout << eventNodes[0]->getAge() << " -- " << eventNodes[1]->getAge() << std::endl;
+			// std::cout << eventNodes[0]->getType() << " -- " << eventNodes[1]->getType() << std::endl;
+
 			isValid = eventNodes.size() == 2; // must be two nodes
 			isValid = isValid && eventNodes[0]->getAge() == eventNodes[1]->getAge(); // nodes must be same age
 			oneIsAllo = eventNodes[0]->getType() == NS::Allopolyploid;
@@ -155,6 +162,7 @@ bool Event::isEventPossible() const {
 			isValid = isValid && eventNodes[oneIsAllo]->hasChild(eventNodes[twoIsAllo]); // the allopolyploid must be owned by the other node
 			break;
 		case NEW_POLYPLOID_TRIANGLE:
+			// std::cout << eventType << " is a NEW_POLYPLOID_TRIANGLE" << std::endl;
 			isValid = eventNodes.size() == 3; // must be three nodes
 			for(size_t iN = 0; iN < eventNodes.size(); ++iN) {
 				if ( eventNodes[iN]->getType() == NS::Allopolyploid ) {
@@ -181,7 +189,7 @@ bool Event::isEventPossible() const {
 	}
 
 	if ( isValid == false ) {
-		std::cout << "This " << eventType << " is invalid." << std::endl;
+		std::cout << "This " << eventType << " at time " << time << " is invalid. Check that all node times in your network are unique." << std::endl;
 	}
 
 	return isValid;

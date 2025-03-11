@@ -156,7 +156,7 @@ void EigenState::roundNegativeProbabilityToZero() {
 }
 
 void EigenState::rescaleProbabilities() {
-	scaling = rescaleProbabilityVector(probVec->vector);
+	scaling += rescaleProbabilityVector(probVec->vector);
 }
 
 

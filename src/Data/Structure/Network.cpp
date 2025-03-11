@@ -7,9 +7,13 @@
 
 #include <iostream>
 #include <algorithm>
+#include <set>
 
 #include <boost/make_shared.hpp>
 #include <boost/smart_ptr/shared_ptr.hpp>
+
+#include <boost/random.hpp>
+#include <boost/random/random_device.hpp>
 
 #include "Network.h"
 #include "Node.h"
@@ -105,7 +109,7 @@ void Network::buildNetworkFromNewick(const Data::NewickReader::TreeNode* aNewick
 
 	// merge nodes by label
 	for(size_t iH = 0; iH < hybidLabels.size(); ++iH) {
-		this->mergeHybridNodesMyLabels( hybidLabels[iH] );
+		this->mergeHybridNodesByLabels( hybidLabels[iH] );
 	}
 
 	// update the nodes
@@ -115,7 +119,7 @@ void Network::buildNetworkFromNewick(const Data::NewickReader::TreeNode* aNewick
 
 }
 
-void Network::mergeHybridNodesMyLabels(std::string aLabel) {
+void Network::mergeHybridNodesByLabels(std::string aLabel) {
 
 	// find the nodes with these labels
 	std::vector<NodeSharedPtr> hybridNodes;
@@ -175,6 +179,7 @@ void Network::mergeHybridNodesMyLabels(std::string aLabel) {
 			break;
 		}
 	}
+	
 
 }
 
@@ -545,11 +550,86 @@ void Network::pruneExtinctTipsRecursive(NodeSharedPtr aNode) {
 
 }
 
+void Network::jitterNetwork(double factor) {
+	
+	// prepare the RNG
+	boost::random::random_device dev;
+	rng.seed(dev);
 
+	// first, make an empty set of ages
+	std::set<double> ages;
 
+	// get the oldest node
+	NodeSharedPtr originNode = this->getOldestNode();
 
+	// call recursive function on oldest node
+	this->jitterNetworkRecursive(originNode, ages, factor);
+	
+}
 
+void Network::jitterNetworkRecursive(NodeSharedPtr node, std::set<double>& ages, double factor) {
 
+	// if this node is a tip, terminate
+	if (node->getType() == Sample) {
+		return;
+	}
+
+	// call recursively on children
+	std::vector<NodeSharedPtr> children = node->getChildNodes();
+	for(std::vector<NodeSharedPtr>::iterator it = children.begin(); it != children.end(); ++it) {
+		this->jitterNetworkRecursive(*it, ages, factor);
+	}
+
+	// otherwise, get the age
+	const double& nodeAge = node->getAge();
+
+	// try to insert the node age
+	bool wasInserted = ages.insert(nodeAge).second;
+
+	// only jitter if this is a speciation node
+	if (node->getType() != Speciation) {
+		return;
+	}
+	
+	// if we failed to insert...
+	if (!wasInserted) {
+
+		// have to jitter the age
+		// std::cout << "found duplicate node age at " << nodeAge << std::endl;
+		// std::cout << "node is of type: " << node->getType() << std::endl;
+
+		// 1: get max age
+		std::vector<NodeSharedPtr> parents = node->getParentNodes();
+		double maxAge = nodeAge + factor;
+		for(std::vector<NodeSharedPtr>::iterator jt = parents.begin(); jt != parents.end(); ++jt) {
+			if ( (*jt)->getAge() < maxAge ) {
+				maxAge = (*jt)->getAge();
+			}
+		}
+
+		// 2. get min age
+		double minAge = nodeAge - factor;
+		for(std::vector<NodeSharedPtr>::iterator jt = children.begin(); jt != children.end(); ++jt) {
+			if ( (*jt)->getAge() > minAge ) {
+				minAge = (*jt)->getAge();
+			}
+		}
+
+		// 3. draw a new age uniformly between min and max
+		boost::uniform_real<> ageDist(minAge, maxAge);
+		double newAge = ageDist(rng);
+		// double newAge = nodeAge - 0.0001;
+
+		// 4. set the new age
+		node->setAge(newAge);
+
+		// std::cout << "new age is " << node->getAge() << std::endl;
+		
+	} // end duplicate age case
+
+	// nothing left to do
+
+}
 
 
 
