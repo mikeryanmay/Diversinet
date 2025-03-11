@@ -74,8 +74,8 @@ class DiversinetInterface {
 		double computeLogLikelihood();
 
 		// simulate
-		std::string simulate(double time, std::string condition, int seed, bool extantOnly, int max_lineages);
-		std::vector<std::string> simulate(double time, std::string condition, size_t nreps, int seed, bool extantOnly, int max_lineages);
+		std::string simulate(double time, std::string condition, int seed, bool extantOnly, int max_lineages, bool root);
+		std::vector<std::string> simulate(double time, std::string condition, size_t nreps, int seed, bool extantOnly, int max_lineages, bool root);
 
 		// read a network
 		void readNewick(std::string newick);

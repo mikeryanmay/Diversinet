@@ -40,7 +40,7 @@ BaseSimulator::BaseSimulator(Parameters::ContainerSharedPtr someParams, int seed
 BaseSimulator::~BaseSimulator() {
 }
 
-std::vector<Data::Structure::NetworkSharedPtr> BaseSimulator::simulate(double time, std::string condition, size_t nreps, bool extantOnly, int max_lineages) {
+std::vector<Data::Structure::NetworkSharedPtr> BaseSimulator::simulate(double time, std::string condition, size_t nreps, bool extantOnly, int max_lineages, bool root) {
 
 	// create the container for networks
 	std::vector<Data::Structure::NetworkSharedPtr> networks;
@@ -58,7 +58,7 @@ std::vector<Data::Structure::NetworkSharedPtr> BaseSimulator::simulate(double ti
 		while ( success == false ) {
 
 			// simulate a tree
-			network = this->simulateNetwork(time, max_lineages);
+			network = this->simulateNetwork(time, max_lineages, root);
 
 			// if extant only, drop extinct tips
 			if ( extantOnly ) {
@@ -90,7 +90,7 @@ std::vector<Data::Structure::NetworkSharedPtr> BaseSimulator::simulate(double ti
 
 }
 
-Data::Structure::NetworkSharedPtr BaseSimulator::simulateNetwork(double time, int max_lineages) {
+Data::Structure::NetworkSharedPtr BaseSimulator::simulateNetwork(double time, int max_lineages, bool root) {
 
 	using namespace Data::Structure;
 
@@ -107,7 +107,7 @@ Data::Structure::NetworkSharedPtr BaseSimulator::simulateNetwork(double time, in
 	while (true) {
 		
 		// try to simulate the network
-		bool hit_max = simulateNetworkInternal(activeNodes, inactiveNodes, edges, time, max_lineages);
+		bool hit_max = simulateNetworkInternal(activeNodes, inactiveNodes, edges, time, max_lineages, root);
 
 		if (hit_max) {
 
@@ -134,7 +134,7 @@ Data::Structure::NetworkSharedPtr BaseSimulator::simulateNetwork(double time, in
 
 }
 
-bool BaseSimulator::simulateNetworkInternal(std::vector<Data::Structure::NodeSharedPtr>& activeNodes, std::vector<Data::Structure::NodeSharedPtr>& inactiveNodes, std::vector<Data::Structure::EdgeSharedPtr>& edges, double time, int max_lineages) {
+bool BaseSimulator::simulateNetworkInternal(std::vector<Data::Structure::NodeSharedPtr>& activeNodes, std::vector<Data::Structure::NodeSharedPtr>& inactiveNodes, std::vector<Data::Structure::EdgeSharedPtr>& edges, double time, int max_lineages, bool root) {
 
 	using namespace Data::Structure;
 
@@ -157,13 +157,43 @@ bool BaseSimulator::simulateNetworkInternal(std::vector<Data::Structure::NodeSha
 	inactiveNodes.push_back(originNode);
 
 	NodeSharedPtr rootNode = boost::make_shared<Node>( Node(id++, time, Root) );
-	activeNodes.push_back(rootNode);
 
 	EdgeSharedPtr stem = boost::make_shared<Edge>( Edge(originNode, rootNode) );
 	edges.push_back(stem);
 
 	originNode->addEdge(stem);
 	rootNode->addEdge(stem);
+
+	if (!root) {
+		
+		// simulating starting from origin
+		// root begins as activeNode
+		activeNodes.push_back(rootNode);
+
+	} else {
+
+		// simulate from root
+		// root begins as inactiveNode
+		inactiveNodes.push_back(rootNode);
+
+		// make two new nodes, add them to activeNodes
+		NodeSharedPtr leftNode = boost::make_shared<Node>( Node(id++, time, Speciation) );
+		NodeSharedPtr rightNode = boost::make_shared<Node>( Node(id++, time, Speciation) );
+		
+		EdgeSharedPtr leftEdge = boost::make_shared<Edge>( Edge(rootNode, leftNode) );
+		rootNode->addEdge(leftEdge);
+		leftNode->addEdge(leftEdge);
+		edges.push_back(leftEdge);
+
+		EdgeSharedPtr rightEdge = boost::make_shared<Edge>( Edge(rootNode, rightNode) );
+		rootNode->addEdge(rightEdge);
+		rightNode->addEdge(rightEdge);
+		edges.push_back(rightEdge);
+
+		activeNodes.push_back(leftNode);
+		activeNodes.push_back(rightNode);
+
+	}
 
 	// simulate
 	double num_active, num_choose_two;

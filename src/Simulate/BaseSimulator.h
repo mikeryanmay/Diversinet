@@ -24,13 +24,13 @@ class BaseSimulator {
 		BaseSimulator(Parameters::ContainerSharedPtr someParams, int seed);
 		~BaseSimulator();
 
-		std::vector<Data::Structure::NetworkSharedPtr> simulate(double time, std::string condition, size_t nreps, bool extantOnly, int max_lineages);
-		Data::Structure::NetworkSharedPtr              simulateNetwork(double time, int max_lineages);
+		std::vector<Data::Structure::NetworkSharedPtr> simulate(double time, std::string condition, size_t nreps, bool extantOnly, int max_lineages, bool root);
+		Data::Structure::NetworkSharedPtr              simulateNetwork(double time, int max_lineages, bool root);
 
 	private:
 
 		// internal simulation function
-		bool simulateNetworkInternal(std::vector<Data::Structure::NodeSharedPtr>& activeNodes, std::vector<Data::Structure::NodeSharedPtr>& inactiveNodes, std::vector<Data::Structure::EdgeSharedPtr>& edges, double time, int max_lineages);
+		bool simulateNetworkInternal(std::vector<Data::Structure::NodeSharedPtr>& activeNodes, std::vector<Data::Structure::NodeSharedPtr>& inactiveNodes, std::vector<Data::Structure::EdgeSharedPtr>& edges, double time, int max_lineages, bool root);
 
 		// the RNG
 		RNGType rng;

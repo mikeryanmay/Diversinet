@@ -129,7 +129,7 @@ int main(int argc, const char* argv[]) {
 	interface.setRho(rho);
 
 	// simulate networks
-	std::vector<std::string> sims = interface.simulate(time, condition, reps, seed, extant, max);
+	std::vector<std::string> sims = interface.simulate(time, condition, reps, seed, extant, max, false);
 
 	// write to file
 	std::ofstream output_file(outfile);
