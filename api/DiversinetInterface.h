@@ -80,6 +80,9 @@ class DiversinetInterface {
 		// read a network
 		void readNewick(std::string newick);
 
+		// jitter a network
+		std::string jitterNewick(std::string newick, double factor);
+
 	private:
 
 		// parameter values
