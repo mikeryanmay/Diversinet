@@ -56,6 +56,11 @@ void Network::buildNetworkFromNewick(const Data::NewickReader::TreeNode* aNewick
 	size_t nodeId = aNewickRoot->defineRBCompatibleNodeID();
 	NodeSharedPtr root = boost::make_shared<Node>(nodeId, originTimeRespToRoot, Root);
 
+	// if the stem is zero, set the root as origin type
+	// if ( originTimeRespToRoot < 1e-10 ) {
+	// 	root->setType(Origin);
+	// }
+
 	// add the label
 	root->setLabel(aNewickRoot->getName());
 

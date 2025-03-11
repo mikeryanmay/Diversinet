@@ -131,7 +131,7 @@ std::vector<EdgeSharedPtr> Node::getNonHorizontalEdgesToParents() const {
 	std::vector<EdgeSharedPtr> edgesToParents;
 	std::vector<EdgeSharedPtr> edgeSharedPtr = this->getEdges();
 	for (size_t iE = 0; iE < edgeSharedPtr.size(); ++iE) {
-		if (edgeSharedPtr[iE]->getLength() > 0) {
+		if (edgeSharedPtr[iE]->getLength() > 0 || edgeSharedPtr[iE]->getParent()->getType() == Origin) {
 			if (edgeSharedPtr[iE]->getChild().get() == this) {
 				edgesToParents.push_back(edgeSharedPtr[iE]);
 			}
