@@ -14,6 +14,7 @@
 #include "Models/IncFwdModel.h"
 #include "Likelihood/Scheduler/IncFwdScheduler.h"
 #include "Likelihood/Integrators/IntegratorFactory.h"
+#include "Likelihood/ConditionTypes/ConditionType.h"
 
 namespace Likelihood {
 namespace Approximator {
@@ -23,7 +24,8 @@ class BaseApproximator {
 	public:
 		BaseApproximator(Likelihood::Integrator::integrationScheme_t aIntScheme,
 				         Scheduler::SchedulerSharedPtr aPtrScheduler,
-						 Models::ModelSharedPtr aPtrModel);
+						 Models::ModelSharedPtr aPtrModel,
+						 Conditions::conditionalProbability_t aConditionType);
 		virtual ~BaseApproximator();
 
 		double approximateLikelihood();
@@ -41,6 +43,7 @@ class BaseApproximator {
 
 		double deltaT, logLikelihood = 0.0, scalingFactor = 0.0;
 		Likelihood::Integrator::integrationScheme_t intScheme;
+		Likelihood::Conditions::conditionalProbability_t conditionType;
 		Models::ModelSharedPtr ptrModel;
 		Scheduler::SchedulerSharedPtr ptrScheduler;
 		std::vector<double> integrationTimes;

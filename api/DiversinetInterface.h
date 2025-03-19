@@ -38,6 +38,14 @@ namespace Diversinet {
 namespace Interface {
 
 typedef enum {
+	TIME = 0,
+	ROOT_SURVIVAL = 1,
+	ROOT_MRCA = 2,
+	STEM_SURVIVAL = 3,
+	STEM_TWO_SAMPLES = 4,
+} conditionalProbability_t;
+
+typedef enum {
 	DEFAULT = 0
 } approximatorVersion_t;
 
@@ -69,6 +77,9 @@ class DiversinetInterface {
 		void setRho(double rho_);
 		void setKMax(size_t kmax_);
 		void setKMaxInt(int kmax_);
+
+		// conditional probabilities
+		void setConditionalProbabilityType(int aCondProb);
 
 		// likelihood
 		double computeLogLikelihood();
@@ -109,6 +120,9 @@ class DiversinetInterface {
 
 		// integration schemes
 		integrationScheme_t integrationScheme = integrationScheme_t::RUNGE_KUTTA_DOPRI5;
+
+		// conditioning
+		conditionalProbability_t condProbType = conditionalProbability_t::TIME;
 
 };
 

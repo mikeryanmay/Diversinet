@@ -107,12 +107,12 @@ void BaseScheduler::initEvents() {
 			// make the event
 			nextEvent = new Event(nextEventType, nextEventNodes);
 
-			// std::cout << "found event of type " << nextEventType << " at time " << nextEvent->getTime() << std::endl;
-
 			// make sure the event is valid
 			// isValid = isValid && nextEvent->isEventPossible();
 
 		}
+
+		// std::cout << "found event of type " << nextEvent->getEvent() << " at time " << nextEvent->getTime() << std::endl;
 
 		// add the event
 		events.push_back(nextEvent);

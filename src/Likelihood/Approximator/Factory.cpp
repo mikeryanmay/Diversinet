@@ -23,9 +23,10 @@ Factory::~Factory() {
 
 ApproximatorSharedPtr Factory::createDefaultApproximator(Likelihood::Integrator::integrationScheme_t aIntScheme,
                                                        Scheduler::SchedulerSharedPtr aPtrScheduler,
-													   Models::ModelSharedPtr aPtrModel) {
+													   Models::ModelSharedPtr aPtrModel,
+													   Conditions::conditionalProbability_t aConditionType) {
 	// create the approximator
-	boost::shared_ptr<DefaultApproximator> ptrDense = boost::make_shared<DefaultApproximator>(aIntScheme, aPtrScheduler, aPtrModel);
+	boost::shared_ptr<DefaultApproximator> ptrDense = boost::make_shared<DefaultApproximator>(aIntScheme, aPtrScheduler, aPtrModel, aConditionType);
 	ApproximatorSharedPtr approxPtr = ptrDense; // @suppress("Invalid arguments")
 	return approxPtr;
 }

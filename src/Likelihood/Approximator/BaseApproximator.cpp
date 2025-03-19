@@ -20,8 +20,10 @@ const double BaseApproximator::DEFAULT_REL_TOLERANCE = 1.E-12;
 
 BaseApproximator::BaseApproximator(Likelihood::Integrator::integrationScheme_t aIntScheme,
                                    Scheduler::SchedulerSharedPtr aPtrScheduler,
-								   Models::ModelSharedPtr aPtrModel) :
+								   Models::ModelSharedPtr aPtrModel,
+								   Conditions::conditionalProbability_t aConditionType) :
 								   intScheme(aIntScheme),
+								   conditionType(aConditionType),
 								   ptrScheduler(aPtrScheduler),
 								   ptrModel(aPtrModel),
 								   deltaT(DEFAULT_DELTA_T) {

@@ -20,8 +20,9 @@ namespace Approximator {
 
 DefaultApproximator::DefaultApproximator(Likelihood::Integrator::integrationScheme_t aIntScheme,
                                          Scheduler::SchedulerSharedPtr aPtrScheduler,
-                                         Models::ModelSharedPtr aPtrModel) :
-	BaseApproximator(aIntScheme, aPtrScheduler, aPtrModel),
+                                         Models::ModelSharedPtr aPtrModel,
+										 Conditions::conditionalProbability_t aConditionType) :
+	BaseApproximator(aIntScheme, aPtrScheduler, aPtrModel, aConditionType),
 	N_MAX_STATE_VECTOR(1), /* only 1 for now (a single column vector) */
 	kernels(aPtrModel),
 	intKernel(N_MAX_STATE_VECTOR, aPtrModel) {

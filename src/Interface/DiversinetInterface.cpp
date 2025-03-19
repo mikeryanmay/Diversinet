@@ -9,6 +9,7 @@
 #include "Data/Structure/IncNetworkStructure.h"
 #include "Data/Reader/IncPhyloReader.h"
 #include "Likelihood/Scheduler/BaseScheduler.h"
+#include "Likelihood/ConditionTypes/ConditionType.h"
 #include "Likelihood/Approximator/Factory.h"
 #include "Parameters/IncParameterContainer.h"
 #include "Models/IncModel.h"
@@ -74,6 +75,11 @@ void DiversinetInterface::setKMaxInt(int kmax_) {
 	}
 }
 
+void DiversinetInterface::setConditionalProbabilityType(int aCondProb) {
+	condProbType = static_cast<conditionalProbability_t>(aCondProb);
+	dirtyApproximator = true;
+}
+
 double DiversinetInterface::computeLogLikelihood() {
 
 	// only works if we have a network set
@@ -100,11 +106,14 @@ double DiversinetInterface::computeLogLikelihood() {
 	}
 	assert(ptrScheduler && "Scheduler is invalid.");
 
+	// get the condition type
+	Likelihood::Conditions::conditionalProbability_t condType = Likelihood::Conditions::intToConditionalProbabilityType(condProbType);
+
 	// initialize the approximator
 	if ( ptrApproximator == nullptr || dirtyApproximator ) {
 		Likelihood::Integrator::integrationScheme_t intType = Likelihood::Integrator::intToIntegratorType(integrationScheme);
 		if ( approxVersion == DEFAULT ) {
-			ptrApproximator = Likelihood::Approximator::Factory::createDefaultApproximator(intType, ptrScheduler, ptrModel);
+			ptrApproximator = Likelihood::Approximator::Factory::createDefaultApproximator(intType, ptrScheduler, ptrModel, condType);
 		} else {
 			assert(ptrApproximator && "Requested approximator not available.");
 		}

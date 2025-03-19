@@ -24,7 +24,8 @@ class Factory {
 
 		static ApproximatorSharedPtr createDefaultApproximator(Likelihood::Integrator::integrationScheme_t aIntScheme,
                                                                Scheduler::SchedulerSharedPtr aPtrScheduler,
-															   Models::ModelSharedPtr aPtrModel);
+															   Models::ModelSharedPtr aPtrModel,
+															   Conditions::conditionalProbability_t aConditionType);
 
 	private:
 

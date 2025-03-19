@@ -28,7 +28,7 @@ Network::Network(std::vector<NodeSharedPtr> someNodes, std::vector<EdgeSharedPtr
 	nodes(someNodes), edges(someEdges) {
 
 	// make sure we have an oldest node
-	this->updateOldestNode();
+	// this->updateOldestNode();
 
 	// update the tip nodes
 	this->updateNodes();
@@ -43,7 +43,6 @@ Network::~Network() {
 	// only the network should own shared pointers to nodes and edges
 }
 
-
 void Network::buildNetworkFromNewick(const Data::NewickReader::TreeNode* aNewickRoot) {
 
 	// make the network
@@ -56,10 +55,9 @@ void Network::buildNetworkFromNewick(const Data::NewickReader::TreeNode* aNewick
 	size_t nodeId = aNewickRoot->defineRBCompatibleNodeID();
 	NodeSharedPtr root = boost::make_shared<Node>(nodeId, originTimeRespToRoot, Root);
 
-	// if the stem is zero, set the root as origin type
-	// if ( originTimeRespToRoot < 1e-10 ) {
-	// 	root->setType(Origin);
-	// }
+	// set root and origin
+	originNode = origin;
+	rootNode = root;
 
 	// add the label
 	root->setLabel(aNewickRoot->getName());
@@ -118,7 +116,7 @@ void Network::buildNetworkFromNewick(const Data::NewickReader::TreeNode* aNewick
 	}
 
 	// update the nodes
-	this->updateOldestNode();
+	// this->updateOldestNode();
 	this->ensureSimultaneousEvents();
 	this->updateNodes();
 
@@ -250,9 +248,10 @@ void Network::ensureSimultaneousEvents(double precision) {
 	}
 
 	// get the oldest node
-	NodeSharedPtr originNode = this->getOldestNode();
+	// NodeSharedPtr originNode = this->getOldestNode();
 
 	// call recursive function on oldest node
+	assert(originNode && "must have an origin node");
 	this->ensureSimultaneousEventsRecursive(originNode, precision);
 
 }
@@ -309,16 +308,16 @@ const std::vector<NodeSharedPtr>& Network::getSampledTips() const {
 	return sampledTips;
 }
 
-const size_t& Network::getNumSampledTips() const {
-	return numSampledTips;
+size_t Network::getNumSampledTips() const {
+	return sampledTips.size();
 }
 
-const size_t& Network::getNumExtinctTips() const {
-	return numExtinctTips;
+size_t Network::getNumExtinctTips() const {
+	return extinctTips.size();
 }
 
-const size_t& Network::getNumHybridNodes() const {
-	return numHybridNodes;
+size_t Network::getNumHybridNodes() const {
+	return hybridNodes.size();
 }
 
 const std::vector<NodeSharedPtr>& Network::getExtinctTips() const {
@@ -328,7 +327,7 @@ const std::vector<NodeSharedPtr>& Network::getExtinctTips() const {
 void Network::updateOldestNode() {
 
 	// loop over nodes, finding oldest one
-	oldestNode = nodes.at(0);
+	oldestNode = originNode;
 	for(std::vector<NodeSharedPtr>::iterator it = nodes.begin(); it != nodes.end(); ++it) {
 		if ((*it)->getAge() > oldestNode->getAge()) {
 			oldestNode = *it;
@@ -343,8 +342,21 @@ void Network::updateNodes() {
 	hybridNodes.clear();
 	sampledTips.clear();
 	extinctTips.clear();
+	originNode.reset();
+	rootNode.reset();
+	oldestNode.reset();
+
+	// don't do anything if there are no nodes
+	if (nodes.size() == 0) {
+		isExtinct = true;
+		return;
+	} else {
+		isExtinct = false;
+	}
 
 	// loop over nodes
+	size_t numOrigins = 0;
+	size_t numRoots = 0;
 	for(std::vector<NodeSharedPtr>::iterator it = nodes.begin(); it != nodes.end(); ++it) {
 		if ( (*it)->getType() == Sample ) {
 			sampledTips.push_back(*it);
@@ -352,17 +364,39 @@ void Network::updateNodes() {
 			extinctTips.push_back(*it);
 		} else if ( (*it)->getType() == Hybrid || (*it)->getType() == HybridSpecies || (*it)->getType() == Allopolyploid ) {
 			hybridNodes.push_back(*it);
+		} else if ( (*it)->getType() == Origin ) {
+			originNode = *it;
+			numOrigins++;
+		} else if ( (*it)->getType() == Root ) {
+			rootNode = *it;
+			numRoots++;
 		}
 	}
 
-	// update number of tips
-	numHybridNodes   = hybridNodes.size();
-	numSampledTips   = sampledTips.size();
-	numExtinctTips   = extinctTips.size();
+	// make sure we didn't find too many root and origin nodes
+	assert(numOrigins == 1 && "did not find an origin node");
+	assert(numRoots == 1 && "did not find a root node");
+
+	// flag whether we are extinct
+	isExtinct = sampledTips.size() == 0;
+
+	// update the oldest node
+	this->updateOldestNode();
+	
+	// check that originNode and rootNode exist
+	assert(originNode && "no origin node found");
+	assert(rootNode   && "no root node found");
+	
+	// check that originNode is oldestNode
+	assert(originNode == oldestNode && "origin node is not the oldest node");
 
 }
 
 std::string Network::getNewickString() {
+
+	if (isExtinct) {
+		return "";
+	}
 
 	// reset visits per node
 	for(std::vector<NodeSharedPtr>::iterator it = nodes.begin(); it != nodes.end(); ++it) {
@@ -388,11 +422,42 @@ void Network::pruneExtinctTips() {
 	}
 
 	// get the oldest node
-	NodeSharedPtr originNode = this->getOldestNode();
+	// NodeSharedPtr originNode = this->getOldestNode();
 
 	// call recursive function on oldest node
 	this->pruneExtinctTipsRecursive(originNode);
 
+	// update the oldest node
+	this->updateOldestNode();
+
+	// reset root and origin
+	rootNode->setType(Speciation);
+	if (oldestNode->getParentNodes().size() == 0 && oldestNode->getChildNodes().size() == 1) {
+		// oldest node is the origin node
+		oldestNode->setType(Origin);
+		oldestNode->getChildNodes()[0]->setType(Root);
+		originNode = oldestNode;
+		rootNode   = oldestNode->getChildNodes()[0];
+	} else if (oldestNode->getParentNodes().size() == 0 && oldestNode->getChildNodes().size() == 2) {
+		// this is the root node, but it has no origin node
+		oldestNode->setType(Root);
+		rootNode = oldestNode;
+		originNode = boost::make_shared<Node>( Node(0, rootNode->getAge(), Origin) );
+		EdgeSharedPtr stem = boost::make_shared<Edge>( Edge(originNode, rootNode) );
+		nodes.push_back(originNode);
+		edges.push_back(stem);
+		originNode->addEdge(stem);
+		rootNode->addEdge(stem);
+	} else if (oldestNode->getParentNodes().size() == 1 && oldestNode->getChildNodes().size() == 2) {
+		// this is the root node, but it has an origin node parent
+		oldestNode->setType(Root);
+		oldestNode->getParentNodes()[0]->setType(Origin);
+		originNode = oldestNode->getParentNodes()[0];
+		rootNode   = oldestNode;
+	} else {
+		assert("How did we get here?");
+	}
+	
 	// update the nodes vectors
 	this->updateNodes();
 
@@ -458,7 +523,7 @@ void Network::pruneExtinctTipsRecursive(NodeSharedPtr aNode) {
 			}
 		}
 
-	} else if ( children.size() == 1 & parentEdges.size() == 1 ) {
+	} else if ( children.size() == 1 && parentEdges.size() == 1 ) {
 
 		// we are a knuckle
 
@@ -473,7 +538,6 @@ void Network::pruneExtinctTipsRecursive(NodeSharedPtr aNode) {
 		// - attaching the ancestral edge to the descendant node
 		// - removing itself from the node vector
 		// - if this is a hybrid node, assign label to the descendant
-
 
 		// get child edges, make sure there's only one
 		std::vector<EdgeSharedPtr> edgesToChildren = aNode->getEdgesToChildren();
@@ -507,7 +571,7 @@ void Network::pruneExtinctTipsRecursive(NodeSharedPtr aNode) {
 			}
 		}
 
-	} else if ( children.size() == 1 & parentEdges.size() == 2 ) {
+	} else if ( children.size() == 1 && parentEdges.size() == 2 ) {
 
 		// we are a hybrid with one descendant
 
@@ -637,9 +701,24 @@ void Network::jitterNetworkRecursive(NodeSharedPtr node, std::set<double>& ages,
 }
 
 
+bool Network::hasStem() const {
 
+	// check whether the network has a stem
+	// practically, the network has a stem if the 
+	// branch length between the origin and the root is 
+	// greater than zero
 
+	if (isExtinct) {
+		return false;
+	}
 
+	return fabs(originNode->getAge() - rootNode->getAge()) > 1e-10;
+
+}
+
+bool Network::isExtant() const {
+	return !isExtinct;
+}
 
 
 

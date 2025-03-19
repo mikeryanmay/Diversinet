@@ -69,11 +69,23 @@ std::vector<Data::Structure::NetworkSharedPtr> BaseSimulator::simulate(double ti
 			if ( condition == "none" ) {
 				success = true;
 			} else if ( condition == "survival" ) {
-				success = network->getNumSampledTips() > 0;
+				if (root) {
+					success = network->isExtant() && !network->hasStem() && network->getNumSampledTips() > 0;
+				} else {
+					success = network->isExtant() && network->getNumSampledTips() > 0;
+				}
 			} else if ( condition == "tree" ) {
-				success = network->getNumSampledTips() > 1;
+				if (root) {
+					success = network->isExtant() && !network->hasStem() && network->getNumSampledTips() > 1;
+				} else {
+					success = network->isExtant() && network->getNumSampledTips() > 1;
+				}
 			} else if ( condition == "tree+hybrid" ) {
-				success = network->getNumSampledTips() > 1 && network->getNumHybridNodes() > 0;
+				if (root) {
+					success = network->isExtant() && !network->hasStem() && network->getNumSampledTips() > 1 && network->getNumHybridNodes() > 0;
+				} else {
+					success = network->isExtant() && network->getNumSampledTips() > 1 && network->getNumHybridNodes() > 0;
+				}
 			}
 
 		}
@@ -218,7 +230,7 @@ bool BaseSimulator::simulateNetworkInternal(std::vector<Data::Structure::NodeSha
 
 		// compute the number of active lineages
 		num_active     = activeNodes.size();
-		num_choose_two = num_active * (num_active - 1.0) * 2.0;
+		num_choose_two = num_active * ((double)num_active - 1.0) / 2.0;
 
 		// compute the rates of events
 		speciation_rate         = num_active * lambda;
@@ -569,7 +581,7 @@ bool BaseSimulator::simulateNetworkInternal(std::vector<Data::Structure::NodeSha
 
 		}
 
-		// do a hybrid speciation event
+		// do an allopolyploidization event
 		u -= allopolyploid_rate;
 		if ( u < 0.0 ) {
 

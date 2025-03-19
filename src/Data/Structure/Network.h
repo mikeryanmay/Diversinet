@@ -36,9 +36,11 @@ class Network {
 
 		const std::vector<NodeSharedPtr>& getSampledTips() const;
 		const std::vector<NodeSharedPtr>& getExtinctTips() const;
-		const size_t& getNumSampledTips() const;
-		const size_t& getNumExtinctTips() const;
-		const size_t& getNumHybridNodes() const;
+		size_t getNumSampledTips() const;
+		size_t getNumExtinctTips() const;
+		size_t getNumHybridNodes() const;
+		bool hasStem() const;
+		bool isExtant() const;
 
 		void updateOldestNode();
 
@@ -53,6 +55,8 @@ class Network {
 		// nodes and edges
 		// only network gets shared pointers to these guys
 		NodeSharedPtr oldestNode;
+		NodeSharedPtr originNode;
+		NodeSharedPtr rootNode;
 		std::vector<NodeSharedPtr> nodes;
 		std::vector<EdgeSharedPtr> edges;
 
@@ -61,9 +65,7 @@ class Network {
 		std::vector<NodeSharedPtr> hybridNodes;
 		std::vector<NodeSharedPtr> sampledTips;
 		std::vector<NodeSharedPtr> extinctTips;
-		size_t numHybridNodes   = 0;
-		size_t numSampledTips   = 0;
-		size_t numExtinctTips   = 0;
+		bool isExtinct;
 
 		void pruneExtinctTipsRecursive(NodeSharedPtr aNode);
 

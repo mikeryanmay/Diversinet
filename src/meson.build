@@ -10,6 +10,8 @@ diversinet_sources = [
     'Likelihood/Approximator/DefaultApproximator.cpp',
     'Likelihood/Approximator/DefaultApproximator.h',
     'Likelihood/Approximator/Factory.cpp',
+    'Likelihood/ConditionTypes/ConditionType.cpp',
+    'Likelihood/ConditionTypes/ConditionType.h',
     'Likelihood/Integrators/AdaptiveIntegrators.hpp',
     'Likelihood/Integrators/CustomDenseRK.hpp',
     'Likelihood/Integrators/IntegratorFactory.hpp',
