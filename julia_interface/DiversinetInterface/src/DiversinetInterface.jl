@@ -1,6 +1,7 @@
 module DiversinetInterface
 
-export computeLogLikelihood, readNewick, setEta, setKMaxInt, setLambda, setMu, setNu, setPsi, setRho, setZeta, simulate
+export computeLogLikelihood, jitterNewick, readNewick, setConditionalProbabilityType, setEta, setKMaxInt, setLambda
+export setMu, setNu, setPsi, setRho, setZeta, simulate
 
 using CxxWrap
 import Libdl

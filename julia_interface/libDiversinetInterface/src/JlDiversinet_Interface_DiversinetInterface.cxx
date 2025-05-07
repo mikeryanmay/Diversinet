@@ -17,7 +17,7 @@ struct JlDiversinet_Interface_DiversinetInterface: public Wrapper {
 
   JlDiversinet_Interface_DiversinetInterface(jlcxx::Module& jlModule): Wrapper(jlModule){
     DEBUG_MSG("Adding wrapper for type Diversinet::Interface::DiversinetInterface (" __HERE__ ")");
-    // defined in ../api/../api/DiversinetInterface.h:55:7
+    // defined in ../api/../api/DiversinetInterface.h:63:7
     jlcxx::TypeWrapper<Diversinet::Interface::DiversinetInterface>  t = jlModule.add_type<Diversinet::Interface::DiversinetInterface>("Diversinet!Interface!DiversinetInterface");
     type_ = std::unique_ptr<jlcxx::TypeWrapper<Diversinet::Interface::DiversinetInterface>>(new jlcxx::TypeWrapper<Diversinet::Interface::DiversinetInterface>(jlModule, t));
   }
@@ -28,58 +28,68 @@ struct JlDiversinet_Interface_DiversinetInterface: public Wrapper {
 
     DEBUG_MSG("Adding wrapper for void Diversinet::Interface::DiversinetInterface::setLambda(double) (" __HERE__ ")");
     // signature to use in the veto list: void Diversinet::Interface::DiversinetInterface::setLambda(double)
-    // defined in ../api/../api/DiversinetInterface.h:63:8
+    // defined in ../api/../api/DiversinetInterface.h:71:8
     t.method("setLambda", static_cast<void (Diversinet::Interface::DiversinetInterface::*)(double) >(&Diversinet::Interface::DiversinetInterface::setLambda));
 
     DEBUG_MSG("Adding wrapper for void Diversinet::Interface::DiversinetInterface::setMu(double) (" __HERE__ ")");
     // signature to use in the veto list: void Diversinet::Interface::DiversinetInterface::setMu(double)
-    // defined in ../api/../api/DiversinetInterface.h:64:8
+    // defined in ../api/../api/DiversinetInterface.h:72:8
     t.method("setMu", static_cast<void (Diversinet::Interface::DiversinetInterface::*)(double) >(&Diversinet::Interface::DiversinetInterface::setMu));
 
     DEBUG_MSG("Adding wrapper for void Diversinet::Interface::DiversinetInterface::setEta(double) (" __HERE__ ")");
     // signature to use in the veto list: void Diversinet::Interface::DiversinetInterface::setEta(double)
-    // defined in ../api/../api/DiversinetInterface.h:65:8
+    // defined in ../api/../api/DiversinetInterface.h:73:8
     t.method("setEta", static_cast<void (Diversinet::Interface::DiversinetInterface::*)(double) >(&Diversinet::Interface::DiversinetInterface::setEta));
 
     DEBUG_MSG("Adding wrapper for void Diversinet::Interface::DiversinetInterface::setZeta(double) (" __HERE__ ")");
     // signature to use in the veto list: void Diversinet::Interface::DiversinetInterface::setZeta(double)
-    // defined in ../api/../api/DiversinetInterface.h:66:8
+    // defined in ../api/../api/DiversinetInterface.h:74:8
     t.method("setZeta", static_cast<void (Diversinet::Interface::DiversinetInterface::*)(double) >(&Diversinet::Interface::DiversinetInterface::setZeta));
 
     DEBUG_MSG("Adding wrapper for void Diversinet::Interface::DiversinetInterface::setNu(double) (" __HERE__ ")");
     // signature to use in the veto list: void Diversinet::Interface::DiversinetInterface::setNu(double)
-    // defined in ../api/../api/DiversinetInterface.h:67:8
+    // defined in ../api/../api/DiversinetInterface.h:75:8
     t.method("setNu", static_cast<void (Diversinet::Interface::DiversinetInterface::*)(double) >(&Diversinet::Interface::DiversinetInterface::setNu));
 
     DEBUG_MSG("Adding wrapper for void Diversinet::Interface::DiversinetInterface::setPsi(double) (" __HERE__ ")");
     // signature to use in the veto list: void Diversinet::Interface::DiversinetInterface::setPsi(double)
-    // defined in ../api/../api/DiversinetInterface.h:68:8
+    // defined in ../api/../api/DiversinetInterface.h:76:8
     t.method("setPsi", static_cast<void (Diversinet::Interface::DiversinetInterface::*)(double) >(&Diversinet::Interface::DiversinetInterface::setPsi));
 
     DEBUG_MSG("Adding wrapper for void Diversinet::Interface::DiversinetInterface::setRho(double) (" __HERE__ ")");
     // signature to use in the veto list: void Diversinet::Interface::DiversinetInterface::setRho(double)
-    // defined in ../api/../api/DiversinetInterface.h:69:8
+    // defined in ../api/../api/DiversinetInterface.h:77:8
     t.method("setRho", static_cast<void (Diversinet::Interface::DiversinetInterface::*)(double) >(&Diversinet::Interface::DiversinetInterface::setRho));
 
     DEBUG_MSG("Adding wrapper for void Diversinet::Interface::DiversinetInterface::setKMaxInt(int) (" __HERE__ ")");
     // signature to use in the veto list: void Diversinet::Interface::DiversinetInterface::setKMaxInt(int)
-    // defined in ../api/../api/DiversinetInterface.h:71:8
+    // defined in ../api/../api/DiversinetInterface.h:79:8
     t.method("setKMaxInt", static_cast<void (Diversinet::Interface::DiversinetInterface::*)(int) >(&Diversinet::Interface::DiversinetInterface::setKMaxInt));
+
+    DEBUG_MSG("Adding wrapper for void Diversinet::Interface::DiversinetInterface::setConditionalProbabilityType(int) (" __HERE__ ")");
+    // signature to use in the veto list: void Diversinet::Interface::DiversinetInterface::setConditionalProbabilityType(int)
+    // defined in ../api/../api/DiversinetInterface.h:82:8
+    t.method("setConditionalProbabilityType", static_cast<void (Diversinet::Interface::DiversinetInterface::*)(int) >(&Diversinet::Interface::DiversinetInterface::setConditionalProbabilityType));
 
     DEBUG_MSG("Adding wrapper for double Diversinet::Interface::DiversinetInterface::computeLogLikelihood() (" __HERE__ ")");
     // signature to use in the veto list: double Diversinet::Interface::DiversinetInterface::computeLogLikelihood()
-    // defined in ../api/../api/DiversinetInterface.h:74:10
+    // defined in ../api/../api/DiversinetInterface.h:85:10
     t.method("computeLogLikelihood", static_cast<double (Diversinet::Interface::DiversinetInterface::*)() >(&Diversinet::Interface::DiversinetInterface::computeLogLikelihood));
 
-    DEBUG_MSG("Adding wrapper for int Diversinet::Interface::DiversinetInterface::simulate(double, int, int, bool, int) (" __HERE__ ")");
-    // signature to use in the veto list: int Diversinet::Interface::DiversinetInterface::simulate(double, int, int, bool, int)
-    // defined in ../api/../api/DiversinetInterface.h:77:15
-    t.method("simulate", static_cast<int (Diversinet::Interface::DiversinetInterface::*)(double, int, int, bool, int) >(&Diversinet::Interface::DiversinetInterface::simulate));
+    DEBUG_MSG("Adding wrapper for int Diversinet::Interface::DiversinetInterface::simulate(double, int, int, bool, int, bool) (" __HERE__ ")");
+    // signature to use in the veto list: int Diversinet::Interface::DiversinetInterface::simulate(double, int, int, bool, int, bool)
+    // defined in ../api/../api/DiversinetInterface.h:88:15
+    t.method("simulate", static_cast<int (Diversinet::Interface::DiversinetInterface::*)(double, int, int, bool, int, bool) >(&Diversinet::Interface::DiversinetInterface::simulate));
 
     DEBUG_MSG("Adding wrapper for void Diversinet::Interface::DiversinetInterface::readNewick(int) (" __HERE__ ")");
     // signature to use in the veto list: void Diversinet::Interface::DiversinetInterface::readNewick(int)
-    // defined in ../api/../api/DiversinetInterface.h:81:8
+    // defined in ../api/../api/DiversinetInterface.h:92:8
     t.method("readNewick", static_cast<void (Diversinet::Interface::DiversinetInterface::*)(int) >(&Diversinet::Interface::DiversinetInterface::readNewick));
+
+    DEBUG_MSG("Adding wrapper for int Diversinet::Interface::DiversinetInterface::jitterNewick(int, double) (" __HERE__ ")");
+    // signature to use in the veto list: int Diversinet::Interface::DiversinetInterface::jitterNewick(int, double)
+    // defined in ../api/../api/DiversinetInterface.h:95:15
+    t.method("jitterNewick", static_cast<int (Diversinet::Interface::DiversinetInterface::*)(int, double) >(&Diversinet::Interface::DiversinetInterface::jitterNewick));
   }
 
 private:

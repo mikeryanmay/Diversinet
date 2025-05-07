@@ -1,5 +1,5 @@
 name = "DiversinetInterface"
-uuid = "1ac423cb-d7bb-5994-0837-a4146697de6f"
+uuid = "da5a68cb-8a29-99b3-0281-175fc2ff7fd5"
 
 [deps]
 CxxWrap = "1f15a43c-97ca-5a2a-ae31-89f07a497df4"

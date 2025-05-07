@@ -55,7 +55,7 @@ main-build: ../../../calcDiversiNet
 ../../../calcDiversiNet: $(OBJS) $(USER_OBJS) makefile $(OPTIONAL_TOOL_DEPS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: MacOS X C++ Linker'
-	g++ -L/opt/homebrew/lib -L"/Users/mike/repos/phyloploid_lib/ide/Calc/../../lib/" -o "../../../calcDiversiNet" $(OBJS) $(USER_OBJS) $(LIBS) -ldiversinet -lboost_filesystem -lboost_program_options
+	g++ -L/Users/mike/libraries/boost_1_79_0 -L/opt/homebrew/lib -L"/Users/mike/repos/phyloploid_lib/ide/Calc/../../lib/" -o "../../../calcDiversiNet" $(OBJS) $(USER_OBJS) $(LIBS) -ldiversinet -lboost_filesystem -lboost_program_options
 	@echo 'Finished building target: $@'
 	@echo ' '
 

@@ -52,18 +52,27 @@ throw_if_version_incompatibility();
     std::shared_ptr<Wrapper>(newJlDiversinet_Interface_DiversinetInterface(jlModule))
   };
 
-  DEBUG_MSG("Adding wrapper for enum Diversinet::Interface::approximatorVersion_t (" __HERE__ ")");
+  DEBUG_MSG("Adding wrapper for enum Diversinet::Interface::conditionalProbability_t (" __HERE__ ")");
   // defined in ../api/../api/DiversinetInterface.h:40:9
+  jlModule.add_bits<Diversinet::Interface::conditionalProbability_t>("Diversinet!Interface!conditionalProbability_t", jlcxx::julia_type("CppEnum"));
+  jlModule.set_const("Diversinet!Interface!TIME", Diversinet::Interface::TIME);
+  jlModule.set_const("Diversinet!Interface!ROOT_SURVIVAL", Diversinet::Interface::ROOT_SURVIVAL);
+  jlModule.set_const("Diversinet!Interface!ROOT_MRCA", Diversinet::Interface::ROOT_MRCA);
+  jlModule.set_const("Diversinet!Interface!STEM_SURVIVAL", Diversinet::Interface::STEM_SURVIVAL);
+  jlModule.set_const("Diversinet!Interface!STEM_TWO_SAMPLES", Diversinet::Interface::STEM_TWO_SAMPLES);
+
+  DEBUG_MSG("Adding wrapper for enum Diversinet::Interface::approximatorVersion_t (" __HERE__ ")");
+  // defined in ../api/../api/DiversinetInterface.h:48:9
   jlModule.add_bits<Diversinet::Interface::approximatorVersion_t>("Diversinet!Interface!approximatorVersion_t", jlcxx::julia_type("CppEnum"));
   jlModule.set_const("Diversinet!Interface!DEFAULT", Diversinet::Interface::DEFAULT);
 
   DEBUG_MSG("Adding wrapper for enum Diversinet::Interface::modelVersion_t (" __HERE__ ")");
-  // defined in ../api/../api/DiversinetInterface.h:44:9
+  // defined in ../api/../api/DiversinetInterface.h:52:9
   jlModule.add_bits<Diversinet::Interface::modelVersion_t>("Diversinet!Interface!modelVersion_t", jlcxx::julia_type("CppEnum"));
   jlModule.set_const("Diversinet!Interface!SIMPLE", Diversinet::Interface::SIMPLE);
 
   DEBUG_MSG("Adding wrapper for enum Diversinet::Interface::integrationScheme_t (" __HERE__ ")");
-  // defined in ../api/../api/DiversinetInterface.h:48:9
+  // defined in ../api/../api/DiversinetInterface.h:56:9
   jlModule.add_bits<Diversinet::Interface::integrationScheme_t>("Diversinet!Interface!integrationScheme_t", jlcxx::julia_type("CppEnum"));
   jlModule.set_const("Diversinet!Interface!EULER", Diversinet::Interface::EULER);
   jlModule.set_const("Diversinet!Interface!RUNGE_KUTTA4", Diversinet::Interface::RUNGE_KUTTA4);
