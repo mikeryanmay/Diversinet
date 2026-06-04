@@ -21,32 +21,46 @@ class SimpleNetworkModel: public BaseModel {
 		virtual ~SimpleNetworkModel();
 
 		// get rate/event matrices
-		const Eigen::VectorXd& getInitialProbabilities(size_t initialNumberOfLineages);
-		const SpMat& getTransitionRateMatrix(double t);
-		const SpMat& getSpeciationEventMatrix(double t);
-		const SpMat& getDirectionalTriangleEventMatrix(double t);
-		const SpMat& getBidirectionalTriangleEventMatrix(double t);
-		const SpMat& getNewHybridTriangleEventMatrix(double t);
-		const SpMat& getHybridDiamondEventMatrix(double t);
-		const SpMat& getPolyploidTriangleEventMatrix(double t);
-		const SpMat& getNewPolyploidTriangleEventMatrix(double t);
-		const SpMat& getPolyploidDiamondEventMatrix(double t);
+		const Eigen::VectorXd& getInitialProbabilities(size_t initialNumberOfLineages) override;
+		const SpMat& getTransitionRateMatrix(double t) override;
+		const SpMat& getSpeciationEventMatrix(double t) override;
+		const SpMat& getDirectionalTriangleEventMatrix(double t) override;
+		const SpMat& getBidirectionalTriangleEventMatrix(double t) override;
+		const SpMat& getNewHybridTriangleEventMatrix(double t) override;
+		const SpMat& getHybridDiamondEventMatrix(double t) override;
+		const SpMat& getPolyploidTriangleEventMatrix(double t) override;
+		const SpMat& getNewPolyploidTriangleEventMatrix(double t) override;
+		const SpMat& getPolyploidDiamondEventMatrix(double t) override;
+
+		// apply rate/event operators
+		void computeTransitionRateAction(Eigen::VectorXd &dxdt, const Eigen::VectorXd &p, double t) override;
+		void applySpeciationEvent(Eigen::VectorXd &p, double t) override;
+		void applyDirectionalTriangleEvent(Eigen::VectorXd &p, double t) override;
+		void applyBidirectionalTriangleEvent(Eigen::VectorXd &p, double t) override;
+		void applyNewHybridTriangleEvent(Eigen::VectorXd &p, double t) override;
+		void applyHybridDiamondEvent(Eigen::VectorXd &p, double t) override;
+		void applyPolyploidTriangleEvent(Eigen::VectorXd &p, double t) override;
+		void applyNewPolyploidTriangleEvent(Eigen::VectorXd &p, double t) override;
+		void applyPolyploidDiamondEvent(Eigen::VectorXd &p, double t) override;
 
 	private:
 
 		void resizeIfKmaxChanged(SpMat &matrix);
-		void updateInitialProbabilities(size_t initialNumberOfLineages);
-		void updateRateMatrix();
-		void updateSpeciationEventMatrix();
-		void updateDirectionalTriangleEventMatrix();
-		void updateBidirectionalTriangleEventMatrix();
-		void updateNewHybridTriangleEventMatrix();
-		void updateHybridDiamondEventMatrix();
-		void updatePolyploidTriangleEventMatrix();
-		void updateNewPolyploidTriangleEventMatrix();
-		void updatePolyploidDiamondEventMatrix();
+		void resizeEventScratch(size_t size);
+		void updateInitialProbabilities(size_t initialNumberOfLineages) override;
+		void updateRateMatrix() override;
+		void updateSpeciationEventMatrix() override;
+		void updateDirectionalTriangleEventMatrix() override;
+		void updateBidirectionalTriangleEventMatrix() override;
+		void updateNewHybridTriangleEventMatrix() override;
+		void updateHybridDiamondEventMatrix() override;
+		void updatePolyploidTriangleEventMatrix() override;
+		void updateNewPolyploidTriangleEventMatrix() override;
+		void updatePolyploidDiamondEventMatrix() override;
 
-};
+		Eigen::VectorXd eventScratch;
+
+	};
 
 } /* namespace Model */
 

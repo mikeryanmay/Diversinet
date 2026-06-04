@@ -25,12 +25,16 @@ void SimpleNetworkModel::resizeIfKmaxChanged(SpMat &matrix) {
 	}
 }
 
+void SimpleNetworkModel::resizeEventScratch(size_t size) {
+	if ((size_t)eventScratch.size() != size) {
+		eventScratch.resize(size);
+	}
+}
+
 
 const Eigen::VectorXd& SimpleNetworkModel::getInitialProbabilities(size_t numLineages) {
-
 	updateInitialProbabilities(numLineages);
 	return initialProbabilities;
-
 }
 
 const SpMat& SimpleNetworkModel::getTransitionRateMatrix(double t) {
@@ -76,6 +80,135 @@ const SpMat& SimpleNetworkModel::getNewPolyploidTriangleEventMatrix(double t) {
 const SpMat& SimpleNetworkModel::getPolyploidDiamondEventMatrix(double t) {
 	updatePolyploidDiamondEventMatrix();
 	return polyploidDiamondEventMatrix;
+}
+
+void SimpleNetworkModel::computeTransitionRateAction(Eigen::VectorXd &dxdt, const Eigen::VectorXd &p, double t) {
+
+	if (dxdt.size() != p.size()) {
+		dxdt.resize(p.size());
+	}
+
+	const double &lambda = ptrParameters->lambda;
+	const double &mu     = ptrParameters->mu;
+	const double &eta    = ptrParameters->eta;
+	const double &zeta   = ptrParameters->zeta;
+	const double &nu     = ptrParameters->nu;
+	const double &psi    = ptrParameters->psi;
+
+	const double s = (double)numLineages;
+	const double lambdaPlusMu    = lambda + mu;
+	const double etaPlusZeta     = eta + zeta;
+	const double zetaPlusHalfEta = zeta + 0.5 * eta;
+	const double nuPlusPsi       = nu + psi;
+	const size_t nStates = (size_t)p.size();
+
+	for (size_t iU = 0; iU < nStates; ++iU) {
+		const double u = (double)iU;
+		const double n = s + u;
+
+		const double diag = -(n * lambdaPlusMu + s * (s - 1) * 0.5 * etaPlusZeta + s * u * zetaPlusHalfEta + n * (n - 1) * 0.5 * nuPlusPsi);
+
+		double value = diag * p(iU);
+		if (iU < nStates - 1) {
+			const double up = (u + 2 * s) * lambda + n * (n - 1) * 0.5 * nuPlusPsi;
+			value += up * p(iU + 1);
+		}
+		if (iU > 0) {
+			const double down = u * mu;
+			value += down * p(iU - 1);
+		}
+
+		dxdt(iU) = value;
+	}
+
+}
+
+void SimpleNetworkModel::applySpeciationEvent(Eigen::VectorXd &p, double t) {
+	p *= ptrParameters->lambda;
+}
+
+void SimpleNetworkModel::applyDirectionalTriangleEvent(Eigen::VectorXd &p, double t) {
+
+	resizeEventScratch((size_t)p.size());
+
+	const double diag = 0.5 * ptrParameters->eta;
+	const double up   = ptrParameters->nu;
+	const size_t nStates = (size_t)p.size();
+
+	for (size_t iU = 0; iU < nStates; ++iU) {
+		eventScratch(iU) = diag * p(iU);
+		if (iU < nStates - 1) {
+			eventScratch(iU) += up * p(iU + 1);
+		}
+	}
+
+	p.swap(eventScratch);
+
+}
+
+void SimpleNetworkModel::applyBidirectionalTriangleEvent(Eigen::VectorXd &p, double t) {
+	p *= ptrParameters->zeta;
+}
+
+void SimpleNetworkModel::applyNewHybridTriangleEvent(Eigen::VectorXd &p, double t) {
+	p *= ptrParameters->nu;
+}
+
+void SimpleNetworkModel::applyHybridDiamondEvent(Eigen::VectorXd &p, double t) {
+
+	resizeEventScratch((size_t)p.size());
+
+	const double up  = ptrParameters->eta + 2.0 * ptrParameters->zeta;
+	const double up2 = ptrParameters->nu;
+	const size_t nStates = (size_t)p.size();
+
+	for (size_t iU = 0; iU < nStates; ++iU) {
+		double value = 0.0;
+		if (iU < nStates - 1) {
+			value += up * p(iU + 1);
+		}
+		if (iU < nStates - 2) {
+			value += up2 * p(iU + 2);
+		}
+		eventScratch(iU) = value;
+	}
+
+	p.swap(eventScratch);
+
+}
+
+void SimpleNetworkModel::applyPolyploidTriangleEvent(Eigen::VectorXd &p, double t) {
+
+	resizeEventScratch((size_t)p.size());
+
+	const double up = ptrParameters->psi;
+	const size_t nStates = (size_t)p.size();
+
+	for (size_t iU = 0; iU < nStates; ++iU) {
+		eventScratch(iU) = iU < nStates - 1 ? up * p(iU + 1) : 0.0;
+	}
+
+	p.swap(eventScratch);
+
+}
+
+void SimpleNetworkModel::applyNewPolyploidTriangleEvent(Eigen::VectorXd &p, double t) {
+	p *= ptrParameters->psi;
+}
+
+void SimpleNetworkModel::applyPolyploidDiamondEvent(Eigen::VectorXd &p, double t) {
+
+	resizeEventScratch((size_t)p.size());
+
+	const double up2 = ptrParameters->psi;
+	const size_t nStates = (size_t)p.size();
+
+	for (size_t iU = 0; iU < nStates; ++iU) {
+		eventScratch(iU) = iU < nStates - 2 ? up2 * p(iU + 2) : 0.0;
+	}
+
+	p.swap(eventScratch);
+
 }
 
 void SimpleNetworkModel::updateInitialProbabilities(size_t initialNumberOfLineages) {

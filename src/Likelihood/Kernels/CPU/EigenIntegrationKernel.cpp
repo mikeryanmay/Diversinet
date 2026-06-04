@@ -26,15 +26,12 @@ void EigenIntegrationKernel::operator() (const Likelihood::StateType::Vector::Ei
 
 void EigenIntegrationKernel::doIntegrationStep(const Likelihood::StateType::Vector::EigenState &x, Likelihood::StateType::Vector::EigenState &dxdt, double t) {
 
-	// get the transition matrix
-	const Models::SpMat &Q = ptrModel->getTransitionRateMatrix(t);
-
 	// get the probability elements
 	Eigen::VectorXd &dpdt = dxdt.getStateProb();
 	const Eigen::VectorXd &p = x.getStateProb();
 
 	// do the operation
-	dpdt = Q * p;
+	ptrModel->computeTransitionRateAction(dpdt, p, t);
 
 }
 

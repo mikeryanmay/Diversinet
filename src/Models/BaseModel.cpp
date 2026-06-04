@@ -60,5 +60,41 @@ void BaseModel::setNumberOfLineages(size_t aNumLineages) {
 	needsUpdateRateMatrix = true;
 }
 
+void BaseModel::computeTransitionRateAction(Eigen::VectorXd &dxdt, const Eigen::VectorXd &p, double t) {
+	dxdt = getTransitionRateMatrix(t) * p;
+}
+
+void BaseModel::applySpeciationEvent(Eigen::VectorXd &p, double t) {
+	p = getSpeciationEventMatrix(t) * p;
+}
+
+void BaseModel::applyDirectionalTriangleEvent(Eigen::VectorXd &p, double t) {
+	p = getDirectionalTriangleEventMatrix(t) * p;
+}
+
+void BaseModel::applyBidirectionalTriangleEvent(Eigen::VectorXd &p, double t) {
+	p = getBidirectionalTriangleEventMatrix(t) * p;
+}
+
+void BaseModel::applyNewHybridTriangleEvent(Eigen::VectorXd &p, double t) {
+	p = getNewHybridTriangleEventMatrix(t) * p;
+}
+
+void BaseModel::applyHybridDiamondEvent(Eigen::VectorXd &p, double t) {
+	p = getHybridDiamondEventMatrix(t) * p;
+}
+
+void BaseModel::applyPolyploidTriangleEvent(Eigen::VectorXd &p, double t) {
+	p = getPolyploidTriangleEventMatrix(t) * p;
+}
+
+void BaseModel::applyNewPolyploidTriangleEvent(Eigen::VectorXd &p, double t) {
+	p = getNewPolyploidTriangleEventMatrix(t) * p;
+}
+
+void BaseModel::applyPolyploidDiamondEvent(Eigen::VectorXd &p, double t) {
+	p = getPolyploidDiamondEventMatrix(t) * p;
+}
+
 
 } /* namespace Model */
