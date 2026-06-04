@@ -57,7 +57,9 @@ typedef enum {
 	EULER = 0,
 	RUNGE_KUTTA4 = 1,
 	RUNGE_KUTTA54 = 2,
-	RUNGE_KUTTA_DOPRI5 = 3
+	RUNGE_KUTTA_DOPRI5 = 3,
+	EXPONENTIAL = 5,
+	UNIFORMIZATION = 6
 } integrationScheme_t;
 
 class DiversinetInterface {
@@ -77,6 +79,7 @@ class DiversinetInterface {
 		void setRho(double rho_);
 		void setKMax(size_t kmax_);
 		void setKMaxInt(int kmax_);
+		void setIntegrationScheme(int aIntegrationScheme);
 
 		// conditional probabilities
 		void setConditionalProbabilityType(int aCondProb);
@@ -113,13 +116,13 @@ class DiversinetInterface {
 		Likelihood::Scheduler::SchedulerSharedPtr ptrScheduler;
 
 		// approximator
-		double initDeltaT = 0.05;
+		double initDeltaT = 0.001;
 		bool dirtyApproximator = true;
 		approximatorVersion_t approxVersion = approximatorVersion_t::DEFAULT;
 		Likelihood::Approximator::ApproximatorSharedPtr ptrApproximator;
 
 		// integration schemes
-		integrationScheme_t integrationScheme = integrationScheme_t::RUNGE_KUTTA_DOPRI5;
+		integrationScheme_t integrationScheme = integrationScheme_t::UNIFORMIZATION;
 
 		// conditioning
 		conditionalProbability_t condProbType = conditionalProbability_t::TIME;
