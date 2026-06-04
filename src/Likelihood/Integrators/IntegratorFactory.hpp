@@ -118,6 +118,114 @@ void RungeKutta4<StateType, IntegratorKernel, OperationType>::reset() {
 }
 
 /************************************************/
+/***************    Exponential    **************/
+/************************************************/
+template <class StateType, class IntegratorKernel, class OperationType>
+Exponential<StateType, IntegratorKernel, OperationType>::Exponential(const double aAbsError, const double aRelError, const double aDeltaT) :
+												   Base<StateType, IntegratorKernel, OperationType>(aAbsError, aRelError, aDeltaT) {
+}
+
+template <class StateType, class IntegratorKernel, class OperationType>
+Exponential<StateType, IntegratorKernel, OperationType>::~Exponential() {
+}
+
+template <class StateType, class IntegratorKernel, class OperationType>
+int Exponential<StateType, IntegratorKernel, OperationType>::integrate(double startTime, double endTime,
+																 StateType &state, IntegratorKernel &intKernel) {
+	
+	if(std::fabs(endTime - startTime) < std::numeric_limits<double>::epsilon()) return 0;
+
+	const double deltaT = endTime - startTime;
+	const Eigen::MatrixXd rateMatrix = Eigen::MatrixXd(intKernel.getTransitionRateMatrix(startTime));
+	state.getStateProb() = (rateMatrix * deltaT).exp() * state.getStateProb();
+	state.roundNegativeProbabilityToZero();
+	Base<StateType, IntegratorKernel, OperationType>::nSteps += 1;
+	return 1;
+}
+
+template <class StateType, class IntegratorKernel, class OperationType>
+void Exponential<StateType, IntegratorKernel, OperationType>::reset() {
+	Base<StateType, IntegratorKernel, OperationType>::vecTimes.clear();
+}
+
+/************************************************/
+/*************    Uniformization    *************/
+/************************************************/
+template <class StateType, class IntegratorKernel, class OperationType>
+Uniformization<StateType, IntegratorKernel, OperationType>::Uniformization(const double aAbsError, const double aRelError, const double aDeltaT) :
+												   Base<StateType, IntegratorKernel, OperationType>(aAbsError, aRelError, aDeltaT) {
+}
+
+template <class StateType, class IntegratorKernel, class OperationType>
+Uniformization<StateType, IntegratorKernel, OperationType>::~Uniformization() {
+}
+
+template <class StateType, class IntegratorKernel, class OperationType>
+int Uniformization<StateType, IntegratorKernel, OperationType>::integrate(double startTime, double endTime,
+																 StateType &state, IntegratorKernel &intKernel) {
+	
+	if(std::fabs(endTime - startTime) < std::numeric_limits<double>::epsilon()) return 0;
+
+	const double deltaT = endTime - startTime;
+	const Models::SpMat &rateMatrix = intKernel.getTransitionRateMatrix(startTime);
+
+	double omega = 0.0;
+	for(int i = 0; i < rateMatrix.rows(); ++i) {
+		omega = std::max(omega, -rateMatrix.coeff(i, i));
+	}
+
+	if(omega <= 0.0) {
+		return 0;
+	}
+
+	const double theta = omega * deltaT;
+	if(theta <= 0.0) {
+		return 0;
+	}
+
+	const double sigma = std::sqrt(theta);
+	const int lower = std::max(0, (int)std::floor(theta - 10.0 * sigma - 10.0));
+	const int upper = std::max(lower, (int)std::ceil(theta + 10.0 * sigma + 10.0));
+	const double logTheta = std::log(theta);
+
+	double maxLogWeight = -std::numeric_limits<double>::infinity();
+	for(int n = lower; n <= upper; ++n) {
+		const double logWeight = -theta + n * logTheta - std::lgamma((double)n + 1.0);
+		maxLogWeight = std::max(maxLogWeight, logWeight);
+	}
+
+	StateType term(state);
+	StateType rateAction;
+	Eigen::VectorXd result = Eigen::VectorXd::Zero(state.getStateProb().size());
+	double weightSum = 0.0;
+
+	for(int n = 0; n <= upper; ++n) {
+		if(n >= lower) {
+			const double logWeight = -theta + n * logTheta - std::lgamma((double)n + 1.0);
+			const double weight = std::exp(logWeight - maxLogWeight);
+			result += weight * term.getStateProb();
+			weightSum += weight;
+		}
+
+		if(n < upper) {
+			intKernel(term, rateAction, startTime);
+			term.getStateProb() += rateAction.getStateProb() / omega;
+			term.roundNegativeProbabilityToZero();
+		}
+	}
+
+	state.getStateProb() = result / weightSum;
+	state.roundNegativeProbabilityToZero();
+	Base<StateType, IntegratorKernel, OperationType>::nSteps += (size_t)(upper + 1);
+	return upper + 1;
+}
+
+template <class StateType, class IntegratorKernel, class OperationType>
+void Uniformization<StateType, IntegratorKernel, OperationType>::reset() {
+	Base<StateType, IntegratorKernel, OperationType>::vecTimes.clear();
+}
+
+/************************************************/
 /************    Runge Kutta 45    **************/
 /************************************************/
 template <class StateType, class IntegratorKernel, class OperationType>

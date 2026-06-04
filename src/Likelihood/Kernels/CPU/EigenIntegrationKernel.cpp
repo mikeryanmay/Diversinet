@@ -24,6 +24,10 @@ void EigenIntegrationKernel::operator() (const Likelihood::StateType::Vector::Ei
 	doIntegrationStep(x, dxdt, t);
 }
 
+const Models::SpMat& EigenIntegrationKernel::getTransitionRateMatrix(double t) {
+	return ptrModel->getTransitionRateMatrix(t);
+}
+
 void EigenIntegrationKernel::doIntegrationStep(const Likelihood::StateType::Vector::EigenState &x, Likelihood::StateType::Vector::EigenState &dxdt, double t) {
 
 	// get the probability elements

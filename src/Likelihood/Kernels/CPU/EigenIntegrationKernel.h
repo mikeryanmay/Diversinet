@@ -24,6 +24,7 @@ class EigenIntegrationKernel {
 		~EigenIntegrationKernel();
 
 		void setNumEdgesInterval(size_t aNumEdges);
+		const Models::SpMat& getTransitionRateMatrix(double t);
 
 		void operator() (const Likelihood::StateType::Vector::EigenState &x, Likelihood::StateType::Vector::EigenState &dxdt, double t);
 

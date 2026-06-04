@@ -75,6 +75,11 @@ void DiversinetInterface::setKMaxInt(int kmax_) {
 	}
 }
 
+void DiversinetInterface::setIntegrationScheme(int aIntegrationScheme) {
+	integrationScheme = static_cast<integrationScheme_t>(aIntegrationScheme);
+	dirtyApproximator = true;
+}
+
 void DiversinetInterface::setConditionalProbabilityType(int aCondProb) {
 	condProbType = static_cast<conditionalProbability_t>(aCondProb);
 	dirtyApproximator = true;

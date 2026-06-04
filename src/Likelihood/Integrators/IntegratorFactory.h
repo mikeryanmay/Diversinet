@@ -8,11 +8,13 @@
 #ifndef LIKELIHOOD_CUSTOMINTEGRATORS_INTEGRATORFACTORY_H_
 #define LIKELIHOOD_CUSTOMINTEGRATORS_INTEGRATORFACTORY_H_
 #include <cstddef>
+#include <cmath>
 #include <vector>
 
 #include "CustomDenseRK.hpp"
 
 #include <boost/numeric/odeint.hpp>
+#include <unsupported/Eigen/MatrixFunctions>
 
 #include <boost/accumulators/accumulators.hpp>
 #include <boost/accumulators/statistics/stats.hpp>
@@ -27,7 +29,9 @@ typedef enum {
 	RUNGE_KUTTA4=1,
 	RUNGE_KUTTA54=2,
 	RUNGE_KUTTA_DOPRI5=3,
-	DENSE_RUNGE_KUTTA_DOPRI5=4
+	DENSE_RUNGE_KUTTA_DOPRI5=4,
+	EXPONENTIAL=5,
+	UNIFORMIZATION=6
 } integrationScheme_t;
 
 // convert int to integrator type
@@ -47,6 +51,12 @@ inline integrationScheme_t intToIntegratorType(int myInt) {
 			break;
 		case 4:
 			return DENSE_RUNGE_KUTTA_DOPRI5;
+			break;
+		case 5:
+			return EXPONENTIAL;
+			break;
+		case 6:
+			return UNIFORMIZATION;
 			break;
 		default:
 			assert(false && "Unknown integrationScheme -- unsupported yet.");
@@ -129,6 +139,36 @@ private:
 										  boost::numeric::odeint::vector_space_algebra,
 										  OperationType,
 										  boost::numeric::odeint::always_resizer > constStepper;
+};
+
+/************************************************/
+/***************    Exponential    **************/
+/************************************************/
+
+template <class StateType, class IntegratorKernel, class OperationType>
+class Exponential: public Base<StateType, IntegratorKernel, OperationType> {
+public:
+	Exponential(const double aAbsError, const double aRelError, const double aDeltaT);
+	~Exponential();
+
+	int integrate(double startTime, double endTime,
+				  StateType &state, IntegratorKernel &intKernel);
+	void reset();
+};
+
+/************************************************/
+/*************    Uniformization    *************/
+/************************************************/
+
+template <class StateType, class IntegratorKernel, class OperationType>
+class Uniformization: public Base<StateType, IntegratorKernel, OperationType> {
+public:
+	Uniformization(const double aAbsError, const double aRelError, const double aDeltaT);
+	~Uniformization();
+
+	int integrate(double startTime, double endTime,
+				  StateType &state, IntegratorKernel &intKernel);
+	void reset();
 };
 
 /************************************************/
@@ -251,6 +291,10 @@ Base<StateType, IntegratorKernel, OperationType>* createIntegrator(const double 
 		return new RungeKuttaDOPRI5<StateType, IntegratorKernel, OperationType>(aAbsError, aRelError, aDeltaT);
 	} else if(aIntScheme == DENSE_RUNGE_KUTTA_DOPRI5) {
 		return new DenseRungeKuttaDOPRI5<StateType, IntegratorKernel, OperationType>(aAbsError, aRelError, aDeltaT);
+	} else if(aIntScheme == EXPONENTIAL) {
+		return new Exponential<StateType, IntegratorKernel, OperationType>(aAbsError, aRelError, aDeltaT);
+	} else if(aIntScheme == UNIFORMIZATION) {
+		return new Uniformization<StateType, IntegratorKernel, OperationType>(aAbsError, aRelError, aDeltaT);
 	} else {
 		assert(false && "Integrator unknown from the Integrator factory.");
 		return NULL;
