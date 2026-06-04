@@ -92,7 +92,7 @@ double DefaultApproximator::approximateLogLikelihood() {
 }
 
 void DefaultApproximator::doPreProcessingSteps() {
-	probState = Likelihood::StateType::Vector::EigenState();
+	probState.clear();
 	integrationTimes.clear();
 	scalingFactor = 0.0;
 }

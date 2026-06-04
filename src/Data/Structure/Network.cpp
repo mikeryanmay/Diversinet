@@ -103,7 +103,7 @@ void Network::buildNetworkFromNewick(const Data::NewickReader::TreeNode* aNewick
 	// find labels that appear twice
 	sort(labels.begin(), labels.end());
 	std::vector<std::string> hybidLabels;
-	for(size_t iL = 0; iL < labels.size(); ++iL) {
+	for(size_t iL = 0; iL + 1 < labels.size(); ++iL) {
 		if ( labels[iL] == labels[iL+1] ) {
 			hybidLabels.push_back(labels[iL]);
 			++iL;

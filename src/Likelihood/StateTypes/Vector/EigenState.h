@@ -31,6 +31,7 @@ class EigenState : public boost::additive1< EigenState ,
 
 		size_t size() const;
 		void resize();
+		void clear();
 
 		void allocateVecProb();
 		void removeVecProb();

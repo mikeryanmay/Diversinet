@@ -19,6 +19,12 @@ SimpleNetworkModel::SimpleNetworkModel(Parameters::ContainerSharedPtr aPtrParame
 SimpleNetworkModel::~SimpleNetworkModel() {
 }
 
+void SimpleNetworkModel::resizeIfKmaxChanged(SpMat &matrix) {
+	if ((size_t)matrix.rows() != Kmax || (size_t)matrix.cols() != Kmax) {
+		matrix.resize(Kmax, Kmax);
+	}
+}
+
 
 const Eigen::VectorXd& SimpleNetworkModel::getInitialProbabilities(size_t numLineages) {
 
@@ -102,8 +108,7 @@ void SimpleNetworkModel::updateRateMatrix() {
 	// only update if necessary
 	if (needsUpdateRateMatrix) {
 
-		// resize matrix
-		transitionRateMatrix.resize(Kmax, Kmax);
+		resizeIfKmaxChanged(transitionRateMatrix);
 
 		// get parameters
 		const double &lambda = ptrParameters->lambda; // speciation rate
@@ -156,8 +161,7 @@ void SimpleNetworkModel::updateSpeciationEventMatrix() {
 	// only update if necessary
 	if (needsUpdateSpeciationEventMatrix) {
 
-		// resize matrix
-		speciationEventMatrix.resize(Kmax, Kmax);
+		resizeIfKmaxChanged(speciationEventMatrix);
 
 		// get parameters
 		const double &lambda = ptrParameters->lambda; // speciation rate
@@ -166,7 +170,7 @@ void SimpleNetworkModel::updateSpeciationEventMatrix() {
 		for (size_t iU = 0; iU < Kmax; ++iU) {
 
 			// diagonal value
-			// speciationEventMatrix.coeffRef(iU, iU) = 2.0 * lambda;
+//			speciationEventMatrix.coeffRef(iU, iU) = 2.0 * lambda;
 			speciationEventMatrix.coeffRef(iU, iU) = lambda;
 
 		}
@@ -182,8 +186,7 @@ void SimpleNetworkModel::updateDirectionalTriangleEventMatrix() {
 	// only update if necessary
 	if (needsUpdateDirectionalTriangleEventMatrix) {
 
-		// resize matrix
-		directionalTriangleEventMatrix.resize(Kmax, Kmax);
+		resizeIfKmaxChanged(directionalTriangleEventMatrix);
 
 		// get parameters
 		const double &eta = ptrParameters->eta; // asymmetrical hybridization rate
@@ -213,8 +216,7 @@ void SimpleNetworkModel::updateBidirectionalTriangleEventMatrix() {
 	// only update if necessary
 	if (needsUpdateBidirectionalTriangleEventMatrix) {
 
-		// resize matrix
-		bidirectionalTriangleEventMatrix.resize(Kmax, Kmax);
+		resizeIfKmaxChanged(bidirectionalTriangleEventMatrix);
 
 		// get parameters
 		const double &zeta = ptrParameters->zeta; // symmetrical hybridization rate
@@ -227,6 +229,8 @@ void SimpleNetworkModel::updateBidirectionalTriangleEventMatrix() {
 
 		}
 
+		// std::cout << "BIDIRECTIONAL TRIANGLE" << std::endl;
+
 		// mark as clean
 		needsUpdateBidirectionalTriangleEventMatrix = false;
 	}
@@ -238,8 +242,7 @@ void SimpleNetworkModel::updateNewHybridTriangleEventMatrix() {
 	// only update if necessary
 	if (needsUpdateNewHybridTriangleEventMatrix) {
 
-		// resize matrix
-		newHybridTriangleEventMatrix.resize(Kmax, Kmax);
+		resizeIfKmaxChanged(newHybridTriangleEventMatrix);
 
 		// get parameters
 		const double &nu = ptrParameters->nu;     // hybrid speciation rate
@@ -263,8 +266,7 @@ void SimpleNetworkModel::updateHybridDiamondEventMatrix() {
 	// only update if necessary
 	if (needsUpdateHybridDiamondEventMatrix) {
 
-		// resize matrix
-		hybridDiamondEventMatrix.resize(Kmax, Kmax);
+		resizeIfKmaxChanged(hybridDiamondEventMatrix);
 
 		// get parameters
 		const double &eta  = ptrParameters->eta;  // asymmetrical hybridization rate
@@ -280,7 +282,10 @@ void SimpleNetworkModel::updateHybridDiamondEventMatrix() {
 			// up value (only if we can transition up)
 			if ( iU < (Kmax - 1) ) {
 				hybridDiamondEventMatrix.coeffRef(iU, iU + 1) = eta + 2.0 * zeta;
+				// hybridDiamondEventMatrix.coeffRef(iU, iU + 1) = eta + zeta;
 			}
+
+			// std::cout << "HYBRID DIAMOND" << std::endl;
 
 			// up value (only if we can transition up twice)
 			if ( iU < (Kmax - 2) ) {
@@ -300,8 +305,7 @@ void SimpleNetworkModel::updatePolyploidTriangleEventMatrix() {
 	// only update if necessary
 	if (needsUpdatePolyploidTriangleEventMatrix) {
 
-		// resize matrix
-		polyploidTriangleEventMatrix.resize(Kmax, Kmax);
+		resizeIfKmaxChanged(polyploidTriangleEventMatrix);
 
 		// get parameters
 		const double &psi = ptrParameters->psi;    // allopolyploidization rate
@@ -330,8 +334,7 @@ void SimpleNetworkModel::updateNewPolyploidTriangleEventMatrix() {
 	// only update if necessary
 	if (needsUpdateNewPolyploidTriangleEventMatrix) {
 
-		// resize matrix
-		newPolyploidTriangleEventMatrix.resize(Kmax, Kmax);
+		resizeIfKmaxChanged(newPolyploidTriangleEventMatrix);
 
 		// get parameters
 		const double &psi = ptrParameters->psi; // allopolyploidization rate
@@ -355,8 +358,7 @@ void SimpleNetworkModel::SimpleNetworkModel::updatePolyploidDiamondEventMatrix()
 	// only update if necessary
 	if (needsUpdatePolyploidDiamondEventMatrix) {
 
-		// resize matrix
-		polyploidDiamondEventMatrix.resize(Kmax, Kmax);
+		resizeIfKmaxChanged(polyploidDiamondEventMatrix);
 
 		const double &psi = ptrParameters->psi;    // allopolyploidization rate
 

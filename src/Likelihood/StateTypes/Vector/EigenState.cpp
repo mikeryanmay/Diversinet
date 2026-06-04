@@ -45,6 +45,14 @@ void EigenState::resize() {
 	}
 }
 
+void EigenState::clear() {
+	scaling = 0.0;
+	if(probVec != NULL) {
+		Utils::MemoryPool::eigenCPU().threadSafeFreeVector(probVec);
+		probVec = NULL;
+	}
+}
+
 void EigenState::allocateVecProb() {
 	assert(probVec == NULL);
 	if(probVec == NULL) {

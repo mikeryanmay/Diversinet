@@ -34,6 +34,7 @@ class SimpleNetworkModel: public BaseModel {
 
 	private:
 
+		void resizeIfKmaxChanged(SpMat &matrix);
 		void updateInitialProbabilities(size_t initialNumberOfLineages);
 		void updateRateMatrix();
 		void updateSpeciationEventMatrix();
