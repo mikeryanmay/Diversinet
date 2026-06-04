@@ -94,6 +94,7 @@ double DefaultApproximator::approximateLogLikelihood() {
 void DefaultApproximator::doPreProcessingSteps() {
 	probState.clear();
 	integrationTimes.clear();
+	ptrIntegrator->resetEvaluationState();
 	scalingFactor = 0.0;
 }
 

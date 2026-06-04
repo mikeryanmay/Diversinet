@@ -40,6 +40,13 @@ void Base<StateType, IntegratorKernel, OperationType>::setDeltaT(double aDeltaT)
 }
 
 template <class StateType, class IntegratorKernel, class OperationType>
+void Base<StateType, IntegratorKernel, OperationType>::resetEvaluationState() {
+	nSteps = 0;
+	vecTimes.clear();
+	reset();
+}
+
+template <class StateType, class IntegratorKernel, class OperationType>
 size_t Base<StateType, IntegratorKernel, OperationType>::getNSteps() const {
 	return nSteps;
 }
@@ -160,6 +167,12 @@ void RungeKutta54<StateType, IntegratorKernel, OperationType>::reset() {
 	//adaptiveStepper.reset();
 }
 
+template <class StateType, class IntegratorKernel, class OperationType>
+void RungeKutta54<StateType, IntegratorKernel, OperationType>::resetEvaluationState() {
+	Base<StateType, IntegratorKernel, OperationType>::resetEvaluationState();
+	deltaTAcc = delta_t_accumulator_t(boost::accumulators::tag::rolling_window::window_size = Base<StateType, IntegratorKernel, OperationType>::DELTA_T_ACCUMULATOR_WINDOW_SIZE);
+}
+
 /************************************************/
 /*********    Runge Kutta DOPRI 5    ************/
 /************************************************/
@@ -208,6 +221,12 @@ void RungeKuttaDOPRI5<StateType, IntegratorKernel, OperationType>::reset() {
 	adaptiveStepper.reset();
 	//adaptiveStepper = make_controlled(Base<StateType, IntegratorKernel, OperationType>::ABS_ERROR,
 	//				  Base<StateType, IntegratorKernel, OperationType>::REL_ERROR, rkd5_stepper_t());
+}
+
+template <class StateType, class IntegratorKernel, class OperationType>
+void RungeKuttaDOPRI5<StateType, IntegratorKernel, OperationType>::resetEvaluationState() {
+	Base<StateType, IntegratorKernel, OperationType>::resetEvaluationState();
+	deltaTAcc = delta_t_accumulator_t(boost::accumulators::tag::rolling_window::window_size = Base<StateType, IntegratorKernel, OperationType>::DELTA_T_ACCUMULATOR_WINDOW_SIZE);
 }
 
 /************************************************/

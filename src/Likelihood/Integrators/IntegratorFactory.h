@@ -70,6 +70,7 @@ public:
 	virtual int integrate(double startTime, double endTime,
 						  StateType &state, IntegratorKernel &intKernel) = 0;
 	virtual void reset() = 0;
+	virtual void resetEvaluationState();
 
 	const std::vector<double>& getVecTimes() const;
 
@@ -152,9 +153,12 @@ private:
 															 boost::numeric::odeint::vector_space_algebra,
 															 OperationType,
 															 boost::numeric::odeint::always_resizer > rk54_stepper_t;
-	boost::accumulators::accumulator_set<double, boost::accumulators::stats<boost::accumulators::tag::rolling_count, boost::accumulators::tag::rolling_mean > > deltaTAcc;
+	typedef boost::accumulators::accumulator_set<double, boost::accumulators::stats<boost::accumulators::tag::rolling_count, boost::accumulators::tag::rolling_mean > > delta_t_accumulator_t;
+	delta_t_accumulator_t deltaTAcc;
 	typedef boost::numeric::odeint::controlled_runge_kutta<rk54_stepper_t> controlledRK54_t;
 	controlledRK54_t adaptiveStepper;
+
+	void resetEvaluationState();
 };
 
 /************************************************/
@@ -171,7 +175,8 @@ public:
 				  StateType &state, IntegratorKernel &intKernel);
 	void reset();
 private:
-	boost::accumulators::accumulator_set<double, boost::accumulators::stats<boost::accumulators::tag::rolling_count, boost::accumulators::tag::rolling_mean > > deltaTAcc;
+	typedef boost::accumulators::accumulator_set<double, boost::accumulators::stats<boost::accumulators::tag::rolling_count, boost::accumulators::tag::rolling_mean > > delta_t_accumulator_t;
+	delta_t_accumulator_t deltaTAcc;
 	typedef boost::numeric::odeint::runge_kutta_dopri5< StateType ,
 													 	double ,
 														StateType,
@@ -181,6 +186,8 @@ private:
 														boost::numeric::odeint::always_resizer > rkd5_stepper_t;
 	typedef boost::numeric::odeint::controlled_runge_kutta<rkd5_stepper_t> controlledRDK5_t;
 	controlledRDK5_t adaptiveStepper;
+
+	void resetEvaluationState();
 };
 
 /************************************************/
