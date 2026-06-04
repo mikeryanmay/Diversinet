@@ -142,7 +142,7 @@ void SimpleNetworkModel::applyDirectionalTriangleEvent(Eigen::VectorXd &p, doubl
 		}
 	}
 
-	p.swap(eventScratch);
+	p = eventScratch;
 
 }
 
@@ -173,7 +173,7 @@ void SimpleNetworkModel::applyHybridDiamondEvent(Eigen::VectorXd &p, double t) {
 		eventScratch(iU) = value;
 	}
 
-	p.swap(eventScratch);
+	p = eventScratch;
 
 }
 
@@ -188,7 +188,7 @@ void SimpleNetworkModel::applyPolyploidTriangleEvent(Eigen::VectorXd &p, double 
 		eventScratch(iU) = iU < nStates - 1 ? up * p(iU + 1) : 0.0;
 	}
 
-	p.swap(eventScratch);
+	p = eventScratch;
 
 }
 
@@ -207,7 +207,7 @@ void SimpleNetworkModel::applyPolyploidDiamondEvent(Eigen::VectorXd &p, double t
 		eventScratch(iU) = iU < nStates - 2 ? up2 * p(iU + 2) : 0.0;
 	}
 
-	p.swap(eventScratch);
+	p = eventScratch;
 
 }
 
