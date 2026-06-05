@@ -2,6 +2,9 @@
 #define _DIVNET_INTERFACE_
 
 #include <boost/smart_ptr/shared_ptr.hpp>
+#include <cstddef>
+#include <string>
+#include <vector>
 
 namespace Data {
 namespace Structure {

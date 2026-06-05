@@ -35,3 +35,6 @@
 build/
 builddir/
 lib/
+
+# Julia wrapper development environment
+julia_interface/DiversinetInterface/Manifest.toml

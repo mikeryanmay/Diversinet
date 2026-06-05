@@ -1,7 +1,7 @@
 # basic project info
 project('diversinet', 'cpp',
   version : '0.0.1',
-  default_options : ['cpp_std=c++17', 'optimization=3'],
+  default_options : ['cpp_std=c++20', 'optimization=3'],
   license : 'GPL3')
 
 # dependencies (different for library and programs)
