@@ -39,8 +39,9 @@ class BaseModel {
 		virtual const SpMat& getNewPolyploidTriangleEventMatrix(double t) = 0;
 		virtual const SpMat& getPolyploidDiamondEventMatrix(double t) = 0;
 
-		// apply rate/event operators
-		virtual void computeTransitionRateAction(Eigen::VectorXd &dxdt, const Eigen::VectorXd &p, double t);
+			// apply rate/event operators
+			virtual double getUniformizationRate(double t);
+			virtual void computeTransitionRateAction(Eigen::VectorXd &dxdt, const Eigen::VectorXd &p, double t);
 		virtual void applySpeciationEvent(Eigen::VectorXd &p, double t);
 		virtual void applyDirectionalTriangleEvent(Eigen::VectorXd &p, double t);
 		virtual void applyBidirectionalTriangleEvent(Eigen::VectorXd &p, double t);

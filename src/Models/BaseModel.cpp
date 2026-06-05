@@ -60,6 +60,17 @@ void BaseModel::setNumberOfLineages(size_t aNumLineages) {
 	needsUpdateRateMatrix = true;
 }
 
+double BaseModel::getUniformizationRate(double t) {
+	const SpMat &rateMatrix = getTransitionRateMatrix(t);
+
+	double omega = 0.0;
+	for(int i = 0; i < rateMatrix.rows(); ++i) {
+		omega = std::max(omega, -rateMatrix.coeff(i, i));
+	}
+
+	return omega;
+}
+
 void BaseModel::computeTransitionRateAction(Eigen::VectorXd &dxdt, const Eigen::VectorXd &p, double t) {
 	dxdt = getTransitionRateMatrix(t) * p;
 }

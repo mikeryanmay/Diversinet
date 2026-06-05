@@ -167,12 +167,7 @@ int Uniformization<StateType, IntegratorKernel, OperationType>::integrate(double
 	if(std::fabs(endTime - startTime) < std::numeric_limits<double>::epsilon()) return 0;
 
 	const double deltaT = endTime - startTime;
-	const Models::SpMat &rateMatrix = intKernel.getTransitionRateMatrix(startTime);
-
-	double omega = 0.0;
-	for(int i = 0; i < rateMatrix.rows(); ++i) {
-		omega = std::max(omega, -rateMatrix.coeff(i, i));
-	}
+	const double omega = intKernel.getUniformizationRate(startTime);
 
 	if(omega <= 0.0) {
 		return 0;
@@ -183,34 +178,62 @@ int Uniformization<StateType, IntegratorKernel, OperationType>::integrate(double
 		return 0;
 	}
 
+	const double poissonTolerance = std::min(1.0e-15, Base<StateType, IntegratorKernel, OperationType>::ABS_ERROR);
+	const int mode = (int)std::floor(theta);
 	const double sigma = std::sqrt(theta);
-	const int lower = std::max(0, (int)std::floor(theta - 10.0 * sigma - 10.0));
-	const int upper = std::max(lower, (int)std::ceil(theta + 10.0 * sigma + 10.0));
-	const double logTheta = std::log(theta);
+	int lower = std::max(0, (int)std::floor(theta - 10.0 * sigma - 10.0));
+	int upper = std::max(lower, (int)std::ceil(theta + 10.0 * sigma + 10.0));
 
-	double maxLogWeight = -std::numeric_limits<double>::infinity();
-	for(int n = lower; n <= upper; ++n) {
-		const double logWeight = -theta + n * logTheta - std::lgamma((double)n + 1.0);
-		maxLogWeight = std::max(maxLogWeight, logWeight);
+	std::vector<double> poissonWeights((size_t)(upper - lower + 1), 0.0);
+	poissonWeights[(size_t)(mode - lower)] = 1.0;
+	double weightSum = 1.0;
+	double weight = 1.0;
+	for(int n = mode; n > lower; --n) {
+		weight *= (double)n / theta;
+		poissonWeights[(size_t)(n - 1 - lower)] = weight;
+		weightSum += weight;
+	}
+	weight = 1.0;
+	for(int n = mode + 1; n <= upper; ++n) {
+		weight *= theta / (double)n;
+		poissonWeights[(size_t)(n - lower)] = weight;
+		weightSum += weight;
+	}
+
+	while(lower > 0) {
+		const double nextWeight = poissonWeights.front() * (double)lower / theta;
+		const double nextRatio = (double)(lower - 1) / theta;
+		if(nextRatio < 1.0 && nextWeight * nextRatio / (1.0 - nextRatio) <= poissonTolerance * weightSum) {
+			break;
+		}
+		poissonWeights.insert(poissonWeights.begin(), nextWeight);
+		weightSum += nextWeight;
+		--lower;
+	}
+
+	while(true) {
+		const double nextWeight = poissonWeights.back() * theta / (double)(upper + 1);
+		const double nextRatio = theta / (double)(upper + 2);
+		if(nextRatio < 1.0 && nextWeight * nextRatio / (1.0 - nextRatio) <= poissonTolerance * weightSum) {
+			break;
+		}
+		poissonWeights.push_back(nextWeight);
+		weightSum += nextWeight;
+		++upper;
 	}
 
 	StateType term(state);
 	StateType rateAction;
 	Eigen::VectorXd result = Eigen::VectorXd::Zero(state.getStateProb().size());
-	double weightSum = 0.0;
 
 	for(int n = 0; n <= upper; ++n) {
 		if(n >= lower) {
-			const double logWeight = -theta + n * logTheta - std::lgamma((double)n + 1.0);
-			const double weight = std::exp(logWeight - maxLogWeight);
-			result += weight * term.getStateProb();
-			weightSum += weight;
+			result += poissonWeights[(size_t)(n - lower)] * term.getStateProb();
 		}
 
 		if(n < upper) {
 			intKernel(term, rateAction, startTime);
 			term.getStateProb() += rateAction.getStateProb() / omega;
-			term.roundNegativeProbabilityToZero();
 		}
 	}
 

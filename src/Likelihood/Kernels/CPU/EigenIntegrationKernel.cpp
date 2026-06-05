@@ -28,6 +28,10 @@ const Models::SpMat& EigenIntegrationKernel::getTransitionRateMatrix(double t) {
 	return ptrModel->getTransitionRateMatrix(t);
 }
 
+double EigenIntegrationKernel::getUniformizationRate(double t) {
+	return ptrModel->getUniformizationRate(t);
+}
+
 void EigenIntegrationKernel::doIntegrationStep(const Likelihood::StateType::Vector::EigenState &x, Likelihood::StateType::Vector::EigenState &dxdt, double t) {
 
 	// get the probability elements

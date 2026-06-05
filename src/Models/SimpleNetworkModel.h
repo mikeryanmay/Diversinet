@@ -32,8 +32,9 @@ class SimpleNetworkModel: public BaseModel {
 		const SpMat& getNewPolyploidTriangleEventMatrix(double t) override;
 		const SpMat& getPolyploidDiamondEventMatrix(double t) override;
 
-		// apply rate/event operators
-		void computeTransitionRateAction(Eigen::VectorXd &dxdt, const Eigen::VectorXd &p, double t) override;
+			// apply rate/event operators
+			double getUniformizationRate(double t) override;
+			void computeTransitionRateAction(Eigen::VectorXd &dxdt, const Eigen::VectorXd &p, double t) override;
 		void applySpeciationEvent(Eigen::VectorXd &p, double t) override;
 		void applyDirectionalTriangleEvent(Eigen::VectorXd &p, double t) override;
 		void applyBidirectionalTriangleEvent(Eigen::VectorXd &p, double t) override;

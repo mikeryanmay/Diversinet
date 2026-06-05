@@ -7,6 +7,7 @@
 
 #ifndef LIKELIHOOD_CUSTOMINTEGRATORS_INTEGRATORFACTORY_H_
 #define LIKELIHOOD_CUSTOMINTEGRATORS_INTEGRATORFACTORY_H_
+#include <algorithm>
 #include <cstddef>
 #include <cmath>
 #include <vector>

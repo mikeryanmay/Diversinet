@@ -82,6 +82,26 @@ const SpMat& SimpleNetworkModel::getPolyploidDiamondEventMatrix(double t) {
 	return polyploidDiamondEventMatrix;
 }
 
+double SimpleNetworkModel::getUniformizationRate(double t) {
+	const double &lambda = ptrParameters->lambda;
+	const double &mu     = ptrParameters->mu;
+	const double &eta    = ptrParameters->eta;
+	const double &zeta   = ptrParameters->zeta;
+	const double &nu     = ptrParameters->nu;
+	const double &psi    = ptrParameters->psi;
+
+	const double s = (double)numLineages;
+	const double u = (double)(Kmax - 1);
+	const double n = s + u;
+
+	const double lambdaPlusMu    = lambda + mu;
+	const double etaPlusZeta     = eta + zeta;
+	const double zetaPlusHalfEta = zeta + 0.5 * eta;
+	const double nuPlusPsi       = nu + psi;
+
+	return n * lambdaPlusMu + s * (s - 1) * 0.5 * etaPlusZeta + s * u * zetaPlusHalfEta + n * (n - 1) * 0.5 * nuPlusPsi;
+}
+
 void SimpleNetworkModel::computeTransitionRateAction(Eigen::VectorXd &dxdt, const Eigen::VectorXd &p, double t) {
 
 	if (dxdt.size() != p.size()) {
