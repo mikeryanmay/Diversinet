@@ -1,0 +1,9 @@
+option('programs',
+  type : 'boolean',
+  value : true,
+  description : 'Build command-line programs')
+
+option('tests',
+  type : 'boolean',
+  value : true,
+  description : 'Build test executable')

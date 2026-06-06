@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cmath>
+#include <stdexcept>
 #include <vector>
 
 #include "CustomDenseRK.hpp"
@@ -51,7 +52,7 @@ inline integrationScheme_t intToIntegratorType(int myInt) {
 			return RUNGE_KUTTA_DOPRI5;
 			break;
 		case 4:
-			return DENSE_RUNGE_KUTTA_DOPRI5;
+			throw std::invalid_argument("DENSE_RUNGE_KUTTA_DOPRI5 is currently disabled.");
 			break;
 		case 5:
 			return EXPONENTIAL;
@@ -235,6 +236,7 @@ private:
 /*********    Runge Kutta DOPRI 5    ************/
 /************************************************/
 
+#if 0
 template <class StateType, class IntegratorKernel, class OperationType>
 class DenseRungeKuttaDOPRI5: public Base<StateType, IntegratorKernel, OperationType> {
 public:
@@ -272,6 +274,7 @@ private:
 	customDenseRDK5_t adaptiveStepper;
 
 };
+#endif
 
 
 /************************************************/
@@ -291,7 +294,7 @@ Base<StateType, IntegratorKernel, OperationType>* createIntegrator(const double 
 	} else if(aIntScheme == RUNGE_KUTTA_DOPRI5) {
 		return new RungeKuttaDOPRI5<StateType, IntegratorKernel, OperationType>(aAbsError, aRelError, aDeltaT);
 	} else if(aIntScheme == DENSE_RUNGE_KUTTA_DOPRI5) {
-		return new DenseRungeKuttaDOPRI5<StateType, IntegratorKernel, OperationType>(aAbsError, aRelError, aDeltaT);
+		throw std::invalid_argument("DENSE_RUNGE_KUTTA_DOPRI5 is currently disabled.");
 	} else if(aIntScheme == EXPONENTIAL) {
 		return new Exponential<StateType, IntegratorKernel, OperationType>(aAbsError, aRelError, aDeltaT);
 	} else if(aIntScheme == UNIFORMIZATION) {

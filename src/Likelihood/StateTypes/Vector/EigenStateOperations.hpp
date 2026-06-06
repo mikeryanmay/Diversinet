@@ -9,6 +9,7 @@
 #define LIKELIHOOD_STATETYPES_VECTOR_EIGENSTATEOPERATIONS_HPP_
 
 #include <algorithm>
+#include <stdexcept>
 
 #include <boost/config.hpp>
 #include <boost/array.hpp>
@@ -574,17 +575,11 @@ struct EigenStateOperations
         : m_eps_abs( eps_abs ) , m_eps_rel( eps_rel )
         { }
 
-        EigenState operator()( EigenState r , const EigenState &x_old , const EigenState &x , const EigenState &x_err )
-        {
-        	assert(false && "Not yet implemented.");
-            BOOST_USING_STD_MAX();
-            using std::abs;
-            using boost::numeric::odeint::get_unit_value;
-            using boost::numeric::odeint::set_unit_value;
-            EigenState tmp = abs( get_unit_value( x_err ) ) / ( m_eps_abs + m_eps_rel * max BOOST_PREVENT_MACRO_SUBSTITUTION ( abs( x_old ) , abs( x ) ) );
-            return max BOOST_PREVENT_MACRO_SUBSTITUTION ( r , tmp );
-        }
-    };
+	        EigenState operator()( EigenState r , const EigenState &x_old , const EigenState &x , const EigenState &x_err )
+	        {
+	        	throw std::logic_error("EigenStateOperations::rel_error_max is not implemented.");
+	        }
+	    };
 
 
     template< class Fac1 = double >
@@ -596,18 +591,11 @@ struct EigenStateOperations
         : m_eps_abs( eps_abs ) , m_eps_rel( eps_rel ) , m_a_x( a_x ) , m_a_dxdt( a_dxdt )
         { }
 
-        EigenState operator()( EigenState r , const EigenState &x_old , const EigenState &/*x*/ , const EigenState &dxdt_old , const EigenState &x_err )
-        {
-        	assert(false && "Not yet implemented.");
-            BOOST_USING_STD_MAX();
-            using std::abs;
-            using boost::numeric::odeint::get_unit_value;
-            using boost::numeric::odeint::set_unit_value;
-            EigenState tmp = abs( get_unit_value( x_err ) ) /
-                    ( m_eps_abs + m_eps_rel * ( m_a_x * abs( get_unit_value( x_old ) ) + m_a_dxdt * abs( get_unit_value( dxdt_old ) ) ) );
-            return max BOOST_PREVENT_MACRO_SUBSTITUTION ( r , tmp );
-        }
-    };
+	        EigenState operator()( EigenState r , const EigenState &x_old , const EigenState &/*x*/ , const EigenState &dxdt_old , const EigenState &x_err )
+	        {
+	        	throw std::logic_error("EigenStateOperations::rel_error_max2 is not implemented.");
+	        }
+	    };
 
 
     template< class Fac1 = double >

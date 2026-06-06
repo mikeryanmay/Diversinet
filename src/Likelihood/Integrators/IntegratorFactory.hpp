@@ -363,6 +363,7 @@ void RungeKuttaDOPRI5<StateType, IntegratorKernel, OperationType>::resetEvaluati
 /************************************************/
 /****** Dense Runge Kutta DOPRI 5    **********/
 /************************************************/
+#if 0
 template <class StateType, class IntegratorKernel, class OperationType>
 DenseRungeKuttaDOPRI5<StateType, IntegratorKernel, OperationType>::DenseRungeKuttaDOPRI5(const double aAbsError, const double aRelError, const double aDeltaT) :
 															  Base<StateType, IntegratorKernel, OperationType>(aAbsError, aRelError, aDeltaT),
@@ -432,6 +433,7 @@ void DenseRungeKuttaDOPRI5<StateType, IntegratorKernel, OperationType>::transfer
 						 std::vector< std::pair< StateType, StateType >  >& aStepDerivs ) {
 	adaptiveStepper.transferStepsMemory(boost::ref(aSteppers), aTimes, aStepStates, aStepDerivs);
 }
+#endif
 
 /************************************************/
 /***************    FACTORY    ******************/
