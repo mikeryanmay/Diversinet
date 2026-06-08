@@ -16,9 +16,15 @@ inc_for_calc = include_directories('api')
 # which subdirectories to search for meson.build files
 subdir('api')
 subdir('src')
-subdir('sim')
-subdir('calc')
-subdir('test')
+
+if get_option('programs')
+  subdir('sim')
+  subdir('calc')
+endif
+
+if get_option('tests')
+  subdir('test')
+endif
 
 # the package
 pkg_mod = import('pkgconfig')
