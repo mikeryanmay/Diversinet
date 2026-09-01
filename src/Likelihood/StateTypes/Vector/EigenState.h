@@ -9,7 +9,6 @@
 #define SRC_LIKELIHOOD_STATETYPES_VECTOR_EIGENSTATE_H_
 
 #include <vector>
-#include <boost/type_traits/integral_constant.hpp>
 #include <boost/operators.hpp>
 #include <boost/numeric/odeint.hpp>
 
@@ -108,10 +107,8 @@ struct vector_space_norm_inf< Likelihood::StateType::Vector::EigenState >
 namespace boost { namespace numeric { namespace odeint {
 
 template< >
-struct is_resizeable< Likelihood::StateType::Vector::EigenState > { // declare resizeability
-    typedef boost::true_type type;
-    const static bool value = type::value;
-};
+struct is_resizeable< Likelihood::StateType::Vector::EigenState >
+    : is_resizeable< std::vector<double> > {}; // declare resizeability
 
 template< >
 struct same_size_impl< Likelihood::StateType::Vector::EigenState , Likelihood::StateType::Vector::EigenState > { // define how to check size
