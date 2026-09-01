@@ -1,4 +1,4 @@
-#include <DiversinetInterface.h>
+#include <Diversinet/DiversinetInterface.h>
 #include <iostream>
 #include <vector>
 

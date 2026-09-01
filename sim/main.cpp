@@ -4,7 +4,7 @@
 #include <string>
 #include <boost/program_options.hpp>
 
-#include <DiversinetInterface.h>
+#include <Diversinet/DiversinetInterface.h>
 
 using namespace boost::program_options;
 

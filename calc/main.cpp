@@ -8,7 +8,7 @@
 #include <boost/filesystem.hpp>
 #include "boost/filesystem/fstream.hpp"
 
-#include "DiversinetInterface.h"
+#include <Diversinet/DiversinetInterface.h>
 
 using namespace boost::program_options;
 

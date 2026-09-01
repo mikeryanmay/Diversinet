@@ -6,7 +6,7 @@
  */
 
 #include "Test/Catch2/catch.hpp"
-#include "DiversinetInterface.h"
+#include <Diversinet/DiversinetInterface.h>
 
 static std::string yule_newick             = "((A:0.5,B:0.5):0.25,C:0.75):0.25;";
 static std::string yule_newick_asym        = "((A:0.5,C#A:0.00):0.25,(B:0.5)C#A:0.25):0.25;";
