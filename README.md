@@ -125,3 +125,11 @@ executable(
 
 If Diversinet is installed under a nonstandard prefix, add its pkg-config
 directory to `PKG_CONFIG_PATH` before configuring the consuming project.
+
+## License
+
+Diversinet is licensed under the GNU General Public License, version 3 or, at
+your option, any later version (`GPL-3.0-or-later`). See [LICENSE](LICENSE).
+
+Existing copyright and license notices in individual source files remain in
+effect.

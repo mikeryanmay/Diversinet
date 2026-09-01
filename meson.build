@@ -2,7 +2,7 @@
 project('diversinet', 'cpp',
   version : '0.1.0',
   default_options : ['cpp_std=c++20', 'optimization=3'],
-  license : 'GPL3')
+  license : 'GPL-3.0-or-later')
 
 # dependencies (different for library and programs)
 eigen_dep          = dependency('eigen3')
@@ -36,3 +36,8 @@ pkg_mod.generate(libraries : diversinet,
                  name : 'libdiversinet',
                  filebase : 'diversinet',
                  description : 'Likelihood calculation and simulation for phylogenetic networks')
+
+install_data(
+  'LICENSE',
+  install_dir : join_paths(get_option('datadir'), 'licenses', 'Diversinet'),
+)
