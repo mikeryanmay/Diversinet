@@ -1,14 +1,23 @@
-# Diversinet C++ Library
+# Diversinet
 
-This repository builds the core native `Diversinet` C++ library.
+[![C++ CI](https://github.com/mikeryanmay/Diversinet/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/mikeryanmay/Diversinet/actions/workflows/ci.yml?query=branch%3Amain)
 
-The Julia binding is owned by `Diversinet.jl`. In particular, the CxxWrap
-bridge source and Julia wrapper module now live in:
+Diversinet is a C++20 library for likelihood calculation and simulation on
+phylogenetic networks. This repository is the canonical source for the native
+library and its public C++ API.
 
-```text
-~/repos/Diversinet.jl/cpp/jlDiversinetInterface.cpp
-~/repos/Diversinet.jl/src/DiversinetInterface.jl
-```
+The related repositories have separate roles:
+
+- [Diversinet.jl](https://github.com/mikeryanmay/Diversinet.jl) provides the
+  Julia API.
+- [Diversinet_jll](https://github.com/mikeryanmay/Diversinet_jll) distributes
+  prebuilt libraries for Julia users.
+- [DiversinetJLLBuilder](https://github.com/mikeryanmay/DiversinetJLLBuilder)
+  contains the BinaryBuilder recipe.
+- [DiversinetRegistry](https://github.com/mikeryanmay/DiversinetRegistry)
+  provides prerelease Julia package discovery.
+- [DiversinetDocker](https://github.com/mikeryanmay/DiversinetDocker)
+  provides a ready-to-run Docker image containing Julia and Diversinet.
 
 ## Build Requirements
 
@@ -28,14 +37,11 @@ required dependency is unavailable.
 For a minimal library-only build, disable the optional programs and tests:
 
 ```sh
-meson setup builddir . \
-    --buildtype=release \
-    -Dprograms=false \
-    -Dtests=false
+meson setup builddir . --buildtype=release -Dprograms=false -Dtests=false
 meson compile -C builddir
 ```
 
-## Build
+## Build from source
 
 Build the core library with Meson:
 
@@ -68,35 +74,28 @@ meson setup builddir . --wipe
 meson compile -C builddir
 ```
 
-## Using From `Diversinet.jl`
+## Install the C++ library
 
-After building this C++ library, configure the Julia package with an explicit
-path to this repository:
+Choose an installation prefix when configuring Meson, then install with
+Ninja through Meson:
 
 ```sh
-cd ~/repos/Diversinet.jl
-DIVERSINET_CPP_ROOT=~/repos/Diversinet julia --project=. -e 'import Pkg; Pkg.build("Diversinet")'
+meson setup builddir . --prefix=/absolute/install/prefix --buildtype=release -Dprograms=false -Dtests=false
+meson compile -C builddir
+meson install -C builddir
 ```
 
-`Diversinet.jl` uses `DIVERSINET_CPP_ROOT` to find:
+The installation contains:
 
 ```text
-~/repos/Diversinet/builddir/src/libdiversinet.dylib
+/absolute/install/prefix/include/Diversinet/DiversinetInterface.h
+/absolute/install/prefix/lib/libdiversinet.*
+/absolute/install/prefix/lib/pkgconfig/diversinet.pc
 ```
 
-and then builds its own CxxWrap bridge dylib.
-
-Alternatively, provide an already-built core library explicitly:
-
-```sh
-cd ~/repos/Diversinet.jl
-DIVERSINET_CPP_ROOT=~/repos/Diversinet \
-DIVERSINET_CORE_LIB=/absolute/path/to/libdiversinet.dylib \
-julia --project=. -e 'import Pkg; Pkg.build("Diversinet")'
-```
-
-`DIVERSINET_CPP_ROOT` is still required so `Diversinet.jl` can find the C++
-headers.
+Julia users do not need to build or install this repository. Follow the
+[Diversinet.jl installation instructions](https://github.com/mikeryanmay/Diversinet.jl#installation)
+to obtain the prebuilt native library through `Diversinet_jll`.
 
 ## Using an Installed Diversinet Library
 
@@ -125,6 +124,13 @@ executable(
 
 If Diversinet is installed under a nonstandard prefix, add its pkg-config
 directory to `PKG_CONFIG_PATH` before configuring the consuming project.
+The complete minimal consumer is in `examples/installed_consumer`.
+
+## Optional programs
+
+Setting `-Dprograms=true` builds `calcDiversinet` and `simDiversinet`. These
+are development-oriented command-line front ends; the supported reusable
+interface is the installed C++ library.
 
 ## License
 
