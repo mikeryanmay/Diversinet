@@ -2,9 +2,9 @@
 
 [![C++ CI](https://github.com/mikeryanmay/Diversinet/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/mikeryanmay/Diversinet/actions/workflows/ci.yml?query=branch%3Amain)
 
-Diversinet is a C++20 library for likelihood calculation and simulation on
-phylogenetic networks. This repository is the canonical source for the native
-library and its public C++ API.
+Diversinet is a C++20 library for computing the probability of a phylogenetic
+network under a birth-death-reticulation model. This repository is the source
+for the native library and its public C++ API.
 
 The related repositories have separate roles:
 
